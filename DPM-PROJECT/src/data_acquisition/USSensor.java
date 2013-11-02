@@ -1,21 +1,22 @@
 package data_acquisition;
 
-import lejos.nxt.ColorSensor;
-
+import lejos.nxt.UltrasonicSensor;
 
 /**
- * Instance of a ColorSensor. Conserve both raw and filtered data retrieved from the ColorSensor.
+ * Instance of an UltrasonicSensor. Conserve both raw and filtered data
+ * retrieved from the UltrasonicSensor
+ * 
  * @author Francois
- *
+ * 
  */
-public class LightSensor {
+public class USSensor {
 
 	// class variables
-	public ColorSensor ls;
+	public UltrasonicSensor us;
 	public final int SAMPLE_SIZE; /*
-									 * determines the number of readings to be
-									 * held in rawData[] at a time
-									 */
+								 * determines the number of readings to be held
+								 * in rawData[] at a time
+								 */
 	public final int NUM_OF_DERIVATIVES; /*
 										 * the number of derivatives stored in
 										 * 'derivatives
@@ -26,36 +27,32 @@ public class LightSensor {
 									// the outliers have been removed
 
 	public int[] derivatives; /*
-								 * array that will hold NUMBER_OF_DERIVATIVES
-								 * consecutive values of discrete diff.
-								 */
+							 * array that will hold NUMBER_OF_DERIVATIVES
+							 * consecutive values of discrete diff.
+							 */
 	// index used for rawData
 	private int index;
 
 	// constructor
-	public LightSensor(ColorSensor ls, int sample_size, int num_of_derivatives) {
-		this.ls = ls;
+	public USSensor(UltrasonicSensor us, int sample_size, int num_of_derivatives) {
+		this.us = us;
 		SAMPLE_SIZE = sample_size;
 		NUM_OF_DERIVATIVES = num_of_derivatives;
-		
-		// turn ON floodlight
-		ls.setFloodlight(true);
 	}
-	
+
 	/**
-	 * read light value from the light sensor
-	 * and store into rawData
+	 * get raw data from the UltrasonicSensor and
+	 * store in rawData
 	 */
-	public void getRawData(){
+	public void getRawData() {
 		// if sample full, loop to index 0
-		if(index == SAMPLE_SIZE){
+		if (index == SAMPLE_SIZE) {
 			index = 0;
 		}
-		rawData[index] = ls.getNormalizedLightValue();
+		rawData[index] = us.getDistance();
 		index++;
 	}
-	
-	
+
 	// data look-up methods
 
 	/**

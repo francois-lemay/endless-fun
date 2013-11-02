@@ -8,12 +8,8 @@ package data_acquisition;
  */
 public class DataFilter {
 
-	// class variables
-
-
 	// constructor
 	public DataFilter() {
-
 	}
 
 	/**
