@@ -1,34 +1,25 @@
-/* Group 22
- * François Lemay  260 465 492
- * Dong Hee Kim    260 474 918
- * 
- * DESCRIPTION
- * 
- * This class counts the robots' motor rotations
- * and translates them into displacement in the
- * x-y plane. This class is being helped by
- * OdometryCorrection to help compensate for error
- * that occurs at the physical/software interface
- * of the robot.
- * 
- * The robot's position is update every ODOMETER_PERIOD ms
- * 
- * Angles increase counter clockwise.
- * A vector pointing along the positive y-axis is at 90 degrees
- * 
- * Translation of the robot's heading to "compass" heading is done in getPosition()
- */
-
-
 package official;
 
-import lejos.nxt.Motor;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.util.Timer;
 import lejos.util.TimerListener;
 
 /**
  * robot's odometer.
+ * <p>
+ * This class counts the robots' motor rotations
+ * and translates them into displacement in the
+ * x-y plane. This class is being helped by
+ * OdometryCorrection to help compensate for error
+ * that occurs at the physical/software interface
+ * of the robot.
+ * <p>
+ * The robot's position is update every ODOMETER_PERIOD ms
+ * <p>
+ * Angles increase counter clockwise.
+ * A vector pointing along the positive y-axis is at 90 degrees
+ * <p>
+ * Translation of the robot's heading to "compass" heading is done in getPosition()
  * @author Francois
  *
  */
@@ -89,8 +80,8 @@ public class Odometer implements TimerListener {
 		y = 0.0;
 		theta = 90.0; // initial theta in degrees
 		
-		lastTachoLeft = Motor.A.getTachoCount();
-		lastTachoRight = Motor.B.getTachoCount();
+		lastTachoLeft = leftMotor.getTachoCount();
+		lastTachoRight = rightMotor.getTachoCount();
 		
 		this.leftRadius = 2.2;
 		this.rightRadius = 2.2;
@@ -122,8 +113,8 @@ public class Odometer implements TimerListener {
 		while (true) {
 			
 			// read left and right TachoCounts
-			tachoLeft = Motor.A.getTachoCount();
-			tachoRight = Motor.B.getTachoCount();
+			tachoLeft = leftMotor.getTachoCount();
+			tachoRight = rightMotor.getTachoCount();
 			
 			// calculate change in rotation of both wheels (in degrees)
 			thetaLeft = tachoLeft - lastTachoLeft;
