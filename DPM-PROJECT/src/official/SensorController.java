@@ -48,15 +48,18 @@ public class SensorController implements TimerListener {
 	 */
 	public void timedOut() {
 
+		// collect raw data from all sensors
 		collectRawData(ls, us);
+		
+		// apply median filter to all sensors
 		applyMedianFilter(ls, us);
 
 		// apply derivative filter to back sensor and us sensor only
 		applyDerivativeFilter(new LightPoller[] { ls[0] }, us);
 
-		// call OdometryCorrection if back sensor detected a line
+		// run OdometryCorrection if back sensor detected a line
 		if (ls[0].searchForSmallerDerivative(GRIDLINE_THRESH)) {
-			odoCorr.correctPosition();
+			odoCorr.start();
 		}
 
 	}

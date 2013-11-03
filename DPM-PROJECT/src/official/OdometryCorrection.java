@@ -7,7 +7,7 @@ package official;
  * @author Francois
  * 
  */
-public class OdometryCorrection {
+public class OdometryCorrection extends Thread {
 
 	// class variables
 	
@@ -62,6 +62,14 @@ public class OdometryCorrection {
 			y_lines[i] = y_lines[i-1] + SQUARE_LENGTH;
 		}
 		
+	}
+	
+	/**
+	 * main thread
+	 */
+	public void run(){
+		
+		correctPosition();
 	}
 
 	/**
