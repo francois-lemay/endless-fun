@@ -9,7 +9,7 @@
  *  
  */
 
-package main;
+package from_Labs_Francois;
 
 import lejos.nxt.*;
 import lejos.nxt.comm.RConsole;

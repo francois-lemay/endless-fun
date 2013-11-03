@@ -17,7 +17,7 @@
  * 
  */
 
-package main;
+package from_Labs_Francois;
 
 import lejos.util.Timer;
 import lejos.util.TimerListener;

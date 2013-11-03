@@ -17,7 +17,7 @@
  * 
  */
 
-package main;
+package from_Labs_Francois;
 
 import lejos.nxt.ColorSensor;
 import lejos.nxt.ColorSensor.Color;

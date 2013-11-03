@@ -9,7 +9,7 @@
  * 
  */
 
-package main;
+package from_Labs_Francois;
 
 public class USLocalizer {
 	public enum LocalizationType { FALLING_EDGE, RISING_EDGE };

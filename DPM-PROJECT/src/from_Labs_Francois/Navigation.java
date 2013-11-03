@@ -18,7 +18,7 @@
  * 
  * Movement control class (turnTo, travelTo, flt, localize)
  */
-package main;
+package from_Labs_Francois;
 
 import lejos.nxt.NXTRegulatedMotor;
 

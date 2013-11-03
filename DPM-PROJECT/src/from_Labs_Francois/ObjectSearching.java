@@ -17,7 +17,7 @@
 
 
 
-package main;
+package from_Labs_Francois;
 
 import lejos.nxt.comm.RConsole;
 import lejos.util.Timer;

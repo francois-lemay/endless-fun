@@ -1,4 +1,4 @@
-package data_acquisition;
+package official;
 
 /**
  * modular data filter. can filter data using a moving-window median filter
@@ -10,6 +10,7 @@ public class DataFilter {
 
 	// constructor
 	public DataFilter() {
+		// nothing to be done
 	}
 
 	/**

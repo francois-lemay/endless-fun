@@ -1,4 +1,4 @@
-package data_acquisition;
+package official;
 
 import lejos.nxt.ColorSensor;
 
@@ -8,7 +8,7 @@ import lejos.nxt.ColorSensor;
  * @author Francois
  *
  */
-public class LightSensor {
+public class LightPoller {
 
 	// class variables
 	public ColorSensor ls;
@@ -33,7 +33,7 @@ public class LightSensor {
 	private int index;
 
 	// constructor
-	public LightSensor(ColorSensor ls, int sample_size, int num_of_derivatives) {
+	public LightPoller(ColorSensor ls, int sample_size, int num_of_derivatives) {
 		this.ls = ls;
 		SAMPLE_SIZE = sample_size;
 		NUM_OF_DERIVATIVES = num_of_derivatives;

@@ -20,7 +20,7 @@
  * 
  */
 
-package main;
+package from_Labs_Francois;
 
 import lejos.nxt.UltrasonicSensor;
 import lejos.nxt.comm.RConsole;

@@ -20,7 +20,7 @@
  */
 
 
-package main;
+package official;
 
 import lejos.nxt.Motor;
 import lejos.nxt.NXTRegulatedMotor;
@@ -245,7 +245,7 @@ public class Odometer implements TimerListener {
 	}
 	
 	/**
-	 * get NXTRegulatedMotors used by Odometer.
+	 * get NXTRegulatedMotors used by Navigation.
 	 * @return robot's left and right motors
 	 */
 	public NXTRegulatedMotor [] getMotors() {

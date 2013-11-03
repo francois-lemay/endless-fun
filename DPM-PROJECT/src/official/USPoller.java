@@ -1,4 +1,4 @@
-package data_acquisition;
+package official;
 
 import lejos.nxt.UltrasonicSensor;
 
@@ -9,7 +9,7 @@ import lejos.nxt.UltrasonicSensor;
  * @author Francois
  * 
  */
-public class USSensor {
+public class USPoller {
 
 	// class variables
 	public UltrasonicSensor us;
@@ -34,10 +34,12 @@ public class USSensor {
 	private int index;
 
 	// constructor
-	public USSensor(UltrasonicSensor us, int sample_size, int num_of_derivatives) {
+	public USPoller(UltrasonicSensor us, int sample_size, int num_of_derivatives) {
 		this.us = us;
 		SAMPLE_SIZE = sample_size;
 		NUM_OF_DERIVATIVES = num_of_derivatives;
+		
+		this.us.setMode(UltrasonicSensor.MODE_PING);
 	}
 
 	/**
