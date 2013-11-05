@@ -58,13 +58,13 @@ public class Main {
 		USPoller top = new USPoller(topS, TOP_SAMPLE, TOP_DIFF);
 		USPoller[] up = {bottom,top};
 
-
-		
-		// sensor controller
-		SensorController cont = new SensorController(odoCorr, lp, up, PERIOD);
-		
 		// object detector
 		ObjectDetection detector = new ObjectDetection(lp,up);
+		
+		// sensor controller
+		SensorController cont = new SensorController(odoCorr, lp, up, PERIOD, detector);
+		
+		
 		
 		// start controller
 		cont.startPolling();

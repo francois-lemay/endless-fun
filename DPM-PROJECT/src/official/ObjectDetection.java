@@ -6,19 +6,27 @@ public class ObjectDetection extends Thread{
 	private LightPoller[] lp = new LightPoller[3];
 	private USPoller[] up = new USPoller[2];
 	
+	/**
+	 * detection status booleans
+	 */
 	public static boolean newObjectDetected;
-	public boolean objectDetected;
-	public boolean sameObject;
+	public boolean objectDetected, sameObject;
 	
-	public static boolean isBlock;
-	public static boolean isIdentifying;
+	/**
+	 * identification status booleans
+	 */
+	public static boolean isBlock, isIdentifying;
 	
 	/**
 	 * booleans that confirm presence of object at specified sensors
 	 */
 	private boolean bottom, top, left, right;
 	
+	/**
+	 * strings used in LCDInfo
+	 */
 	private final String[] objectType = { "Block" , "Not Block" };
+	
 	
 	// constructor
 	public ObjectDetection(LightPoller[] lp, USPoller[] up){
@@ -43,8 +51,6 @@ public class ObjectDetection extends Thread{
 		
 		// go identify object
 		
-		
-		
 	}
 	
 	/**
@@ -59,12 +65,12 @@ public class ObjectDetection extends Thread{
 	}
 	
 	/**
-	 * 
+	 * set object detection status booleans according to
+	 * which sensors have detected an object
 	 * @return
 	 */
-	private String whichSensor(LightPoller[] ls , USPoller[] up){
+	private void whichSensor(){
 		
-		return "";
 	}
 	
 	
