@@ -3,7 +3,15 @@ package official;
 public class ObjectDetection extends Thread{
 	
 	// class variables
+	
+	/**
+	 * array of all light pollers
+	 */
 	private LightPoller[] lp = new LightPoller[3];
+	
+	/**
+	 * array of us pollers
+	 */
 	private USPoller[] up = new USPoller[2];
 	
 	/**
@@ -50,6 +58,10 @@ public class ObjectDetection extends Thread{
 		// if yes, whichSensor()
 		
 		// go identify object
+		
+		// if block, do BlockPickUp
+		
+		// otherwise, do ObstacleAvoidance
 		
 	}
 	
