@@ -1,5 +1,10 @@
 package official;
 
+/**
+ * detection of objects in robot's surroundings
+ * @author Francois
+ *
+ */
 public class ObjectDetection extends Thread{
 	
 	// class variables

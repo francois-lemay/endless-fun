@@ -1,5 +1,10 @@
 package official;
 
+/**
+ * avoid obstacles while remain on travel course
+ * @author Francois
+ *
+ */
 public class ObstacleAvoidance {
 	
 	// class variables

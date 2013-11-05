@@ -2,6 +2,11 @@ package official;
 
 import lejos.nxt.NXTRegulatedMotor;
 
+/**
+ * basic controls to pick up blocks
+ * @author Francois
+ *
+ */
 public class BlockPickUp {
 	
 	// class variables
