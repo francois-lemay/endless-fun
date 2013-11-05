@@ -8,7 +8,7 @@ import lejos.util.TimerListener;
  * OdometryCorrection. Manages polling and filtering of data collected from
  * these sensors.
  * 
- * @author Francois
+ * @author Francois Lemay
  * 
  */
 public class SensorController implements TimerListener {
@@ -17,8 +17,8 @@ public class SensorController implements TimerListener {
 	private Timer timer;
 	private final int PERIOD;
 
-	private LightPoller[] ls = new LightPoller[3];
-	private USPoller[] us = new USPoller[1];
+	private LightPoller[] lp = new LightPoller[3];
+	private USPoller[] up = new USPoller[2];
 	private DataFilter filter;
 
 	private OdometryCorrection odoCorr;
@@ -30,13 +30,17 @@ public class SensorController implements TimerListener {
 
 	// constructor
 	public SensorController(OdometryCorrection odoCorr,
-			LightPoller back, USPoller left, LightPoller right, int period) {
+			LightPoller[] lp, USPoller[] up, int period) {
 		
 		this.odoCorr = odoCorr;
 
-		ls[0] = back;
-		ls[1] = right;
-		us[0] = left;
+		this.lp[0] = lp[0]; // bottom
+		this.lp[1] = lp[1]; // left
+		this.lp[2] = lp[2]; // right
+		
+		this.up[0] = up[0]; // bottom
+		this.up[1] = up[1]; // top
+		
 		PERIOD = period;
 
 		// set up timer
@@ -49,16 +53,16 @@ public class SensorController implements TimerListener {
 	public void timedOut() {
 
 		// collect raw data from all sensors
-		collectRawData(ls, us);
+		collectRawData(lp, up);
 		
 		// apply median filter to all sensors
-		applyMedianFilter(ls, us);
+		applyMedianFilter(lp, up);
 
 		// apply derivative filter to back sensor and us sensor only
-		applyDerivativeFilter(new LightPoller[] { ls[0] }, us);
+		applyDerivativeFilter(new LightPoller[] { lp[0] }, up);
 
 		// run OdometryCorrection if back sensor detected a line
-		if (ls[0].searchForSmallerDerivative(GRIDLINE_THRESH)) {
+		if (lp[0].searchForSmallerDerivative(GRIDLINE_THRESH)) {
 			odoCorr.start();
 		}
 
