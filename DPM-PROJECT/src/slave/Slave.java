@@ -1,23 +1,38 @@
 package slave;
 
 import lejos.nxt.Button;
+import lejos.nxt.LCD;
 import lejos.nxt.comm.RS485;
+import master.NXTComm;
 
 public class Slave {
 
 	// class variables
-	static String name = "Slave";
 	
 	
 	public static void main(String[] args){
 		
 		// set slave brick's friendly name
-		RS485.setName(name);
+		RS485.setName("Slave");
 		
 		// connect with master brick
-		NXTComm.connect("foo", false);			
+		NXTComm.connect("It doesnt matter what name goes here", false);			
+		
+		// read from DIS
+		while(true){
+			int n = NXTComm.read();
+			if(n==9){
+				LCD.clear();
+				LCD.drawString("Succesful transfer", 0, 7);
+				Button.waitForAnyPress();
+				break;
+			}
+		}
+		
+		// do whatever needs to be done
+		
+		
 		
 		Button.waitForAnyPress();
 	}
-	
 }

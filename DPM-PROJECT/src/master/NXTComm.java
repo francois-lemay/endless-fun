@@ -30,7 +30,9 @@ public class NXTComm {
 	 * @param name - remote NXT's friendly name
 	 * @param isMaster - boolean identifying if the NXT is the initiator(master) or receiver(slave)
 	 */
-	public static void connect(String name, boolean isInitiator) {
+	public static void connect(String receiver, boolean isInitiator) {
+		
+		LCD.drawString("Connecting...", 0, 0);
 
 		/*
 		 * set up connection to other NXT brick via a RS485 connection.
@@ -39,7 +41,7 @@ public class NXTComm {
 		 * will wait for the connection to be instantiated
 		 */
 		if (isInitiator) {
-			connection = RS485.getConnector().connect(name,
+			connection = RS485.getConnector().connect(receiver,
 					NXTConnection.PACKET);
 		} else {
 			connection = RS485.getConnector().waitForConnection(0,
@@ -48,8 +50,7 @@ public class NXTComm {
 
 		// check for connection error
 		if (connection == null) {
-			LCD.clear();
-			LCD.drawString("No such device", 0, 0);
+			LCD.drawString("No such device", 0, 1);
 			Button.waitForAnyPress();
 			System.exit(1);
 		}
@@ -57,21 +58,24 @@ public class NXTComm {
 		// get data i/o streams and open them
 		dis = connection.openDataInputStream();
 		dos = connection.openDataOutputStream();
+		
+		LCD.clear();
 	}
 
+	
 	/**
-	 * terminate communication with the remote NXT
+	 * write onto output stream
+	 * @param data - integer to be written
 	 */
-	public static void disconnect() {
-		// close data streams and connection
-		try {
-			LCD.drawString("Closing... ", 0, 0);
-			dis.close();
-			dos.close();
-			connection.close();
+	public static void write(int data){
+		try{
 			LCD.clear();
-		} catch (IOException ioe) {
-			LCD.drawString("Close Exception", 0, 0);
+			LCD.drawString("Writing...", 0, 2);
+			dos.writeInt(data);
+			dos.flush();
+		}
+		catch(IOException ioe){
+			LCD.drawString("Write Exception", 0, 3);
 		}
 	}
 	
@@ -84,28 +88,29 @@ public class NXTComm {
 		int data = 0;
 		
 		try{
-			LCD.drawString("Reading...", 0, 0);
-			data = dis.readInt();
 			LCD.clear();
+			LCD.drawString("Reading...", 0, 3);
+			data = dis.readInt();
 		}
 		catch(IOException ioe){
-	        LCD.drawString("Read Exception ", 0, 0);
+	        LCD.drawString("Read Exception ", 0, 4);
 		}
 		return data;
 	}
-	
+
 	/**
-	 * write onto output stream
-	 * @param data - integer to be written
+	 * terminate communication with the remote NXT
 	 */
-	public static void write(int data){
-		try{
-			LCD.drawString("Writing...", 0, 0);
-			dos.writeInt(data);
+	public static void disconnect() {
+		// close data streams and connection
+		try {
 			LCD.clear();
-		}
-		catch(IOException ioe){
-			LCD.drawString("Write Exception", 0, 0);
+			LCD.drawString("Closing... ", 0, 5);
+			dis.close();
+			dos.close();
+			connection.close();
+		} catch (IOException ioe) {
+			LCD.drawString("Close Exception", 0, 6);
 		}
 	}
 }
