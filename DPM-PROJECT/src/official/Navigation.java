@@ -197,8 +197,8 @@ public class Navigation {
 			// motors.
 			if (Math.abs(forwardError) <= POSITION_ERR) {
 				setDestinationReached(true);
-				leftMotor.stop();
-				rightMotor.stop();
+				leftMotor.stop(true);
+				rightMotor.stop(true);
 			} else {
 
 				setDestinationReached(false);

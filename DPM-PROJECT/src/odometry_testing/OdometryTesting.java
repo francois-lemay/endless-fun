@@ -7,6 +7,14 @@ import lejos.nxt.NXTRegulatedMotor;
 import official.Navigation;
 import official.Odometer;
 
+/**
+ * Odometry testing program.
+ * 
+ * robot assumes to begin exactly at the (0,0) location
+ * facing "north", i.e. 90 degrees
+ * @author Francois
+ *
+ */
 public class OdometryTesting {
 	
 	
@@ -39,8 +47,14 @@ public class OdometryTesting {
 			y = destinations[i][1];
 			
 			// print destination to screen
-			LCD.drawString("x = "+x,0,0);
-			LCD.drawString("y = "+y,0,0);
+			LCD.clear(5, 0, 5);
+			LCD.drawString("x = ",0,0);
+			LCD.drawInt((int)x,5,0);
+			
+			LCD.clear(5, 1, 5);
+			LCD.drawString("y = ", 0, 1);
+			LCD.drawInt((int)y, 5, 1);
+
 			
 			// travel to x,y
 			nav.travelTo(destinations[i][0], destinations[i][1]);
