@@ -61,7 +61,7 @@ public class BlockPickUp {
 	/**
 	 * max allowed height for lift
 	 */
-	public static final int MAX_HEIGHT = 2600;
+	public static final int MAX_HEIGHT = 1500;
 	
 	/**
 	 * min allowed height for lift
@@ -73,7 +73,7 @@ public class BlockPickUp {
 	 * value is in degrees of motor rotation that translate in vertical
 	 * displacement of the lift)
 	 */
-	public static final int IDLE = 2000;
+	public static final int IDLE = 1400;
 
 	/**
 	 * incremental height that corresponds to the height of one styrofoam block.
@@ -130,9 +130,9 @@ public class BlockPickUp {
 			LCD.clear();
 			LCD.drawString("changing height", 0, 5);
 			
-			int deltaH = height - (-1*lift.getTachoCount());
+			int deltaH = height - (lift.getTachoCount());
 			// raise or lower depending on relative positioning
-			lift.rotate(-deltaH, false);
+			lift.rotate(deltaH, false);
 		}
 		else{
 			Sound.beep();
@@ -180,6 +180,38 @@ public class BlockPickUp {
 	 */
 	public void closeClamp() {
 		clamp.rotateTo(-CLOSED, false);
+	}
+	
+	/**
+	 * straighten block with clamp
+	 */
+	public void straightenBlock(){
+		// if clamp is closed, open before first
+		if(!isClampOpen()){
+			openClamp();
+		}
+		
+		// repeatedly close and open clamp
+		for(int i=0;i<3;i++){
+			closeClamp();
+			openClamp();
+		}
+	}
+	
+	/**
+	 * get is clamp open boolean
+	 * @return true or false
+	 */
+	public boolean isClampOpen(){
+		boolean isOpen = false;
+		
+		if(Math.abs(clamp.getTachoCount()-OPEN) <= 10 ){
+			isOpen = true;
+		}
+		else{
+			isOpen = false;
+		}
+		return isOpen;
 	}
 
 }

@@ -58,6 +58,11 @@ public class StartHere {
 					foo2 = true;
 				}
 			}
+			
+			if(button == Button.ID_ESCAPE){
+				System.exit(0);
+			}
+			
 			Button.waitForAnyPress();
 		}
 		/*
