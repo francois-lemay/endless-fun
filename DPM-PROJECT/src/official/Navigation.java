@@ -329,7 +329,7 @@ public class Navigation {
 	
 	//
 	/**
-	 * move forward by specified distance
+	 * move forward by specified distance (-ve distance corresponds to moving backwards)
 	 * @param distance
 	 */
 	public void moveForwardBy(double distance){
@@ -346,6 +346,8 @@ public class Navigation {
 				convertDistance(odometer.rightRadius, distance),
 				false);
 	}
+	
+	// helper methods
 
 	/**
 	 * convert desired traveling distance to angular wheel rotation

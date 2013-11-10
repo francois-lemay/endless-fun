@@ -5,10 +5,15 @@ import lejos.nxt.LCD;
 import lejos.nxt.comm.RS485;
 import master.NXTComm;
 
+
+/**
+ * slave brick's main class
+ * @author Francois
+ *
+ */
 public class Slave {
 
 	// class variables
-	
 	
 	public static void main(String[] args){
 		

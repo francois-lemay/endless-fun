@@ -67,6 +67,7 @@ public class USPoller {
 		if (index == SAMPLE_SIZE) {
 			index = 0;
 		}
+		us.ping();
 		setRawDataPoint(us.getDistance(), index);
 		index++;
 	}

@@ -3,6 +3,7 @@ package objectIDtesting;
 import lejos.nxt.LCD;
 import lejos.nxt.SensorPort;
 import lejos.nxt.UltrasonicSensor;
+import lejos.nxt.addon.IRSeekerV2.Mode;
 import lejos.util.Timer;
 import lejos.util.TimerListener;
 
@@ -22,14 +23,19 @@ public class Test implements TimerListener{
 		bottom = new UltrasonicSensor(SensorPort.S1);
 		top = new UltrasonicSensor(SensorPort.S2);
 		
+		bottom.setMode(UltrasonicSensor.MODE_PING);
+		top.setMode(UltrasonicSensor.MODE_PING);
+		
 		timer = new Timer(PERIOD,this);
 		timer.start();
 	}
 	
 	public void timedOut(){
-		LCD.clear();
-		int foo1 = bottom.getDistance();
-		int foo2 = top.getDistance();
+	
+		int foo1 = bottom.ping();
+		foo1 = bottom.getDistance();
+		int foo2 = top.ping();
+		foo2 = top.getDistance();
 /*		
 		if(Math.abs(foo1-foo2)<= ERROR){
 			LCD.drawString("is Block             ", 0, 4);
@@ -40,8 +46,10 @@ public class Test implements TimerListener{
 */		
 		
 		LCD.drawString("bottom ", 0, 0);
+		LCD.clear(8, 0, 5);
 		LCD.drawInt(foo1, 8, 0);
 		LCD.drawString("top ",0,1);
+		LCD.clear(8, 1, 5);
 		LCD.drawInt(foo2,8,1);
 		
 	}

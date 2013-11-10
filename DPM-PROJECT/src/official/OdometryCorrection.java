@@ -76,12 +76,26 @@ public class OdometryCorrection extends Thread {
 	 * correct robot positions through Odometer.
 	 */
 	public void correctPosition() {
-
+		
+		boolean updateX = false;
+		double[] position = new double[3];
+		
 		// get actual position and heading
+		odo.getPosition(position);
+		double x = position[0];
+		double y = position[1];
+		double heading = position[2];
 
 		// determine which line has been crossed
 
+
 		// update x or y coord. accordingly
+		
+
+		
+		
+		
+		odo.setPosition(position, new boolean[] {updateX,!updateX,false} );
 
 	}
 	
