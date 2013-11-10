@@ -53,7 +53,7 @@ public class Navigation {
 	final static double POSITION_ERR = 1.0;
 	
 	private Odometer odometer;
-	private NXTRegulatedMotor leftMotor, rightMotor,sensorMotor;
+	private NXTRegulatedMotor leftMotor, rightMotor;
 
 	private static boolean isNavigating;
 	private boolean destinationReached;
@@ -63,17 +63,12 @@ public class Navigation {
 	 * @param odo
 	 * @param sensorMotor
 	 */
-	public Navigation(Odometer odo, NXTRegulatedMotor sensorMotor) {
+	public Navigation(Odometer odo) {
 		this.odometer = odo;
 
 		NXTRegulatedMotor[] motors = this.odometer.getMotors();
 		this.leftMotor = motors[0];
 		this.rightMotor = motors[1];
-		this.sensorMotor = sensorMotor;
-		
-		// set us sensor motor's setting
-		sensorMotor.resetTachoCount();
-		sensorMotor.setSpeed(SLOW);
 
 		// set acceleration
 		this.leftMotor.setAcceleration(ACCELERATION);

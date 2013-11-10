@@ -78,7 +78,7 @@ public class Odometer implements TimerListener {
 		// initialize all position & tachometer values
 		x = 0.0;
 		y = 0.0;
-		theta = 90.0; // initial theta in degrees
+		theta = 90.0; // initial theta (in degrees)
 		
 		lastTachoLeft = leftMotor.getTachoCount();
 		lastTachoRight = rightMotor.getTachoCount();

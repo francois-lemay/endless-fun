@@ -11,7 +11,7 @@ import lejos.nxt.NXTRegulatedMotor;
  * @author Francois
  *
  */
-public class StartHere {
+public class LiftClampTesting {
 
 	public static void main(String[] args) {
 
