@@ -28,7 +28,7 @@ public class ObjectDetection extends Thread{
 	/**
 	 * identification status booleans
 	 */
-	public static boolean isBlock, isIdentifying;
+	public static boolean isBlock, isDetecting;
 	
 	/**
 	 * booleans that confirm presence of object at specified sensors
@@ -58,16 +58,21 @@ public class ObjectDetection extends Thread{
 	 */
 	public void run(){
 		
+		// set isDetecting
+		isDetecting = true;
+		
 		// is objectDetected()
 		
 		// if yes, whichSensor()
 		
-		// go identify object
+			// go identify object
 		
-		// if block, do BlockPickUp
+			// if block, do BlockPickUp
 		
-		// otherwise, do ObstacleAvoidance
+			// otherwise, do ObstacleAvoidance
 		
+		// reset isDetecting
+		isDetecting = false;
 	}
 	
 	/**

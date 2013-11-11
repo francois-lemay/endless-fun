@@ -1,6 +1,7 @@
 package master;
 
 import official.LightPoller;
+import official.NXTComm;
 import official.Odometer;
 import official.OdometryCorrection;
 import official.SensorController;
@@ -42,6 +43,13 @@ public class Master {
 		LCD.drawString("Press to write to DOS", 0, 0);
 		Button.waitForAnyPress();
 		NXTComm.write(9);
+		
+		/*
+		 * localization initialization
+		 */
+		
+		
+		
 		
 		/*
 		 * main program initialization

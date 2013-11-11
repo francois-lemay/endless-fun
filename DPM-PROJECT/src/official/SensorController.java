@@ -70,8 +70,9 @@ public class SensorController implements TimerListener {
 		}
 		
 		// run ObjectDetection
-		detector.start();
-
+		if(!ObjectDetection.isDetecting){
+			detector.start();
+		}
 	}
 
 	/**

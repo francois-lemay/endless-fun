@@ -1,4 +1,4 @@
-package master;
+package official;
 
 import java.io.*;
 import lejos.nxt.*;
