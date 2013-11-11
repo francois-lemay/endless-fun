@@ -4,39 +4,80 @@ package official;
  * Initial Localization using the Ultrasonic Sensor.
  * Data is taken from the US Poller class
  */
-public class USLocalizer {
-	public enum LocalizationType { FALLING_EDGE, RISING_EDGE };
+public class USLocalizer {	
 	
-	public static int ROTATION_SPEED = 70;
-	
-	// these values should be determined experimentally
-	private final int NO_WALL = 80; // distance considered as no wall present
-	private final int THRESHOLD = 40;
-	private final int NOISE_MARGIN = 5;
-	
-	private final int FE_TWEAK = 7; // tweaking value (in degrees) for deltaTheta (in Falling Edge)
-	private final int RE_TWEAK = 2;  // tweaking value (in degrees) for deltaTheta (in Rising Edge)
-
-	
-	// other class variables
+	// class variables
+	/**
+	 * robot's odometer
+	 */
 	private Odometer odo;
+	/**
+	 * robot's navigation class
+	 */
 	private Navigation navigator;
-	private USPoller usPoller;
+	/**
+	 * bottom-front ultrasonic sensor
+	 */
+	private USPoller us;
+	/**
+	 * type of localization to be performed
+	 */
 	private LocalizationType locType;
 	
-	// us readings filter variables
-	private final int FILTER_OUT = 10;
-	private int filterCtl;
+	/**
+	 * implemented types of localization
+	 * @author Francois
+	 *
+	 */
+	public enum LocalizationType { FALLING_EDGE, RISING_EDGE };
 	
+	// these values should be determined experimentally
+	
+	/**
+	 * robot's rotation speed used during us localization
+	 */
+	private final int ROTATION_SPEED = 70;
+	
+	/**
+	 * distance considered as 'no wall present' (centimeters)
+	 */
+	private final int NO_WALL = 80;
+	/**
+	 * distance considered as 'wall detected' (centimeters)
+	 */
+	private final int THRESHOLD = 40;
+	/**
+	 * size of noise margin
+	 */
+	private final int NOISE_MARGIN = 5;
+	/**
+	 * tweaking value (in degrees) for deltaTheta (in Falling Edge)
+	 */
+	private final int FE_TWEAK = 7;
+	/**
+	 * tweaking value (in degrees) for deltaTheta (in Rising Edge)
+	 */
+	private final int RE_TWEAK = 2;
+
+	
+	/**
+	 * constructor
+	 * @param odo - robot's odometer
+	 * @param navigator - robot's navigation class
+	 * @param usPoller - bottom-front us sensor
+	 * @param locType - type of localization to be performed
+	 */
 	public USLocalizer(Odometer odo, Navigation navigator, USPoller usPoller, LocalizationType locType) {
 		this.odo = odo;
 		this.navigator = navigator;
-		this.usPoller = usPoller;
+		this.us = usPoller;
 		this.locType = locType;
 		
-		filterCtl = 0;
 	}
 	
+	/**
+	 * perform localization
+	 */
 	public void doLocalization() {
 		double angleA = 0;
 		double angleB = 0;
@@ -185,34 +226,13 @@ public class USLocalizer {
 		}
 	}
 	
+	/**
+	 * get a median-filtered reading from the ultrasonic sensor.
+	 * @return the latest filteredData point
+	 */
 	private int getFilteredData() {
-		int distance = 0;
-		boolean badValue = true;
-		
-		// this while loop is intended for filtering of 255 values
-		while(badValue){
-			
-			// there will be a delay here
-			distance = usPoller.getfilteredDataPoint(0);
-			
-			// the following if statement filters inconsistent readings of 255
-			if (distance == 255 && filterCtl < FILTER_OUT) {  
-				// bad value, do not set the distance variable, however do increment the filter value
-				filterCtl ++;
-						
-			// the distance variable is set to 255 if the 255 value has been read FILTER_OUT times or more
-			} else if (distance == 255){
-				// true 255, therefore set distance to 255 and exit while loop
-				badValue = false;
 				
-			} else {
-				// distance went below 255, therefore reset filterControl and exit while loop
-				filterCtl = 0;
-				badValue = false;
-			}
-		}
-				
-		return distance;
+		return us.getLatestFilteredDataPoint();
 	}
 
 }

@@ -55,6 +55,8 @@ public class Master {
 		 * main program initialization
 		 */
 		
+		
+		
 		// polling frequency for SensorController 
 		int PERIOD = 50;
 		
@@ -79,7 +81,6 @@ public class Master {
 		LightPoller back = new LightPoller(backS, BACK_SAMPLE, BACK_DIFF);
 		LightPoller[] lp = {back};
 
-		
 		
 		// sensor controller
 		//SensorController cont = new SensorController(odoCorr, lp, null, PERIOD, detector);

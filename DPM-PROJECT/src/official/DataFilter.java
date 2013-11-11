@@ -19,7 +19,7 @@ public class DataFilter {
 	 *            - data sample
 	 * @return filtered data
 	 */
-	public int[] medianFilter(int[] data) {
+	public static int[] medianFilter(int[] data) {
 		int[] filteredData = new int[data.length];
 
 		// calculate median of the readings
@@ -45,7 +45,7 @@ public class DataFilter {
 	 * @param data - data sample
 	 * @return filtered data
 	 */
-	public int[] derivativeFilter(int[] data) {
+	public static int[] derivativeFilter(int[] data) {
 		
 		int[] derivatives = new int[data.length - 1];
 
@@ -67,7 +67,7 @@ public class DataFilter {
 	 * @param data - data sample for which median will be calculated
 	 * @return median
 	 */
-	private int calculateMedian(int[] data) {
+	public static int calculateMedian(int[] data) {
 		
 		int median = 0;
 

@@ -19,7 +19,6 @@ public class SensorController implements TimerListener {
 
 	private LightPoller[] lp = new LightPoller[3];
 	private USPoller[] up = new USPoller[2];
-	private DataFilter filter;
 
 	private OdometryCorrection odoCorr;
 	private ObjectDetection detector;
@@ -30,20 +29,20 @@ public class SensorController implements TimerListener {
 	private final int GRIDLINE_THRESH = -100;
 
 	// constructor
-	public SensorController(OdometryCorrection odoCorr,
-			LightPoller[] lp, USPoller[] up, int period, ObjectDetection detector) {
-		
+	public SensorController(OdometryCorrection odoCorr, LightPoller[] lp,
+			USPoller[] up, int period, ObjectDetection detector) {
+
 		this.odoCorr = odoCorr;
 
 		this.lp[0] = lp[0]; // bottom
 		this.lp[1] = lp[1]; // left
 		this.lp[2] = lp[2]; // right
-		
+
 		this.up[0] = up[0]; // bottom
 		this.up[1] = up[1]; // top
-		
+
 		PERIOD = period;
-		
+
 		this.detector = detector;
 
 		// set up timer
@@ -57,7 +56,7 @@ public class SensorController implements TimerListener {
 
 		// collect raw data from all sensors
 		collectRawData(lp, up);
-		
+
 		// apply median filter to all sensors
 		applyMedianFilter(lp, up);
 
@@ -68,9 +67,9 @@ public class SensorController implements TimerListener {
 		if (lp[0].searchForSmallerDerivative(GRIDLINE_THRESH)) {
 			odoCorr.start();
 		}
-		
+
 		// run ObjectDetection
-		if(!ObjectDetection.isDetecting){
+		if (!ObjectDetection.isDetecting) {
 			detector.start();
 		}
 	}
@@ -96,16 +95,20 @@ public class SensorController implements TimerListener {
 	 * pass every sensor's raw data through median filter
 	 * 
 	 * @param ls
-	 *            - array of LightSensor
+	 *            - light sensors
+	 * @param us
+	 *            - us sensors
 	 */
 	private void applyMedianFilter(LightPoller[] ls, USPoller[] us) {
 
 		for (int i = 0; i < ls.length; i++) {
-			ls[i].updateFilteredDataArray(filter.medianFilter(ls[i].getRawDataArray()));
+			ls[i].updateFilteredDataArray(DataFilter.medianFilter(ls[i]
+					.getRawDataArray()));
 		}
 
 		for (int i = 0; i < us.length; i++) {
-			us[i].updateFilteredDataArray(filter.medianFilter(us[i].getRawDataArray()));
+			us[i].updateFilteredDataArray(DataFilter.medianFilter(us[i]
+					.getRawDataArray()));
 		}
 	}
 
@@ -114,15 +117,19 @@ public class SensorController implements TimerListener {
 	 * 
 	 * @param ls
 	 *            - light sensor
+	 * @param us
+	 *            - us sensors
 	 */
 	private void applyDerivativeFilter(LightPoller[] ls, USPoller[] us) {
 
 		for (int i = 0; i < ls.length; i++) {
-			ls[i].updateDerivativesArray(filter.derivativeFilter(ls[i].getfilteredDataArray()));
+			ls[i].updateDerivativesArray(DataFilter.derivativeFilter(ls[i]
+					.getfilteredDataArray()));
 		}
 
 		for (int i = 0; i < us.length; i++) {
-			us[i].updateDerivativesArray(filter.derivativeFilter(us[i].getfilteredDataArray()));
+			us[i].updateDerivativesArray(DataFilter.derivativeFilter(us[i]
+					.getfilteredDataArray()));
 		}
 	}
 
