@@ -98,6 +98,7 @@ public class SensorController implements TimerListener {
 				odoCorr.start();
 			}
 		} catch (NullPointerException e) {
+			// display debugging message
 			LCD.clear();
 			LCD.drawString("Null pointer in", 0, 0);
 			LCD.drawString("SensorController", 0, 1);
@@ -110,6 +111,7 @@ public class SensorController implements TimerListener {
 				detector.start();
 			}
 		} catch (NullPointerException e) {
+			// display debugging message
 			LCD.clear();
 			LCD.drawString("Null pointer in", 0, 0);
 			LCD.drawString("SensorController", 0, 1);
@@ -125,12 +127,34 @@ public class SensorController implements TimerListener {
 	 */
 	private void collectRawData(LightPoller[] lp, USPoller[] up) {
 
-		for (int i = 0; i < lp.length; i++) {
-			lp[i].collectRawData();
+		// collect data from light sensors if any exist
+		try {
+			if (lp != null) {
+				for (int i = 0; i < lp.length; i++) {
+					lp[i].collectRawData();
+				}
+			}
+		} catch (NullPointerException e) {
+			// display debugging message
+			LCD.clear();
+			LCD.drawString("Null pointer in", 0, 0);
+			LCD.drawString("SensorController", 0, 1);
+			LCD.drawString("--lp", 0, 2);
 		}
-
-		for (int i = 0; i < up.length; i++) {
-			up[i].collectRawData();
+		
+		// collect data from us sensors if any exist
+		try {
+			if (lp != null) {
+				for (int i = 0; i < up.length; i++) {
+					up[i].collectRawData();
+				}
+			}
+		} catch (NullPointerException e) {
+			// display debugging message
+			LCD.clear();
+			LCD.drawString("Null pointer in", 0, 0);
+			LCD.drawString("SensorController", 0, 1);
+			LCD.drawString("--up", 0, 2);
 		}
 	}
 
@@ -144,14 +168,36 @@ public class SensorController implements TimerListener {
 	 */
 	private void applyMedianFilter(LightPoller[] lp, USPoller[] up) {
 
-		for (int i = 0; i < lp.length; i++) {
-			lp[i].updateFilteredDataArray(DataFilter.medianFilter(lp[i]
-					.getRawDataArray()));
+		// filter data from light sensors if any exist
+		try {
+			if (lp != null) {
+				for (int i = 0; i < lp.length; i++) {
+					lp[i].updateFilteredDataArray(DataFilter.medianFilter(lp[i]
+							.getRawDataArray()));
+				}
+			}
+		} catch (NullPointerException e) {
+			// display debugging message
+			LCD.clear();
+			LCD.drawString("Null pointer in", 0, 0);
+			LCD.drawString("SensorController", 0, 1);
+			LCD.drawString("lp mFilter", 0, 2);
 		}
 
-		for (int i = 0; i < up.length; i++) {
-			up[i].updateFilteredDataArray(DataFilter.medianFilter(up[i]
-					.getRawDataArray()));
+		// filter data from us sensors if any exist
+		try {
+			if (up != null) {
+				for (int i = 0; i < up.length; i++) {
+					up[i].updateFilteredDataArray(DataFilter.medianFilter(up[i]
+							.getRawDataArray()));
+				}
+			}
+		} catch (NullPointerException e) {
+			// display debugging message
+			LCD.clear();
+			LCD.drawString("Null pointer in", 0, 0);
+			LCD.drawString("SensorController", 0, 1);
+			LCD.drawString("up mFilter", 0, 2);
 		}
 	}
 
@@ -164,16 +210,39 @@ public class SensorController implements TimerListener {
 	 *            - us sensors
 	 */
 	private void applyDerivativeFilter(LightPoller[] lp, USPoller[] up) {
-
-		for (int i = 0; i < lp.length; i++) {
-			lp[i].updateDerivativesArray(DataFilter.derivativeFilter(lp[i]
-					.getfilteredDataArray()));
+		
+		// filter data from light sensors if any exist
+		try {
+			if (lp != null) {
+				for (int i = 0; i < lp.length; i++) {
+					lp[i].updateDerivativesArray(DataFilter.derivativeFilter(lp[i]
+							.getfilteredDataArray()));
+				}
+			}
+		} catch (NullPointerException e) {
+			// display debugging message
+			LCD.clear();
+			LCD.drawString("Null pointer in", 0, 0);
+			LCD.drawString("SensorController", 0, 1);
+			LCD.drawString("lp dFilter", 0, 2);
 		}
 
-		for (int i = 0; i < up.length; i++) {
-			up[i].updateDerivativesArray(DataFilter.derivativeFilter(up[i]
-					.getfilteredDataArray()));
+		// filter data from us sensors if any exist
+		try {
+			if (up != null) {
+				for (int i = 0; i < up.length; i++) {
+					up[i].updateDerivativesArray(DataFilter.derivativeFilter(up[i]
+							.getfilteredDataArray()));
+				}
+			}
+		} catch (NullPointerException e) {
+			// display debugging message
+			LCD.clear();
+			LCD.drawString("Null pointer in", 0, 0);
+			LCD.drawString("SensorController", 0, 1);
+			LCD.drawString("up dFilter", 0, 2);
 		}
+
 	}
 
 	// helper methods

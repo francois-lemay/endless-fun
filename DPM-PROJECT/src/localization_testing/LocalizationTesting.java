@@ -8,7 +8,6 @@ import lejos.nxt.UltrasonicSensor;
 import official.LightPoller;
 import official.Navigation;
 import official.Odometer;
-import official.OdometryCorrection;
 import official.SensorController;
 import official.USLocalizer;
 import official.USPoller;

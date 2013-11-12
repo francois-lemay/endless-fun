@@ -26,11 +26,11 @@ public class USLocalizer {
 	
 	/**
 	 * implemented types of localization
-	 * @author Francois
 	 *
 	 */
 	public enum LocalizationType { FALLING_EDGE, RISING_EDGE };
 	
+	// ****************************************************************************
 	// these values should be determined experimentally
 	
 	/**
@@ -53,11 +53,13 @@ public class USLocalizer {
 	/**
 	 * tweaking value (in degrees) for deltaTheta (in Falling Edge)
 	 */
-	private final int FE_TWEAK = 7;
+	private final int FE_TWEAK = 0;
 	/**
 	 * tweaking value (in degrees) for deltaTheta (in Rising Edge)
 	 */
-	private final int RE_TWEAK = 2;
+	private final int RE_TWEAK = 0;
+	
+	// ******************************************************************************
 
 	
 	/**
