@@ -35,28 +35,27 @@ public class USLocalizer {
 	/**
 	 * robot's rotation speed used during us localization
 	 */
-	private final int ROTATION_SPEED = 70;
-	
+	private final int ROTATION_SPEED = Constants.ROTATION_SPEED;
 	/**
 	 * distance considered as 'no wall present' (centimeters)
 	 */
-	private final int NO_WALL = 80;
+	private final int NO_WALL = Constants.NO_WALL;
 	/**
 	 * distance considered as 'wall detected' (centimeters)
 	 */
-	private final int THRESHOLD = 40;
+	private final int WALL = Constants.WALL;
 	/**
 	 * size of noise margin
 	 */
-	private final int NOISE_MARGIN = 5;
+	private final int NOISE_MARGIN = Constants.NOISE_MARGIN;
 	/**
 	 * tweaking value (in degrees) for deltaTheta (in Falling Edge)
 	 */
-	private final int FE_TWEAK = 0;
+	private final int FE_TWEAK = Constants.FE_TWEAK;
 	/**
 	 * tweaking value (in degrees) for deltaTheta (in Rising Edge)
 	 */
-	private final int RE_TWEAK = 0;
+	private final int RE_TWEAK = Constants.RE_TWEAK;
 	
 	// ******************************************************************************
 
@@ -101,11 +100,11 @@ public class USLocalizer {
 			// keep rotating until the robot sees a wall, then latch the angle
 			while (noWall) {
 				// enter noise margin
-				if (getFilteredData() <= THRESHOLD + NOISE_MARGIN) {
+				if (getFilteredData() <= WALL + NOISE_MARGIN) {
 					
 					//wait until go below noise margin
 					while (noWall) {
-						if (getFilteredData() <= THRESHOLD - NOISE_MARGIN) {
+						if (getFilteredData() <= WALL - NOISE_MARGIN) {
 							angleA = odo.getAng();
 							noWall = false; // exit both loops
 						}
@@ -129,11 +128,11 @@ public class USLocalizer {
 			noWall = true;
 			while (noWall) {
 				// enter noise margin
-				if (getFilteredData() <= THRESHOLD + NOISE_MARGIN) {
+				if (getFilteredData() <= WALL + NOISE_MARGIN) {
 					
 					//wait until go below noise margin
 					while (noWall) {
-						if (getFilteredData() <= THRESHOLD - NOISE_MARGIN) {
+						if (getFilteredData() <= WALL - NOISE_MARGIN) {
 							angleB = odo.getAng();
 							noWall = false; // exit both loops
 						}
@@ -182,11 +181,11 @@ public class USLocalizer {
 			// keep rotating until the robot sees a wall, then latch the angle
 			while (noWall) {
 				// enter noise margin
-				if (getFilteredData() <= THRESHOLD + NOISE_MARGIN) {
+				if (getFilteredData() <= WALL + NOISE_MARGIN) {
 					
 					//wait until go below noise margin
 					while (noWall) {
-						if (getFilteredData() <= THRESHOLD - NOISE_MARGIN) {
+						if (getFilteredData() <= WALL - NOISE_MARGIN) {
 							angleA = odo.getAng();
 							noWall = false; // exit both loops
 						}
@@ -198,11 +197,11 @@ public class USLocalizer {
 			// keep rotating until the robot detects a rising edge
 			while (noWall) {
 				// enter noise margin
-				if (getFilteredData() >= THRESHOLD - NOISE_MARGIN) {
+				if (getFilteredData() >= WALL - NOISE_MARGIN) {
 					
 					//wait until goes above noise margin
 					while (noWall) {
-						if (getFilteredData() >= THRESHOLD + NOISE_MARGIN) {
+						if (getFilteredData() >= WALL + NOISE_MARGIN) {
 							angleB = odo.getAng();
 							noWall = false; // exit both loops
 						}

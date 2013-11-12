@@ -41,19 +41,22 @@ public class Odometer implements TimerListener {
 	private int lastTachoLeft, lastTachoRight;
 	
 	/**
-	 * wheel radii
+	 * left wheel radius
 	 */
-	public double leftRadius, rightRadius;
-	
+	public double leftRadius = Constants.leftRadius;
+	/**
+	 * right wheel radius;
+	 */
+	public double rightRadius = Constants.rightRadius;
 	/**
 	 * wheelbase width
 	 */
-	public double width;
+	public double width = Constants.width;
 
 	/**
 	 * odometer's update period (in miliseconds)
 	 */
-	private final int ODOMETER_PERIOD = 25;
+	private final int ODOMETER_PERIOD = Constants.ODOMETER_PERIOD;
 
 	/**
 	 * lock object for mutual exclusion

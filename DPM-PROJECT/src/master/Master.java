@@ -5,16 +5,19 @@ import official.*;
 import lejos.nxt.Button;
 import lejos.nxt.ColorSensor;
 import lejos.nxt.LCD;
-import lejos.nxt.MotorPort;
 import lejos.nxt.NXTRegulatedMotor;
-import lejos.nxt.SensorPort;
+import lejos.nxt.Sound;
 import lejos.nxt.UltrasonicSensor;
 import lejos.nxt.comm.RS485;
 
 /**
  * master brick's main class
+ * @author François Lemay
  */
 public class Master {
+	
+	// class variables
+	public static int blocks = 0;
 
 	/**
 	 * main program thread
@@ -78,6 +81,8 @@ public class Master {
 
 		// object detection
 		ObjectDetection detector = new ObjectDetection(lp, up);
+		
+		// obstacle avoidance
 
 		// sensor controller
 		SensorController cont = new SensorController(odoCorr, lp, null,
@@ -106,22 +111,39 @@ public class Master {
 
 		// do light localization
 		lightLoc.doLocalization();
+		
+		/*
+		 * TOWER BUILDING
+		 */
+		TowerBuilding builder = new TowerBuilding(nav);
+		
+		/*
+		 * 
+		 */
 
 		
 		/*
 		 * main program loop
 		 */
 		
+		// find one block
+		while(blocks<1){
+			
+			// insert code
+			
+		}
+		// go deposit block(s) to construction zone
+		builder.deliverTower();
 		
 
 		/*
-		 * end communication with Slave
+		 * end communication with Slave.
+		 * &
+		 * end program
 		 */
-
-		LCD.drawString("Press to disconnect", 0, 0);
-		Button.waitForAnyPress();
+		Sound.beepSequence();
 		NXTComm.disconnect();
-
+		System.exit(0);
 	}
 
 	/**

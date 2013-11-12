@@ -1,14 +1,13 @@
 package official;
 
 import lejos.nxt.MotorPort;
-import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.SensorPort;
 import bluetooth.PlayerRole;
 import bluetooth.StartCorner;
 
 /**
  * class of constants used throughout program
- * @author Francois
+ * @author François Lemay
  *
  */
 public class Constants {
@@ -33,8 +32,26 @@ public class Constants {
 	 */
 	public static int[] redZone;
 	
-	// robot's physicial parameters
 	
+	/*
+	 * ROBOT PHYSICAL PARAMETERS
+	 */
+	/**
+	 * left wheel radius (centimeters)
+	 */
+	public static final double leftRadius = 2.15;
+	/**
+	 * right wheel radius (centimeters)
+	 */
+	public static final double rightRadius = 2.15;
+	/**
+	 * wheelbase width (centimeters)
+	 */
+	public static final double width = 20.4;
+	/**
+	 * odometer's update period (in miliseconds)
+	 */
+	public static final int ODOMETER_PERIOD = 25;
 	/**
 	 * left motor port
 	 */
@@ -62,8 +79,6 @@ public class Constants {
 	 */
 	public static final double BACK_SENSOR_DIST = 10;
 	
-	
-
 	
 	// SensorController polling periods
 	/**
@@ -123,15 +138,46 @@ public class Constants {
 	public static final int BACK_DIFF = 6;
 	
 	/*
-	 * threshold reading values 
+	 * LOCALIZATION PARAMETERS
 	 */
+	
+	/**
+	 * clocking position (x,y)
+	 */
+	public static final double [] clockingPos = {-6,0};
 	/**
 	 * threshold derivative value used for gridline detection
 	 */
 	public static final int GRIDLINE_THRES = -50;
+	/**
+	 * robot's rotation speed used during us localization
+	 */
+	public static final int ROTATION_SPEED = 70;
+	/**
+	 * distance considered as 'no wall present' (centimeters)
+	 */
+	public static final int NO_WALL = 80;
+	/**
+	 * distance considered as 'wall detected' (centimeters)
+	 */
+	public static final int WALL = 40;
+	/**
+	 * size of noise margin
+	 */
+	public static final int NOISE_MARGIN = 5;
+	/**
+	 * tweaking value (in degrees) for deltaTheta (in Falling Edge)
+	 */
+	public static final int FE_TWEAK = 0;
+	/**
+	 * tweaking value (in degrees) for deltaTheta (in Rising Edge)
+	 */
+	public static final int RE_TWEAK = 0;
 	
 	
-	// playing zone parameters
+	/*
+	 * PLAYING ZONE PARAMETERS
+	 */
 	
 	/**
 	 * grid width (i.e. the number of squares along x-axis)
@@ -147,14 +193,6 @@ public class Constants {
 	 * length of one square (in centimeters)
 	 */
 	public static final int SQUARE_LENGTH = 30;
-	
-	
-	// light localization parameters
-	
-	/**
-	 * clocking position (x,y)
-	 */
-	public static final double [] clockingPos = {-6,0};
 	
 	
 	
