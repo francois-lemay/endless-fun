@@ -24,12 +24,12 @@ public class OdometryCorrection extends Thread {
 	/**
 	 * grid width (i.e. the number of squares along x-axis)
 	 */
-	int grid_width = 12;
+	int grid_width = Constants.GRID_WIDTH;
 
 	/**
 	 * grid length (i.e. the number of squares along y-axis)
 	 */
-	int grid_length = 12;
+	int grid_length = Constants.GRID_LENGTH;
 
 	/**
 	 * x-position of all vertical grid lines
@@ -44,18 +44,18 @@ public class OdometryCorrection extends Thread {
 	/**
 	 * length of one square (in centimeters)
 	 */
-	private final int SQUARE_LENGTH = 30;
+	private final int SQUARE_LENGTH = Constants.SQUARE_LENGTH;
 
 	/**
 	 * threshold derivative value used for gridline detection
 	 */
-	public static final int GRIDLINE_THRESH = -100;
+	public final int GRIDLINE_THRESH = Constants.GRIDLINE_THRES;
 
 	/**
 	 * distance between back light sensor and center of wheel base (in
 	 * centimeters)
 	 */
-	private final double DIST = 10;
+	private final double DIST = Constants.BACK_SENSOR_DIST;
 
 	/**
 	 * constructor

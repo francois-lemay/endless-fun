@@ -26,7 +26,6 @@ public class USLocalizer {
 	
 	/**
 	 * implemented types of localization
-	 *
 	 */
 	public enum LocalizationType { FALLING_EDGE, RISING_EDGE };
 	

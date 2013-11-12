@@ -5,6 +5,7 @@ import lejos.nxt.MotorPort;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.SensorPort;
 import lejos.nxt.UltrasonicSensor;
+import official.Constants;
 import official.LightPoller;
 import official.Navigation;
 import official.Odometer;
@@ -22,17 +23,17 @@ public class LocalizationTesting {
 		/*
 		 * polling frequency for SensorController
 		 */
-		int PERIOD = 20;
+		int PERIOD = Constants.M_PERIOD;
 		
 		/*
 		 * sample sizes
 		 */
-		int BOTT_SAMPLE = 9, BACK_SAMPLE = 9;
+		int BOTT_SAMPLE = Constants.BOTT_SAMPLE, BACK_SAMPLE = Constants.BACK_SAMPLE;
 		
 		/*
 		 * derivative sample sizes
 		 */
-		int  BOTT_DIFF = 8, BACK_DIFF = 8;
+		int  BOTT_DIFF = Constants.BOTT_DIFF, BACK_DIFF = Constants.BACK_DIFF;
 		
 		
 		// **********************************************
