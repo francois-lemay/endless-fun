@@ -4,7 +4,7 @@ import java.io.*;
 import lejos.nxt.*;
 import lejos.nxt.comm.*;
 /**
- * Class used to facilitate communication between Master and Slave bricks
+ * class used to facilitate communication between Master and Slave bricks
  * @author Francois
  *
  */

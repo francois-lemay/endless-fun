@@ -3,7 +3,7 @@ package official;
 import lejos.nxt.UltrasonicSensor;
 
 /**
- * Instance of an UltrasonicSensor. Conserve both raw and filtered data
+ * instance of an UltrasonicSensor. Conserve both raw and filtered data
  * retrieved from the UltrasonicSensor
  * 
  * @author François

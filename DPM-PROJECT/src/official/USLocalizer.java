@@ -1,7 +1,7 @@
 package official;
 
 /** 
- * Initial Localization using the Ultrasonic Sensor.
+ * initial Localization using the Ultrasonic Sensor.
  * Data is taken from the US Poller class
  */
 public class USLocalizer {	
