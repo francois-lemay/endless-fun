@@ -17,6 +17,9 @@ public class LocalizationTesting {
 	
 	public static void main(String[] args){
 		
+		// *********************************************
+		// DO NOT TWEAK THESE VALUES 
+
 		/*
 		 * polling frequency for SensorController
 		 */
@@ -25,12 +28,16 @@ public class LocalizationTesting {
 		/*
 		 * sample sizes
 		 */
-		int BOTT_SAMPLE = 7, BACK_SAMPLE = 7;
+		int BOTT_SAMPLE = 9, BACK_SAMPLE = 9;
 		
 		/*
 		 * derivative sample sizes
 		 */
-		int  BOTT_DIFF = 6, BACK_DIFF = 6;
+		int  BOTT_DIFF = 8, BACK_DIFF = 8;
+		
+		
+		// **********************************************
+		
 		
 		// motors
 		NXTRegulatedMotor leftMotor = new NXTRegulatedMotor(MotorPort.A);
@@ -38,7 +45,6 @@ public class LocalizationTesting {
 		
 		// odometry
 		Odometer odo = new Odometer(leftMotor,rightMotor);
-		OdometryCorrection odoCorr = new OdometryCorrection(odo);
 		
 		// navigation
 		Navigation nav = new Navigation(odo);
@@ -58,7 +64,8 @@ public class LocalizationTesting {
 		USPoller[] up = {bottom};
 		
 		// sensor controller
-		SensorController cont = new SensorController(odoCorr, lp, up, PERIOD, null);
+		// no need for OdometryCorrection and ObjectDetection
+		SensorController cont = new SensorController(null, lp, up, PERIOD, null);
 		
 		// start controller
 		cont.startPolling();

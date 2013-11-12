@@ -50,11 +50,28 @@ public class USPoller {
 	 */
 	private int index;
 
-	// constructor
+	
+	/**
+	 * constructor
+	 * @param us
+	 * @param sample_size
+	 * @param num_of_derivatives
+	 */
 	public USPoller(UltrasonicSensor us, int sample_size, int num_of_derivatives) {
+		
 		this.us = us;
-		SAMPLE_SIZE = sample_size;
-		NUM_OF_DERIVATIVES = num_of_derivatives;
+		
+		// avoid null pointer exceptions
+		if (sample_size == 0) {
+			SAMPLE_SIZE = 1;
+		} else {
+			SAMPLE_SIZE = sample_size;
+		}
+		if (num_of_derivatives == 0) {
+			NUM_OF_DERIVATIVES = 1;
+		} else {
+			NUM_OF_DERIVATIVES = num_of_derivatives;
+		}
 
 		// initialize all data arrays
 		rawData = new int[SAMPLE_SIZE];

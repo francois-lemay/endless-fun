@@ -34,7 +34,6 @@ public class Main {
 		
 		// odometry
 		Odometer odo = new Odometer(leftMotor,rightMotor);
-		OdometryCorrection odoCorr = new OdometryCorrection(odo);
 		
 		// light sensors
 		ColorSensor leftS = new ColorSensor(SensorPort.S1);
@@ -57,6 +56,9 @@ public class Main {
 		USPoller bottom = new USPoller(bottomS, BOTT_SAMPLE, BOTT_DIFF);
 		USPoller top = new USPoller(topS, TOP_SAMPLE, TOP_DIFF);
 		USPoller[] up = {bottom,top};
+
+		// odometry correction
+		OdometryCorrection odoCorr = new OdometryCorrection(odo, back);
 
 		// object detector
 		ObjectDetection detector = new ObjectDetection(lp,up);

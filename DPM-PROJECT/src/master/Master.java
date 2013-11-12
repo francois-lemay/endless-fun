@@ -72,7 +72,7 @@ public class Master {
 		
 		// set up odometry
 		Odometer odo = new Odometer(leftMotor,rightMotor);
-		OdometryCorrection odoCorr = new OdometryCorrection(odo);
+
 		
 		// back light sensor
 		ColorSensor backS = new ColorSensor(SensorPort.S1);
@@ -81,6 +81,8 @@ public class Master {
 		LightPoller back = new LightPoller(backS, BACK_SAMPLE, BACK_DIFF);
 		LightPoller[] lp = {back};
 
+		// odometry correction
+		OdometryCorrection odoCorr = new OdometryCorrection(odo,back);
 		
 		// sensor controller
 		//SensorController cont = new SensorController(odoCorr, lp, null, PERIOD, detector);
