@@ -19,11 +19,6 @@ public class BlockPickUp {
 	// class variables
 
 	/**
-	 * navigator
-	 */
-	private Navigation navigator;
-
-	/**
 	 * lift motor
 	 */
 	private NXTRegulatedMotor lift;
@@ -36,22 +31,22 @@ public class BlockPickUp {
 	/**
 	 * lift motor speed
 	 */
-	private final int LIFT_SPEED = 200;
+	private final int LIFT_SPEED = Constants.LIFT_SPEED;
 	
 	/**
 	 * clamp motor speed
 	 */
-	private final int CLAMP_SPEED = 100;
+	private final int CLAMP_SPEED = Constants.CLAMP_SPEED;
 	
 	/**
 	 * motor acceleration
 	 */
-	private final static int ACCELERATION = 2000;
+	private final static int ACCELERATION = Constants.LIFT_ACC;
 	
 	/**
 	 * maximum block capacity
 	 */
-	public static final int MAX_BLOCK = 3;
+	public static final int MAX_BLOCK = Constants.MAX_BLOCK;
 
 	/**
 	 * number of blocks being carried by robot
@@ -61,36 +56,36 @@ public class BlockPickUp {
 	/**
 	 * max allowed height for lift
 	 */
-	public static final int MAX_HEIGHT = 1500;
+	public static final int MAX_HEIGHT = Constants.MAX_HEIGHT;
 	
 	/**
 	 * min allowed height for lift
 	 */
-	public static final int MIN_HEIGHT = 0;
+	public static final int MIN_HEIGHT = Constants.MIN_HEIGHT;
 	
 	/**
 	 * height at which to keep lift while this class is not in use. (the given
 	 * value is in degrees of motor rotation that translate in vertical
 	 * displacement of the lift)
 	 */
-	public static final int IDLE = 1400;
+	public static final int IDLE = Constants.IDLE;
 
 	/**
 	 * incremental height that corresponds to the height of one styrofoam block.
 	 * (the given value is in degrees of motor rotation that translate in
 	 * vertical displacement of the lift)
 	 */
-	public static final int BLOCK_HEIGHT = 720;
+	public static final int BLOCK_HEIGHT = Constants.BLOCK_HEIGHT;
 
 	/**
 	 * limit angle of clamp motor considered as the open position
 	 */
-	public static final int OPEN = 0;
+	public static final int OPEN = Constants.OPEN_POS;
 
 	/**
 	 * limit angle of clamp motor considered as the closed position
 	 */
-	public static final int CLOSED = 100;
+	public static final int CLOSED = Constants.CLOSED_POS;
 
 	/**
 	 * constructor
@@ -100,8 +95,13 @@ public class BlockPickUp {
 		lift = motors[0];
 		clamp = motors[1];
 
+		// set speeds
 		lift.setSpeed(LIFT_SPEED);
 		clamp.setSpeed(CLAMP_SPEED);
+		
+		//set accelerations
+		lift.setAcceleration(ACCELERATION);
+		clamp.setAcceleration(ACCELERATION);
 		
 		// reset lift and clamp tacho counts
 		lift.resetTachoCount();
