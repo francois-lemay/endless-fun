@@ -34,6 +34,8 @@ public class OdometryTesting {
 		double x,y;
 		int button=99;
 		
+		Button.waitForAnyPress();
+		
 		/*
 		 * will travel at every destination in the above array.
 		 * Will stop at every destination until a button is pressed.
