@@ -2,7 +2,6 @@ package official;
 
 import lejos.nxt.ColorSensor;
 
-
 /**
  * Instance of a ColorSensor. Conserve both raw and filtered data retrieved from the ColorSensor.
  * @author François
@@ -13,23 +12,23 @@ public class LightPoller {
 	// class variables
 	
 	/**
-	 * physical implementation of the color sensor
+	 * color sensor
 	 */
-	public ColorSensor ls;
+	private ColorSensor ls;
 	
 	/**
 	 * lock object used for atomic access
 	 */
-	private Object lock = new Object();
+	private Object lock = Constants.theLock;
 	
 	/**
 	 * determines the number of readings to be held in rawData[] at a time
 	 */
-	public final int SAMPLE_SIZE;
+	private int SAMPLE_SIZE;
 	/**
 	 * the number of derivatives stored in 'derivatives
 	 */
-	public final int NUM_OF_DERIVATIVES;
+	private int NUM_OF_DERIVATIVES;
 	/**
 	 * array that will hold raw data from sensors
 	 */
@@ -55,16 +54,24 @@ public class LightPoller {
 		this.ls = ls;
 		
 		// avoid null pointer exceptions
-		if (sample_size == 0) {
+		if (sample_size <= 0) {
 			SAMPLE_SIZE = 1;
 		} else {
 			SAMPLE_SIZE = sample_size;
 		}
-		if (num_of_derivatives == 0) {
+		if (num_of_derivatives <= 0) {
 			NUM_OF_DERIVATIVES = 1;
 		} else {
 			NUM_OF_DERIVATIVES = num_of_derivatives;
 		}
+		
+		// initialize all data arrays
+		this.rawData = new int[SAMPLE_SIZE];
+		this.filteredData = new int[SAMPLE_SIZE];
+		this.derivatives = new int[NUM_OF_DERIVATIVES];
+		
+		// initialize index
+		index = 0;
 		
 		// turn ON floodlight
 		ls.setFloodlight(true);
@@ -79,7 +86,9 @@ public class LightPoller {
 		if(index == SAMPLE_SIZE){
 			index = 0;
 		}
+		ls.getNormalizedLightValue();
 		setRawDataPoint(ls.getNormalizedLightValue(),index);
+
 		index++;
 	}
 	

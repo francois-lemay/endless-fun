@@ -1,5 +1,6 @@
 package official;
 
+import lejos.nxt.Sound;
 import lejos.nxt.UltrasonicSensor;
 
 /**
@@ -13,24 +14,24 @@ public class USPoller {
 
 	// class variables
 	/**
-	 * physicially implemented US sensor
+	 * us sensor
 	 */
-	public UltrasonicSensor us;
+	private UltrasonicSensor us;
 
 	/**
 	 * lock object used for atomic access
 	 */
-	private Object lock = new Object();
+	private Object lock = Constants.theLock;
 
 	/**
 	 * determines the number of readings to be held in rawData and filteredData
 	 * at a time
 	 */
-	public final int SAMPLE_SIZE;
+	private int SAMPLE_SIZE;
 	/**
 	 * the number of derivatives stored in 'derivatives
 	 */
-	public final int NUM_OF_DERIVATIVES;
+	private int NUM_OF_DERIVATIVES;
 	/**
 	 * array that will hold raw data from sensors
 	 */
@@ -62,21 +63,24 @@ public class USPoller {
 		this.us = us;
 		
 		// avoid null pointer exceptions
-		if (sample_size == 0) {
+		if (sample_size <= 0) {
 			SAMPLE_SIZE = 1;
 		} else {
 			SAMPLE_SIZE = sample_size;
 		}
-		if (num_of_derivatives == 0) {
+		if (num_of_derivatives <= 0) {
 			NUM_OF_DERIVATIVES = 1;
 		} else {
 			NUM_OF_DERIVATIVES = num_of_derivatives;
 		}
 
 		// initialize all data arrays
-		rawData = new int[SAMPLE_SIZE];
-		filteredData = new int[SAMPLE_SIZE];
-		derivatives = new int[NUM_OF_DERIVATIVES];
+		this.rawData = new int[SAMPLE_SIZE];
+		this.filteredData = new int[SAMPLE_SIZE];
+		this.derivatives = new int[NUM_OF_DERIVATIVES];
+		
+		// initialize index
+		index = 0;
 
 		this.us.setMode(UltrasonicSensor.MODE_PING);
 	}

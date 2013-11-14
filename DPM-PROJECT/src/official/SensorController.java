@@ -1,5 +1,6 @@
 package official;
 
+import lejos.nxt.Button;
 import lejos.nxt.LCD;
 import lejos.util.Timer;
 import lejos.util.TimerListener;
@@ -50,7 +51,7 @@ public class SensorController implements TimerListener {
 	 * @param up
 	 *            - us sensors
 	 * @param period
-	 *            - polling period (miliseconds)
+	 *            - polling period (milliseconds)
 	 * @param detector
 	 *            - object detection class
 	 */
@@ -59,13 +60,54 @@ public class SensorController implements TimerListener {
 
 		this.odoCorr = odoCorr;
 
-		this.lp = lp;
-		this.up = up;
-		
-		// fill data arrays of sensors
-		for(int i=0;i<20;i++){
-			collectRawData(lp,up);
+		// copy all light pollers if applicable
+		try {
+			if (lp != null) {
+				this.lp = new LightPoller[lp.length];
+
+				for (int i = 0; i < lp.length; i++) {
+					this.lp[i] = lp[i];
+				}
+			} else {
+				this.lp = lp;
+			}
+		} catch (Exception e) {
+			// display debugging message
+			LCD.clear();
+			LCD.drawString("Null pointer in", 0, 0);
+			LCD.drawString("SensorController", 0, 1);
+			LCD.drawString("constructor", 0, 2);
+			LCD.drawString("--lp", 0, 3);
+			LCD.drawInt(lp.length,0,5);
+			Button.waitForAnyPress();
 		}
+
+		// copy all us pollers if applicable
+		try {
+			if (up != null) {
+				this.up = new USPoller[up.length];
+
+				for (int i = 0; i < up.length; i++) {
+					this.up[i] = up[i];
+				}
+			} else {
+				this.up = null;
+			}
+		} catch (NullPointerException e) {
+			// display debugging message
+			LCD.clear();
+			LCD.drawString("Null pointer in", 0, 0);
+			LCD.drawString("SensorController", 0, 1);
+			LCD.drawString("constructor", 0, 2);
+			LCD.drawString("--up", 0, 3);
+			Button.waitForAnyPress();
+		}
+
+		// fill data arrays of sensors
+		for (int i = 0; i < 20; i++) {
+			collectRawData(lp, up);
+		}
+
 		applyMedianFilter(lp, up);
 		applyDerivativeFilter(lp, up);
 
@@ -85,6 +127,7 @@ public class SensorController implements TimerListener {
 
 		// collect raw data from all sensors
 		collectRawData(lp, up);
+		
 
 		// apply median filter to all sensors
 		applyMedianFilter(lp, up);
@@ -103,6 +146,7 @@ public class SensorController implements TimerListener {
 			LCD.drawString("Null pointer in", 0, 0);
 			LCD.drawString("SensorController", 0, 1);
 			LCD.drawString("--odoCorr", 0, 2);
+			Button.waitForAnyPress();
 		}
 
 		// run ObjectDetection if the class exists
@@ -116,6 +160,7 @@ public class SensorController implements TimerListener {
 			LCD.drawString("Null pointer in", 0, 0);
 			LCD.drawString("SensorController", 0, 1);
 			LCD.drawString("--detector", 0, 2);
+			Button.waitForAnyPress();
 		}
 	}
 
@@ -134,17 +179,18 @@ public class SensorController implements TimerListener {
 					lp[i].collectRawData();
 				}
 			}
-		} catch (NullPointerException e) {
+		} catch (Exception e) {
 			// display debugging message
 			LCD.clear();
 			LCD.drawString("Null pointer in", 0, 0);
 			LCD.drawString("SensorController", 0, 1);
 			LCD.drawString("--lp", 0, 2);
+			Button.waitForAnyPress();
 		}
-		
+
 		// collect data from us sensors if any exist
 		try {
-			if (lp != null) {
+			if (up != null) {
 				for (int i = 0; i < up.length; i++) {
 					up[i].collectRawData();
 				}
@@ -155,6 +201,7 @@ public class SensorController implements TimerListener {
 			LCD.drawString("Null pointer in", 0, 0);
 			LCD.drawString("SensorController", 0, 1);
 			LCD.drawString("--up", 0, 2);
+			Button.waitForAnyPress();
 		}
 	}
 
@@ -182,6 +229,7 @@ public class SensorController implements TimerListener {
 			LCD.drawString("Null pointer in", 0, 0);
 			LCD.drawString("SensorController", 0, 1);
 			LCD.drawString("lp mFilter", 0, 2);
+			Button.waitForAnyPress();
 		}
 
 		// filter data from us sensors if any exist
@@ -198,6 +246,8 @@ public class SensorController implements TimerListener {
 			LCD.drawString("Null pointer in", 0, 0);
 			LCD.drawString("SensorController", 0, 1);
 			LCD.drawString("up mFilter", 0, 2);
+			Button.waitForAnyPress();
+
 		}
 	}
 
@@ -210,13 +260,13 @@ public class SensorController implements TimerListener {
 	 *            - us sensors
 	 */
 	private void applyDerivativeFilter(LightPoller[] lp, USPoller[] up) {
-		
+
 		// filter data from light sensors if any exist
 		try {
 			if (lp != null) {
 				for (int i = 0; i < lp.length; i++) {
-					lp[i].updateDerivativesArray(DataFilter.derivativeFilter(lp[i]
-							.getfilteredDataArray()));
+					lp[i].updateDerivativesArray(DataFilter
+							.derivativeFilter(lp[i].getfilteredDataArray()));
 				}
 			}
 		} catch (NullPointerException e) {
@@ -225,14 +275,16 @@ public class SensorController implements TimerListener {
 			LCD.drawString("Null pointer in", 0, 0);
 			LCD.drawString("SensorController", 0, 1);
 			LCD.drawString("lp dFilter", 0, 2);
+			Button.waitForAnyPress();
+
 		}
 
 		// filter data from us sensors if any exist
 		try {
 			if (up != null) {
 				for (int i = 0; i < up.length; i++) {
-					up[i].updateDerivativesArray(DataFilter.derivativeFilter(up[i]
-							.getfilteredDataArray()));
+					up[i].updateDerivativesArray(DataFilter
+							.derivativeFilter(up[i].getfilteredDataArray()));
 				}
 			}
 		} catch (NullPointerException e) {
@@ -241,6 +293,8 @@ public class SensorController implements TimerListener {
 			LCD.drawString("Null pointer in", 0, 0);
 			LCD.drawString("SensorController", 0, 1);
 			LCD.drawString("up dFilter", 0, 2);
+			Button.waitForAnyPress();
+
 		}
 
 	}

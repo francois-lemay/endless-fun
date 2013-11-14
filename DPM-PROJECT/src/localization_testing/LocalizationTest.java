@@ -5,6 +5,7 @@ import lejos.nxt.ColorSensor;
 import lejos.nxt.LCD;
 import lejos.nxt.MotorPort;
 import lejos.nxt.NXTRegulatedMotor;
+import lejos.nxt.Sound;
 import lejos.nxt.UltrasonicSensor;
 import official.Constants;
 import official.LightLocalizer;
@@ -19,26 +20,6 @@ public class LocalizationTest {
 
 	public static void main(String[] args) {
 
-		// *********************************************
-		// DO NOT TWEAK THESE VALUES
-
-		/*
-		 * polling frequency for SensorController
-		 */
-		int PERIOD = Constants.M_PERIOD;
-
-		/*
-		 * sample sizes
-		 */
-		int BOTT_SAMPLE = Constants.BOTT_SAMPLE, BACK_SAMPLE = Constants.BACK_SAMPLE;
-
-		/*
-		 * derivative sample sizes
-		 */
-		int BOTT_DIFF = Constants.BOTT_DIFF, BACK_DIFF = Constants.BACK_DIFF;
-
-		// **********************************************
-
 		// motors
 		NXTRegulatedMotor leftMotor = new NXTRegulatedMotor(MotorPort.A);
 		NXTRegulatedMotor rightMotor = new NXTRegulatedMotor(MotorPort.B);
@@ -48,25 +29,25 @@ public class LocalizationTest {
 
 		// navigation
 		Navigation nav = new Navigation(odo);
-
+		
 		// bottom us sensor
 		UltrasonicSensor bottomS = new UltrasonicSensor(
 				Constants.bottomSensorPort);
 
+		// us poller
+		USPoller bottom = new USPoller(bottomS, Constants.BOTT_SAMPLE, Constants.BOTT_DIFF);
+		USPoller[] up = { bottom };
+		
 		// back light sensor
 		ColorSensor backS = new ColorSensor(Constants.backSensorPort);
 
 		// light poller
-		LightPoller back = new LightPoller(backS, BACK_SAMPLE, BACK_DIFF);
+		LightPoller back = new LightPoller(backS, Constants.BACK_SAMPLE, Constants.BACK_DIFF);
 		LightPoller[] lp = { back };
-
-		// us poller
-		USPoller bottom = new USPoller(bottomS, BOTT_SAMPLE, BOTT_DIFF);
-		USPoller[] up = { bottom };
 
 		// sensor controller
 		// no need for OdometryCorrection and ObjectDetection
-		SensorController cont = new SensorController(null, lp, up, PERIOD, null);
+		SensorController cont = new SensorController(null, lp, up, Constants.M_PERIOD, null);
 		
 		// display menu
 		LCD.clear();
@@ -92,7 +73,7 @@ public class LocalizationTest {
 		// set up us localization
 		USLocalizer usLoc = new USLocalizer(odo, nav, bottom,
 				USLocalizer.LocalizationType.RISING_EDGE);
-
+		
 		// do us localization
 		usLoc.doLocalization();
 

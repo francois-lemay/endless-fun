@@ -12,6 +12,12 @@ import bluetooth.StartCorner;
  */
 public class Constants {
 	
+	// theLock
+	/**
+	 * 
+	 */
+	public static Object theLock = new Object();
+	
 	// constants provided prior to start of round
 	/**
 	 * starting corner

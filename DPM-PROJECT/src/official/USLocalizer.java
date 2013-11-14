@@ -92,7 +92,7 @@ public class USLocalizer {
 		double angleB = 0;
 
 		// open clamp to reduce robot's length
-		NXTComm.write(Constants.OPEN_CLAMP);
+		//NXTComm.write(Constants.OPEN_CLAMP);
 
 		if (locType == LocalizationType.FALLING_EDGE) {
 
