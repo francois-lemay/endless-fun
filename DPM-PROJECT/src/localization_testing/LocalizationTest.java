@@ -68,9 +68,6 @@ public class LocalizationTest {
 		// no need for OdometryCorrection and ObjectDetection
 		SensorController cont = new SensorController(null, lp, up, PERIOD, null);
 		
-		// LCD display
-		LCDInfo lcd = new LCDInfo(odo);
-		
 		// display menu
 		LCD.clear();
 		LCD.drawString("Choose task", 3, 0);
@@ -84,6 +81,9 @@ public class LocalizationTest {
 
 		// start controller
 		cont.startPolling();
+		
+		// LCD display
+		LCDInfo lcd = new LCDInfo(odo);
 
 		/*
 		 * US LOCALIZATION

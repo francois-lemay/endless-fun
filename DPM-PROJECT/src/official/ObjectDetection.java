@@ -159,16 +159,6 @@ public class ObjectDetection extends Thread {
 	}
 
 	/**
-	 * set object detection status booleans according to which sensors have
-	 * detected an object
-	 * 
-	 * @return
-	 */
-	private void whichSensor() {
-
-	}
-
-	/**
 	 * identify the detected object. Method of identification will vary
 	 * according to the sensor that detected the object and the position of the
 	 * object relative to the robot
