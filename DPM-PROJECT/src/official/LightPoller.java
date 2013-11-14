@@ -157,6 +157,20 @@ public class LightPoller {
 			return filteredData[index];
 		}
 	}
+	
+	/**
+	 * get the value of the last filtered data point to have been added to
+	 * filteredData. The index of this data point corresponds approximately to the value of
+	 * 'this.index'.
+	 * 
+	 * @return data point
+	 */
+	public int getLatestFilteredDataPoint() {
+		synchronized (lock) {
+			return filteredData[this.index];
+		}
+	}
+	
 	/**
 	 * atomic retrieval of filtered data array
 	 * @return array of median-filtered data

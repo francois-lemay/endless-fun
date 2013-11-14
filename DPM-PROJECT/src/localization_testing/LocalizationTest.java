@@ -15,7 +15,7 @@ import official.SensorController;
 import official.USLocalizer;
 import official.USPoller;
 
-public class LocalizationTesting {
+public class LocalizationTest {
 
 	public static void main(String[] args) {
 

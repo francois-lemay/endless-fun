@@ -74,18 +74,20 @@ public class Master {
 				Constants.BOTT_DIFF);
 		USPoller top = new USPoller(topS, Constants.TOP_SAMPLE,
 				Constants.TOP_DIFF);
-		USPoller[] up = { bottom, top };
+		USPoller[] up = new USPoller[2];
+		up[Constants.bottomUSPollerIndex] = bottom;
+		up[Constants.topUSPollerIndex] = top;
 
 		// odometry correction
 		OdometryCorrection odoCorr = new OdometryCorrection(odo, back);
 
 		// object detection
-		ObjectDetection detector = new ObjectDetection(lp, up);
+		ObjectDetection detector = new ObjectDetection(null, up, true);
 		
 		// obstacle avoidance
 
 		// sensor controller
-		SensorController cont = new SensorController(odoCorr, lp, null,
+		SensorController cont = new SensorController(odoCorr, lp, up,
 				Constants.M_PERIOD, detector);
 
 		// start controller
