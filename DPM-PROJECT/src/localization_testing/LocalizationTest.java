@@ -7,6 +7,7 @@ import lejos.nxt.MotorPort;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.Sound;
 import lejos.nxt.UltrasonicSensor;
+import lejos.nxt.comm.RConsole;
 import official.Constants;
 import official.LightLocalizer;
 import official.LightPoller;
@@ -19,6 +20,8 @@ import official.USPoller;
 public class LocalizationTest {
 
 	public static void main(String[] args) {
+		
+		RConsole.openUSB(0);
 
 		// motors
 		NXTRegulatedMotor leftMotor = new NXTRegulatedMotor(MotorPort.A);
@@ -49,6 +52,9 @@ public class LocalizationTest {
 		// no need for OdometryCorrection and ObjectDetection
 		SensorController cont = new SensorController(null, lp, up, Constants.M_PERIOD, null);
 		
+		// start controller
+		cont.startPolling();
+		
 		// display menu
 		LCD.clear();
 		LCD.drawString("Choose task", 3, 0);
@@ -59,9 +65,6 @@ public class LocalizationTest {
 		
 		Button.waitForAnyPress();
 		int button = Button.readButtons();
-
-		// start controller
-		cont.startPolling();
 		
 		// LCD display
 		LCDInfo lcd = new LCDInfo(odo);
