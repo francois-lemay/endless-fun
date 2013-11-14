@@ -195,11 +195,11 @@ public class Constants {
 	/**
 	 * distance considered as 'wall detected' (centimeters)
 	 */
-	public static final int WALL = 40;
+	public static final int WALL = 30;
 	/**
 	 * size of noise margin
 	 */
-	public static final int NOISE_MARGIN = 5;
+	public static final int NOISE_MARGIN = 0;
 	/**
 	 * tweaking value (in degrees) for deltaTheta (in Falling Edge)
 	 */
@@ -207,7 +207,7 @@ public class Constants {
 	/**
 	 * tweaking value (in degrees) for deltaTheta (in Rising Edge)
 	 */
-	public static final int RE_TWEAK = 0;
+	public static final int RE_TWEAK = 15;
 	
 	
 	/*

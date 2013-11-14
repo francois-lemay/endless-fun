@@ -21,7 +21,7 @@ public class LocalizationTest {
 
 	public static void main(String[] args) {
 		
-		RConsole.openUSB(0);
+		//RConsole.openUSB(0);
 
 		// motors
 		NXTRegulatedMotor leftMotor = new NXTRegulatedMotor(MotorPort.A);
@@ -54,7 +54,11 @@ public class LocalizationTest {
 		
 		// start controller
 		cont.startPolling();
-		
+/*		
+		for(int i=0;i<10000;i++){
+			RConsole.println(""+back.getRawData(0));
+		}
+*/				
 		// display menu
 		LCD.clear();
 		LCD.drawString("Choose task", 3, 0);
@@ -91,6 +95,8 @@ public class LocalizationTest {
 			// do light localization
 			lightLoc.doLocalization();
 		}
+		
+		//Button.waitForAnyPress();
 	}
 
 }

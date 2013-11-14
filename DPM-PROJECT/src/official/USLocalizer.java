@@ -1,5 +1,6 @@
 package official;
 
+import lejos.nxt.Button;
 import lejos.nxt.Sound;
 import lejos.nxt.comm.RConsole;
 
@@ -201,7 +202,7 @@ public class USLocalizer {
 			while (noWall) {
 				// enter noise margin
 				if (getFilteredData() <= WALL + NOISE_MARGIN) {
-
+					
 					// wait until go below noise margin
 					while (noWall) {
 						if (getFilteredData() <= WALL - NOISE_MARGIN) {
@@ -211,6 +212,8 @@ public class USLocalizer {
 					}
 				}
 			}
+			Sound.beep();
+
 			noWall = true; // set to true for the upcoming while loop
 
 			// keep rotating until the robot detects a rising edge
@@ -227,6 +230,8 @@ public class USLocalizer {
 					}
 				}
 			}
+			Sound.beep();
+
 
 			// stop robot
 			navigator.setSpeeds(0, 0);
@@ -244,7 +249,7 @@ public class USLocalizer {
 					new boolean[] { false, false, true });
 
 		}
-		
+				
 		navigator.turnTo(90);
 
 		// re-close the clamp

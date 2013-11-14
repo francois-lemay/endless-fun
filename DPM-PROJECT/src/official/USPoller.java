@@ -51,17 +51,17 @@ public class USPoller {
 	 */
 	private int index;
 
-	
 	/**
 	 * constructor
+	 * 
 	 * @param us
 	 * @param sample_size
 	 * @param num_of_derivatives
 	 */
 	public USPoller(UltrasonicSensor us, int sample_size, int num_of_derivatives) {
-		
+
 		this.us = us;
-		
+
 		// avoid null pointer exceptions
 		if (sample_size <= 0) {
 			SAMPLE_SIZE = 1;
@@ -74,11 +74,11 @@ public class USPoller {
 			NUM_OF_DERIVATIVES = num_of_derivatives;
 		}
 
-		// initialize all data arrays
+		// initialize all data
 		this.rawData = new int[SAMPLE_SIZE];
 		this.filteredData = new int[SAMPLE_SIZE];
 		this.derivatives = new int[NUM_OF_DERIVATIVES];
-		
+
 		// initialize index
 		index = 0;
 
@@ -89,13 +89,20 @@ public class USPoller {
 	 * get raw data from the UltrasonicSensor and store in rawData
 	 */
 	public void collectRawData() {
-		// if sample full, loop to index 0
-		if (index == SAMPLE_SIZE) {
-			index = 0;
-		}
+
 		us.ping();
 		setRawDataPoint(us.getDistance(), index);
-		index++;
+
+		// set value of index
+		synchronized (lock) {
+			// if sample full, loop to index 0
+			if ((index + 1) == SAMPLE_SIZE) {
+				index = 0;
+			} else {
+				// increment index
+				index++;
+			}
+		}
 	}
 
 	// data look-up methods
@@ -170,7 +177,7 @@ public class USPoller {
 	 * @param index
 	 * @return value at index
 	 */
-	public int getfilteredDataPoint(int index) {
+	public int getFilteredDataPoint(int index) {
 		synchronized (lock) {
 			return filteredData[index];
 		}
@@ -178,15 +185,17 @@ public class USPoller {
 
 	/**
 	 * get the value of the last filtered data point to have been added to
-	 * filteredData. The index of this data point corresponds approximately to the value of
-	 * 'this.index'.
+	 * filteredData. The index of this data point corresponds approximately to
+	 * the value of 'this.index'.
 	 * 
 	 * @return data point
 	 */
 	public int getLatestFilteredDataPoint() {
+		int index1 = -1;
 		synchronized (lock) {
-			return filteredData[this.index];
+			index1 = this.index;
 		}
+		return filteredData[index1];
 	}
 
 	/**
@@ -234,9 +243,9 @@ public class USPoller {
 	 *            - array index
 	 */
 	public void setRawDataPoint(int value, int index) {
-	// ------------------------------------------------------------//
-		RConsole.println(""+value);
-	// -----------------------------------------------------------//
+		// ------------------------------------------------------------//
+		// RConsole.println(""+value);
+		// -----------------------------------------------------------//
 		synchronized (lock) {
 			rawData[index] = value;
 		}
@@ -250,7 +259,7 @@ public class USPoller {
 	 */
 	public void updateRawDataArray(int[] array) {
 		synchronized (lock) {
-			rawData = (int[])array.clone();
+			rawData = (int[]) array.clone();
 		}
 	}
 
@@ -276,7 +285,7 @@ public class USPoller {
 	 */
 	public void updateFilteredDataArray(int[] array) {
 		synchronized (lock) {
-			filteredData = (int[])array.clone();
+			filteredData = (int[]) array.clone();
 		}
 	}
 
@@ -302,7 +311,7 @@ public class USPoller {
 	 */
 	public void updateDerivativesArray(int[] array) {
 		synchronized (lock) {
-			derivatives = (int[])array.clone();
+			derivatives = (int[]) array.clone();
 		}
 	}
 }
