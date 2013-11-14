@@ -1,5 +1,8 @@
 package official;
 
+import java.util.Arrays;
+
+
 /**
  * modular data filter. can filter data using a moving-window median filter
  * and/or using a derivative filter
@@ -8,11 +11,6 @@ package official;
  */
 public class DataFilter {
 
-	// constructor
-	public DataFilter() {
-		// nothing to be done
-	}
-
 	/**
 	 * apply moving-window median filter to a data sample
 	 * @param data
@@ -20,23 +18,23 @@ public class DataFilter {
 	 * @return filtered data
 	 */
 	public static int[] medianFilter(int[] data) {
-		int[] filteredData = new int[data.length];
+		
+		// clone data
+		int[] filteredData = (int[])data.clone();
 
 		// calculate median of the readings
-		int median = calculateMedian(data);
+		int median = calculateMedian(filteredData);
 		
 		// compare every reading with the median.
 		// store either the reading or the median
 		// into filteredData
 		for(int i=0 ; i<data.length ; i++){
+			
 			if(data[i] > median){
 				filteredData[i] = median;
 			}
-			else{
-				filteredData[i] = data[i];
-			}
 		}
-
+		
 		return filteredData;
 	}
 	
@@ -70,34 +68,12 @@ public class DataFilter {
 	public static int calculateMedian(int[] data) {
 		
 		int median = 0;
-
-		// create temp. int[] of same size as 'array'
-		int[] orderedArray = new int[data.length]; 
+		
+		// create temp. int[] identical to data
+		int[] orderedArray = (int[])data.clone();
 
 		// sort array in ascending order
-		boolean foo = true; // set to true to enter while loop
-		int temp;
-
-		// copy all elements of 'array' into orderedArray
-		for (int i = 0; i < data.length; i++) {
-			orderedArray[i] = data[i];
-		}
-
-		// begin swap sort
-		while (foo) {
-			foo = false; // will stop iteration if array is ordered
-
-			for (int i = 0; i < data.length - 1; i++) {
-				if (orderedArray[i] > orderedArray[i + 1]) {
-					temp = orderedArray[i + 1];
-					orderedArray[i + 1] = orderedArray[i]; // swap items'
-					// positions in
-					// orderedArray
-					orderedArray[i] = temp;
-					foo = true; // shows that swap has occured
-				}
-			}
-		}
+		Arrays.sort(orderedArray);
 
 		// find median depending on array size
 

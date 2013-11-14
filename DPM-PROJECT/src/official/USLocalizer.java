@@ -1,5 +1,8 @@
 package official;
 
+import lejos.nxt.Sound;
+import lejos.nxt.comm.RConsole;
+
 /**
  * initial Localization using the Ultrasonic Sensor. Data is taken from the US
  * Poller class
@@ -73,11 +76,11 @@ public class USLocalizer {
 	 * @param locType
 	 *            - type of localization to be performed
 	 */
-	public USLocalizer(Odometer odo, Navigation navigator, USPoller usPoller,
+	public USLocalizer(Odometer odo, Navigation navigator, USPoller us,
 			LocalizationType locType) {
 		this.odo = odo;
 		this.navigator = navigator;
-		this.us = usPoller;
+		this.us = us;
 		this.locType = locType;
 
 	}
@@ -102,12 +105,15 @@ public class USLocalizer {
 			navigator.setSpeeds(ROTATION_SPEED, -ROTATION_SPEED);
 
 			while (!noWall) {
+
 				if (getFilteredData() > NO_WALL) {
 					// keep rotating and set noWall to true
 					// to exit the loop
 					noWall = true;
 				}
 			}
+			
+			Sound.buzz();
 
 			// keep rotating until the robot sees a wall, then latch the angle
 			while (noWall) {
@@ -238,9 +244,11 @@ public class USLocalizer {
 					new boolean[] { false, false, true });
 
 		}
+		
+		navigator.turnTo(90);
 
 		// re-close the clamp
-		NXTComm.write(Constants.CLOSE_CLAMP);
+		//NXTComm.write(Constants.CLOSE_CLAMP);
 
 	}
 
@@ -250,8 +258,11 @@ public class USLocalizer {
 	 * @return the latest filteredData point
 	 */
 	private int getFilteredData() {
-
-		return us.getLatestFilteredDataPoint();
+		int dist = us.getLatestFilteredDataPoint();
+		// ------------------------------------------------------------//
+			RConsole.println(""+dist);
+		// -----------------------------------------------------------//
+		return dist;
 	}
 
 }

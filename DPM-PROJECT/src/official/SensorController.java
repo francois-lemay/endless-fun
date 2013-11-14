@@ -127,7 +127,6 @@ public class SensorController implements TimerListener {
 
 		// collect raw data from all sensors
 		collectRawData(lp, up);
-		
 
 		// apply median filter to all sensors
 		applyMedianFilter(lp, up);

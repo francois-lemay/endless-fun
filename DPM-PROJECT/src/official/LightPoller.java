@@ -220,6 +220,7 @@ public class LightPoller {
 	public void setRawDataPoint(int value, int index){
 		synchronized (lock) {
 			rawData[index] = value;
+			
 		}
 	}
 	/**
@@ -228,7 +229,7 @@ public class LightPoller {
 	 */
 	public void updateRawDataArray(int[] array){
 		synchronized (lock) {
-			rawData = array;
+			rawData = (int[])array.clone();
 		}
 	}
 	
@@ -249,7 +250,7 @@ public class LightPoller {
 	 */
 	public void updateFilteredDataArray(int[] array){
 		synchronized (lock) {
-			filteredData = array;
+			filteredData = (int[])array.clone();
 		}
 	}
 	
@@ -269,7 +270,7 @@ public class LightPoller {
 	 */
 	public void updateDerivativesArray(int[] array){
 		synchronized (lock) {
-			derivatives = array;
+			derivatives = (int[])array.clone();
 		}
 	}
 	

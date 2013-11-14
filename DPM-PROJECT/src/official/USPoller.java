@@ -1,7 +1,7 @@
 package official;
 
-import lejos.nxt.Sound;
 import lejos.nxt.UltrasonicSensor;
+import lejos.nxt.comm.RConsole;
 
 /**
  * instance of an UltrasonicSensor. Conserve both raw and filtered data
@@ -234,6 +234,9 @@ public class USPoller {
 	 *            - array index
 	 */
 	public void setRawDataPoint(int value, int index) {
+	// ------------------------------------------------------------//
+		RConsole.println(""+value);
+	// -----------------------------------------------------------//
 		synchronized (lock) {
 			rawData[index] = value;
 		}
@@ -247,7 +250,7 @@ public class USPoller {
 	 */
 	public void updateRawDataArray(int[] array) {
 		synchronized (lock) {
-			rawData = array;
+			rawData = (int[])array.clone();
 		}
 	}
 
@@ -273,7 +276,7 @@ public class USPoller {
 	 */
 	public void updateFilteredDataArray(int[] array) {
 		synchronized (lock) {
-			filteredData = array;
+			filteredData = (int[])array.clone();
 		}
 	}
 
@@ -299,7 +302,7 @@ public class USPoller {
 	 */
 	public void updateDerivativesArray(int[] array) {
 		synchronized (lock) {
-			derivatives = array;
+			derivatives = (int[])array.clone();
 		}
 	}
 }
