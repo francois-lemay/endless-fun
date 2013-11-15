@@ -65,6 +65,10 @@ public class Constants {
 	 * odometer's update period (in miliseconds)
 	 */
 	public static final int ODOMETER_PERIOD = 25;
+	/**
+	 * object detection period
+	 */
+	public static final int OBJ_DETECT_PERIOD = 200;
 	
 	
 	/*
@@ -109,6 +113,10 @@ public class Constants {
 	 * top us sensor's port
 	 */
 	public static SensorPort topSensorPort = SensorPort.S3;
+	/**
+	 * clamp motor port
+	 */
+	public static MotorPort clampMotorPort = MotorPort.C;
 	
 	// data indexing
 	/**
@@ -286,7 +294,7 @@ public class Constants {
 	/**
 	 * limit angle of clamp motor considered as the closed position
 	 */
-	public static final int CLOSED_POS = 100;
+	public static final int CLOSED_POS = 50;
 	
 	/*
 	 * object detection threshold values
@@ -295,11 +303,16 @@ public class Constants {
 	/**
 	 * distance read by us sensor at which an object is considered to be detected (in centimeters)
 	 */
-	public static final int US_OBJECT_THRESH = 50;
+	public static final int US_OBJECT_THRESH = 30;
+
 	/**
 	 * light value read by light sensor at which an object is considered to be detected
 	 */
 	public static final int LIGHT_OBJECT_THRESH = 30;
+	/**
+	 * dist used for fine approach towards styro block
+	 */
+	public static final int FINE_APPROACH = 10;
 	
 	
 }

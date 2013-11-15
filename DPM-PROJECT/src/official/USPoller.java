@@ -1,8 +1,6 @@
 package official;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import java.util.LinkedList;
 import official.Constants.theLock;
 import lejos.nxt.UltrasonicSensor;
 import lejos.util.Timer;
@@ -42,11 +40,11 @@ public class USPoller implements TimerListener {
 	/**
 	 * ArrayList of integers that will hold raw data from sensors
 	 */
-	private List<Integer> rawData;
+	private LinkedList<Integer> rawData;
 	/**
 	 * integer list of sensor readings in which the outliers have been removed
 	 */
-	private List<Integer> filteredData;
+	private LinkedList<Integer> filteredData;
 	/**
 	 * integer list that will hold NUM_OF_DERIVATIVES consecutive values of
 	 * discrete diff.
@@ -66,8 +64,8 @@ public class USPoller implements TimerListener {
 		}
 
 		// initialize all data
-		this.rawData = new ArrayList<Integer>();
-		this.filteredData = new ArrayList<Integer>();
+		this.rawData = new LinkedList<Integer>();
+		this.filteredData = new LinkedList<Integer>();
 		//this.derivatives = new ArrayList<Integer>();
 
 		// fill rawData list
@@ -113,6 +111,9 @@ public class USPoller implements TimerListener {
 	 */
 	public void timedOut(){
 		
+		// stop timer to ensure following code gets completed
+		timer.stop();
+		
 		// collect raw data
 		collectRawData();
 		
@@ -122,6 +123,9 @@ public class USPoller implements TimerListener {
 		
 		// apply derivative filter
 		addToDerivatives(DataFilter.derivativeFilter(getFilteredDataList()));
+		
+		// re-start timer
+		timer.start();
 		
 	}
 	
@@ -151,7 +155,7 @@ public class USPoller implements TimerListener {
 	 * 
 	 * @return address
 	 */
-	public List<Integer> getRawDataList() {
+	public LinkedList<Integer> getRawDataList() {
 		synchronized (lock) {
 			return rawData;
 		}
@@ -174,7 +178,7 @@ public class USPoller implements TimerListener {
 	 * 
 	 * @return address
 	 */
-	public List<Integer> getFilteredDataList() {
+	public LinkedList<Integer> getFilteredDataList() {
 		synchronized (lock) {
 			return filteredData;
 		}

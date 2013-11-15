@@ -1,5 +1,6 @@
 package objectIDtesting;
 
+import official.Constants;
 import lejos.nxt.LCD;
 import lejos.nxt.SensorPort;
 import lejos.nxt.UltrasonicSensor;
@@ -20,8 +21,8 @@ public class Test implements TimerListener{
 	
 	public Test(){
 		
-		bottom = new UltrasonicSensor(SensorPort.S1);
-		top = new UltrasonicSensor(SensorPort.S2);
+		bottom = new UltrasonicSensor(Constants.bottomSensorPort);
+		top = new UltrasonicSensor(Constants.topSensorPort);
 		
 		bottom.setMode(UltrasonicSensor.MODE_PING);
 		top.setMode(UltrasonicSensor.MODE_PING);

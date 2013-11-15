@@ -5,6 +5,7 @@ import official.*;
 import lejos.nxt.Button;
 import lejos.nxt.ColorSensor;
 import lejos.nxt.LCD;
+import lejos.nxt.MotorPort;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.Sound;
 import lejos.nxt.UltrasonicSensor;
@@ -12,10 +13,11 @@ import lejos.nxt.comm.RS485;
 
 /**
  * master brick's main class
+ * 
  * @author François Lemay
  */
 public class Master {
-	
+
 	// class variables
 	public static int blocks = 0;
 
@@ -35,21 +37,39 @@ public class Master {
 		/*
 		 * inter-brick communication initialization
 		 */
-		commInit();
+		// commInit();
 
 		// write to DOS
 		/*
 		 * LCD.clear(); LCD.drawString("Press to write to DOS", 0, 0);
 		 * Button.waitForAnyPress(); NXTComm.write(9);
 		 */
-
+		
+		
+		//**************************************************************
+		
+		Button.waitForAnyPress();
+		Constants.greenZone = new int[]{4*Constants.SQUARE_LENGTH,3*Constants.SQUARE_LENGTH};
+		
+		// set up clamp motor
+		NXTRegulatedMotor clampM = new NXTRegulatedMotor(MotorPort.C);
+		NXTRegulatedMotor[] clamp = {null,clampM};
+		
+		// set up block pickup
+		BlockPickUp bp = new BlockPickUp(clamp);
+		
+		//***************************************************************
+		
+		
 		/*
 		 * hardware initialization
 		 */
 
 		// set up motors
-		NXTRegulatedMotor leftMotor = new NXTRegulatedMotor(Constants.leftMotorPort);
-		NXTRegulatedMotor rightMotor = new NXTRegulatedMotor(Constants.rightMotorPort);
+		NXTRegulatedMotor leftMotor = new NXTRegulatedMotor(
+				Constants.leftMotorPort);
+		NXTRegulatedMotor rightMotor = new NXTRegulatedMotor(
+				Constants.rightMotorPort);
 
 		// odometry
 		Odometer odo = new Odometer(leftMotor, rightMotor);
@@ -61,34 +81,34 @@ public class Master {
 		ColorSensor backS = new ColorSensor(Constants.backSensorPort);
 
 		// light poller
-		LightPoller back = new LightPoller(backS, Constants.BACK_SAMPLE, Constants.M_PERIOD);
-		LightPoller[] lp = { back };
+		LightPoller back = new LightPoller(backS, Constants.BACK_SAMPLE,
+				Constants.M_PERIOD);
+//		LightPoller[] lp = { back };
 
 		// two front us sensors
-		UltrasonicSensor bottomS = new UltrasonicSensor(Constants.bottomSensorPort);
+		UltrasonicSensor bottomS = new UltrasonicSensor(
+				Constants.bottomSensorPort);
 		UltrasonicSensor topS = new UltrasonicSensor(Constants.topSensorPort);
 
 		// us pollers
-		USPoller bottom = new USPoller(bottomS, Constants.BOTT_SAMPLE,Constants.M_PERIOD);
-		USPoller top = new USPoller(topS, Constants.TOP_SAMPLE, Constants.M_PERIOD);
+		USPoller bottom = new USPoller(bottomS, Constants.BOTT_SAMPLE,
+				Constants.M_PERIOD);
+		USPoller top = new USPoller(topS, Constants.TOP_SAMPLE,
+				Constants.M_PERIOD);
 		USPoller[] up = new USPoller[2];
 		up[Constants.bottomUSPollerIndex] = bottom;
 		up[Constants.topUSPollerIndex] = top;
 
 		// odometry correction
-		OdometryCorrection odoCorr = new OdometryCorrection(odo, back);
+		// OdometryCorrection odoCorr = new OdometryCorrection(odo, back);
 
 		// object detection
-		ObjectDetection detector = new ObjectDetection(null, up, true);
-		
+		ObjectDetection detector = new ObjectDetection(nav, null, up, true,bp,leftMotor,rightMotor);
+
 		// obstacle avoidance
 
-		// sensor controller
-		SensorController cont = new SensorController(odoCorr, lp, up,
-				Constants.M_PERIOD, detector);
-
-		// start controller
-		cont.startPolling();
+		// tower building
+		// TowerBuilding builder = new TowerBuilding(nav);
 
 		/*
 		 * us localization
@@ -111,34 +131,49 @@ public class Master {
 		// do light localization
 		lightLoc.doLocalization();
 		
-		/*
-		 * TOWER BUILDING
-		 */
-		TowerBuilding builder = new TowerBuilding(nav);
-		
-		/*
-		 * 
-		 */
-
 		
 		/*
 		 * main program loop
 		 */
-		
-		// find one block
-		while(blocks<1){
-			
-			// insert code
-			
+
+		// bottom left corner of green zone
+		double[] greenZone = { Constants.greenZone[0], Constants.greenZone[1] };
+
+		// start object detection
+		try{
+		detector.start();
+		}catch(Exception e){
+			LCD.clear();
+			LCD.drawString("problem", 0, 0);
+					
 		}
-		// go deposit block(s) to construction zone
-		builder.deliverTower();
+
+		// travel to construction zone while detecting objects
+		do {
+			nav.travelTo(greenZone[0], greenZone[1], Navigation.FAST);
+			if(ObjectDetection.isObstacle){
+				nav.rotateBy(90, true);
+				nav.moveForwardBy(50, Navigation.FAST);
+				detector.start();
+			}
+		} while (!Navigation.destinationReached);		
 		
+		
+		
+		// find one block if none found yet
+		if (blocks >= 1) {
+			while (blocks < 1) {
+
+				nav.rotateBy(-180, false);
+
+			}
+		}
+
+		// go deposit block(s) to construction zone
+//		builder.deliverTower();
 
 		/*
-		 * end communication with Slave.
-		 * &
-		 * end program
+		 * end communication with Slave. & end program
 		 */
 		Sound.beepSequence();
 		NXTComm.disconnect();
@@ -164,7 +199,9 @@ public class Master {
 			Constants.role = t.role;
 			// green zone is defined by these (bottom-left and top-right)
 			// corners:
-			Constants.greenZone = t.greenZone;
+			Constants.greenZone = new int[2];
+			Constants.greenZone[0] = t.greenZone[0]*Constants.SQUARE_LENGTH;
+			Constants.greenZone[1] = t.greenZone[1]*Constants.SQUARE_LENGTH;
 
 			// red zone is defined by these (bottom-left and top-right) corners:
 			Constants.redZone = t.redZone;

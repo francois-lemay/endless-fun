@@ -1,17 +1,29 @@
 package official;
 
+import lejos.nxt.LCD;
+import lejos.nxt.NXTRegulatedMotor;
+import lejos.nxt.Sound;
+import lejos.util.Timer;
+import lejos.util.TimerListener;
+import master.Master;
+
 /**
  * detection of objects in robot's surroundings
  * 
  * @author Francois
  * 
  */
-public class ObjectDetection extends Thread {
+public class ObjectDetection implements TimerListener {
 
 	// class variables
 
 	/**
-	 * array of all light pollers
+	 * robot's navigation class
+	 */
+	private Navigation nav;
+
+	/**
+	 * array of light pollers
 	 */
 	private LightPoller[] lp;
 
@@ -19,6 +31,24 @@ public class ObjectDetection extends Thread {
 	 * array of us pollers
 	 */
 	private USPoller[] up;
+	/**
+	 * block pick up class
+	 */
+	BlockPickUp bp;
+	/**
+	 * 
+	 */
+	NXTRegulatedMotor leftMotor,rightMotor;
+	
+	/**
+	 * timer
+	 */
+	private Timer timer;
+
+	/**
+	 * timed out period
+	 */
+	private final int PERIOD = Constants.OBJ_DETECT_PERIOD;
 
 	/**
 	 * detection status booleans
@@ -33,7 +63,7 @@ public class ObjectDetection extends Thread {
 	/**
 	 * identification status booleans
 	 */
-	public static boolean isBlock, isDetecting;
+	public static boolean isBlock, isDetecting, isObstacle;
 
 	/**
 	 * determines whether the Master or the Slave brick is using this class.
@@ -48,21 +78,48 @@ public class ObjectDetection extends Thread {
 	/**
 	 * strings used in LCDInfo
 	 */
-	private final String[] objectType = { "Block", "Not Block" };
+	// private final String[] objectType = { "Block", "Not Block" };
+
+	/**
+	 * dist used for fine approach towards styro block
+	 */
+	private final int FINE_APPROACH = Constants.FINE_APPROACH;
+	/**
+	 * dist used for obstacle avoidance approach
+	 */
+	private final int OBSTACLE_APPROACH = 30;
+
+	/**
+	 * 
+	 * @param nav
+	 * @param lp
+	 * @param up
+	 * @param isMaster
+	 */
 
 	// constructor
-	public ObjectDetection(LightPoller[] lp, USPoller[] up, boolean isMaster) {
+	public ObjectDetection(Navigation nav, LightPoller[] lp, USPoller[] up,
+			boolean isMaster, BlockPickUp bp, NXTRegulatedMotor leftMotor, NXTRegulatedMotor rightMotor) {
 
+		this.nav = nav;
 		this.lp = lp;
 		this.up = up;
 		this.isMaster = isMaster;
+		this.bp = bp;
+		this.leftMotor = leftMotor;
+		this.rightMotor = rightMotor;
+
+		timer = new Timer(PERIOD, this);
 
 	}
 
 	/**
 	 * main thread
 	 */
-	public void run() {
+	public void timedOut() {
+
+		// stop timer to ensure completion of thread
+		stop();
 
 		// set isDetecting
 		isDetecting = true;
@@ -73,18 +130,65 @@ public class ObjectDetection extends Thread {
 		// if yes, identify it
 		if (objectDetected) {
 			// go identify object
+			// identifyObject();
+
+			if (Math.abs(up[Constants.bottomUSPollerIndex]
+					.getLatestFilteredDataPoint()
+					- up[Constants.topUSPollerIndex]
+							.getLatestFilteredDataPoint()) < 15) {
+				isBlock = false;
+			} else {
+				isBlock = true;
+			}
 
 			// if block, do BlockPickUp
+			if (isBlock) {
 
-			// otherwise, do ObstacleAvoidance
+				// let user know that block has been found
+				Sound.beepSequenceUp();
+
+				// approach block
+				while (up[Constants.bottomUSPollerIndex]
+						.getLatestFilteredDataPoint() > FINE_APPROACH) {
+					nav.setSpeeds(Navigation.SLOW, Navigation.SLOW);
+				}
+				// stop moving
+				nav.setSpeeds(0, 0);
+
+				bp.closeClamp();
+				
+				isObstacle = false;
+
+				Master.blocks++;
+
+			} else {
+				// let user know that is obstacle
+				Sound.beepSequence();
+				
+				// set status
+				//isObstacle = true;
+				
+				// otherwise, do ObstacleAvoidance
+				//avoidObstacle();
+			}
 
 		}
 
-		// reset detection booleans
-		resetBooleans();
-
 		// reset isDetecting
 		isDetecting = false;
+
+		// re-start timer only if no block found
+		if (Master.blocks == 0 && !isObstacle) {
+			
+			// reset all booleans
+			resetBooleans();
+			// re-start timer
+			start();
+		}else{
+			// reset all booleans
+			resetBooleans();
+		}
+
 	}
 
 	/**
@@ -100,61 +204,81 @@ public class ObjectDetection extends Thread {
 
 		// if Master
 		if (isMaster) {
+			try {
+				if (up != null) {
 
-			if (up != null) {
+					int dist = -1;
 
-				int dist = -1;
+					// check us sensors
+					for (int i = 0; i < up.length; i++) {
 
-				// check us sensors
-				for (int i = 0; i < up.length; i++) {
+						// get latest filtered reading
+						dist = up[i].getLatestFilteredDataPoint();
 
-					// get latest filtered reading
-					dist = up[i].getLatestFilteredDataPoint();
+						// if object within range
+						if (dist < Constants.US_OBJECT_THRESH) {
 
-					// if object within range
-					if (dist < Constants.US_OBJECT_THRESH) {
-
-						// set corresponding boolean
-						switch (i) {
-						case Constants.bottomUSPollerIndex:
-							bottom = true;
-							break;
-						case Constants.topUSPollerIndex:
-							top = true;
-							break;
+							// set corresponding boolean
+							switch (i) {
+							case Constants.bottomUSPollerIndex:
+								bottom = true;
+								break;
+							case Constants.topUSPollerIndex:
+								top = true;
+								break;
+							}
 						}
 					}
 				}
+			} catch (Exception e) {
+				LCD.clear();
+				LCD.drawString("Object Detection", 0, 1);
+				LCD.drawString("up null", 0, 1);
 			}
 
 		}
 		// if Slave
 		else {
 
-			// check light sensors if there are any
-			if (lp != null) {
+			try {
+				// check light sensors if there are any
+				if (lp != null) {
 
-				int light = 0;
+					int light = 0;
 
-				for (int i = 0; i < lp.length; i++) {
+					for (int i = 0; i < lp.length; i++) {
 
-					// get latest filtered reading
-					light = lp[i].getLatestFilteredDataPoint();
+						// get latest filtered reading
+						light = lp[i].getLatestFilteredDataPoint();
 
-					// if object within range
-					if (light > Constants.LIGHT_OBJECT_THRESH) {
-						switch (i) {
-						case Constants.leftLightPollerIndex:
-							left = true;
-							break;
-						case Constants.rightLightPollerIndex:
-							right = true;
-							break;
+						// if object within range
+						if (light > Constants.LIGHT_OBJECT_THRESH) {
+							switch (i) {
+							case Constants.leftLightPollerIndex:
+								left = true;
+								break;
+							case Constants.rightLightPollerIndex:
+								right = true;
+								break;
+							}
+
 						}
-
 					}
 				}
+			} catch (Exception e) {
+				LCD.clear();
+				LCD.drawString("Object Detection", 0, 1);
+				LCD.drawString("lp null", 0, 1);
 			}
+		}
+
+		// set value of objectDetected
+		if (bottom || top || left || right) {
+			objectDetected = true;
+			newObjectDetected = true;
+		} else {
+			objectDetected = false;
+			newObjectDetected = false;
 		}
 	}
 
@@ -181,7 +305,6 @@ public class ObjectDetection extends Thread {
 			 * lab 5
 			 */
 		}
-
 	}
 
 	/**
@@ -193,7 +316,9 @@ public class ObjectDetection extends Thread {
 		bottom = false;
 		top = false;
 		objectDetected = false;
+		newObjectDetected = false;
 		isBlock = false;
+		isObstacle = false;
 	}
 
 	/**
@@ -201,6 +326,25 @@ public class ObjectDetection extends Thread {
 	 */
 	private void avoidObstacle() {
 
+		// get distance from top us sensor
+		int dist = 0;
+
+		// approach obstacle
+		do {
+			nav.setSpeeds(Navigation.SLOW, Navigation.SLOW);
+			dist = up[Constants.topUSPollerIndex].getLatestFilteredDataPoint();
+		} while (dist > OBSTACLE_APPROACH);
+
 	}
 
+	// start timer
+	public void start() {
+		timer.start();
+	}
+
+	// stop timer
+	public void stop() {
+		timer.stop();
+	}
+	
 }

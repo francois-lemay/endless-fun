@@ -92,19 +92,26 @@ public class BlockPickUp {
 	 * @param motors - motors being used for the lift and the clamp
 	 */
 	public BlockPickUp(NXTRegulatedMotor[] motors) {
+		
 		lift = motors[0];
 		clamp = motors[1];
 
 		// set speeds
-		lift.setSpeed(LIFT_SPEED);
+		if (lift != null) {
+			lift.setSpeed(LIFT_SPEED);
+		}
 		clamp.setSpeed(CLAMP_SPEED);
 		
 		//set accelerations
+		if (lift != null) {
 		lift.setAcceleration(ACCELERATION);
+		}
 		clamp.setAcceleration(ACCELERATION);
 		
 		// reset lift and clamp tacho counts
+		if (lift != null) {
 		lift.resetTachoCount();
+		}
 		clamp.resetTachoCount();
 		
 		// reset blocks

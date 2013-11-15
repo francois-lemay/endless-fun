@@ -67,7 +67,7 @@ public class Navigation {
 	/**
 	 * 
 	 */
-	private boolean destinationReached;
+	public static boolean destinationReached;
 
 	/**
 	 * 
@@ -142,7 +142,7 @@ public class Navigation {
 	 * My own travelTo method from Lab3
 	 */
 	/**
-	 * make robot travel to specified position.
+	 * make robot travel to specified position. Can get interrupted by ObjectDetection.isNewObjectDetected
 	 * @param x1 - x coordinate
 	 * @param y1 - y coordinate
 	 */
@@ -165,7 +165,7 @@ public class Navigation {
 		// stop motors
 		setSpeeds(0, 0);
 
-		while (!destinationReached /*&& !ObjectDetection.isNewObjectDetected()*/ ) {
+		while (!destinationReached && !ObjectDetection.newObjectDetected ) {
 			// get robot's current position
 			x0 = odometer.getX();
 			y0 = odometer.getY();
@@ -388,15 +388,6 @@ public class Navigation {
 		return isNavigating;
 	}
 
-	/**
-	 * get value of destionationReached
-	 * @return destination-reached status
-	 */
-	public boolean getDestinationReached() {
-		return this.destinationReached;
-
-	}
-
 	// ---- mutators ---- //
 
 	/**
@@ -412,7 +403,7 @@ public class Navigation {
 	 * @param foo - status
 	 */
 	private void setDestinationReached(boolean foo) {
-		this.destinationReached = foo;
+		destinationReached = foo;
 	}
 
 }

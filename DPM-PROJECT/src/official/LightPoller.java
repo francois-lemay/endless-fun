@@ -1,8 +1,6 @@
 package official;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import java.util.LinkedList;
 import official.Constants.theLock;
 import lejos.nxt.ColorSensor;
 import lejos.util.Timer;
@@ -42,11 +40,11 @@ public class LightPoller implements TimerListener {
 	/**
 	 * integer list of integers that will hold raw data from sensors
 	 */
-	private List<Integer> rawData1;
+	private LinkedList<Integer> rawData1;
 	/**
 	 * list of sensor readings in which the outliers have been removed
 	 */
-	private List<Integer> filteredData1;
+	private LinkedList<Integer> filteredData1;
 	/**
 	 * integer list that will hold NUM_OF_DERIVATIVES consecutive values of
 	 * discrete diff.
@@ -66,8 +64,8 @@ public class LightPoller implements TimerListener {
 		}
 
 		// initialize all data
-		this.rawData1 = new ArrayList<Integer>();
-		this.filteredData1 = new ArrayList<Integer>();
+		this.rawData1 = new LinkedList<Integer>();
+		this.filteredData1 = new LinkedList<Integer>();
 		//this.derivatives1 = new ArrayList<Integer>();
 
 		// fill rawData list
@@ -113,6 +111,9 @@ public class LightPoller implements TimerListener {
 	 */
 	public void timedOut(){
 		
+		// stop timer to ensure following code gets completed
+		timer.stop();
+		
 		// collect raw data
 		collectRawData();
 		
@@ -122,6 +123,9 @@ public class LightPoller implements TimerListener {
 		
 		// apply derivative filter
 		addToDerivatives(DataFilter.derivativeFilter(getFilteredDataList()));
+		
+		// re-start timer
+		timer.start();
 		
 	}
 	
@@ -149,7 +153,7 @@ public class LightPoller implements TimerListener {
 	 * 
 	 * @return address
 	 */
-	public List<Integer> getRawDataList() {
+	public LinkedList<Integer> getRawDataList() {
 		synchronized (lock) {
 			return rawData1;
 		}
@@ -172,7 +176,7 @@ public class LightPoller implements TimerListener {
 	 * 
 	 * @return address
 	 */
-	public List<Integer> getFilteredDataList() {
+	public LinkedList<Integer> getFilteredDataList() {
 		synchronized (lock) {
 			return filteredData1;
 		}
