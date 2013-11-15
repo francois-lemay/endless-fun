@@ -61,7 +61,7 @@ public class Master {
 		ColorSensor backS = new ColorSensor(Constants.backSensorPort);
 
 		// light poller
-		LightPoller back = new LightPoller(backS, Constants.BACK_SAMPLE);
+		LightPoller back = new LightPoller(backS, Constants.BACK_SAMPLE, Constants.M_PERIOD);
 		LightPoller[] lp = { back };
 
 		// two front us sensors
@@ -69,10 +69,8 @@ public class Master {
 		UltrasonicSensor topS = new UltrasonicSensor(Constants.topSensorPort);
 
 		// us pollers
-		USPoller bottom = new USPoller(bottomS, Constants.BOTT_SAMPLE,
-				Constants.BOTT_DIFF);
-		USPoller top = new USPoller(topS, Constants.TOP_SAMPLE,
-				Constants.TOP_DIFF);
+		USPoller bottom = new USPoller(bottomS, Constants.BOTT_SAMPLE,Constants.M_PERIOD);
+		USPoller top = new USPoller(topS, Constants.TOP_SAMPLE, Constants.M_PERIOD);
 		USPoller[] up = new USPoller[2];
 		up[Constants.bottomUSPollerIndex] = bottom;
 		up[Constants.topUSPollerIndex] = top;

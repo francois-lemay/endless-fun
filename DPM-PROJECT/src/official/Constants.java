@@ -13,10 +13,12 @@ import bluetooth.StartCorner;
 public class Constants {
 	
 	// theLock
+	public static class theLock extends Object {}
 	/**
-	 * 
+	 * global lock object
 	 */
-	public static Object theLock = new Object();
+	public static theLock lockObject = new theLock();
+	
 	
 	// constants provided prior to start of round
 	/**
@@ -54,7 +56,7 @@ public class Constants {
 	/**
 	 * polling period for Master's SensorController
 	 */
-	public static final int M_PERIOD = 40;
+	public static final int M_PERIOD = 30;
 	/**
 	 * polling period for Master's SensorController
 	 */
@@ -84,7 +86,7 @@ public class Constants {
 	 * distance between back light sensor and center of wheel base (in
 	 * centimeters)
 	 */
-	public static final double BACK_SENSOR_DIST = 16.5;
+	public static final double BACK_SENSOR_DIST = 11.1;
 	
 	// port connections
 	/**
@@ -184,11 +186,15 @@ public class Constants {
 	 * tweaking value (in degrees) for final
 	 * correction in heading
 	 */
-	public static final int ANG_TWEAK = -20;
+	public static final int ANG_TWEAK = -35;
+	/**
+	 * tweaking value to compensate for line detection lag
+	 */
+	public static final int ANG_DELAY = -5;
 	/**
 	 * threshold derivative value used for gridline detection
 	 */
-	public static final int GRIDLINE_THRES = -40;
+	public static final int GRIDLINE_THRES = -30;
 	/**
 	 * robot's rotation speed used during us localization
 	 */
@@ -212,7 +218,7 @@ public class Constants {
 	/**
 	 * tweaking value (in degrees) for deltaTheta (in Rising Edge)
 	 */
-	public static final int RE_TWEAK = 13;
+	public static final int RE_TWEAK = 22;
 	
 	
 	/*

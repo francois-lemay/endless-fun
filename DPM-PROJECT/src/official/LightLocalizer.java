@@ -1,7 +1,6 @@
 package official;
 
 import lejos.nxt.Sound;
-import lejos.nxt.comm.RConsole;
 
 /**
  * Localization using the light sensor. The robot travels to a location from
@@ -42,9 +41,13 @@ public class LightLocalizer {
 	 */
 	private final int ANG_TWEAK = Constants.ANG_TWEAK;
 	/**
+	 * tweaking value to compensate for line detection lag
+	 */
+	private final int ANG_DELAY = Constants.ANG_DELAY;
+	/**
 	 * clocking position (x,y)
 	 */
-	private final double [] clockingPos = Constants.clockingPos;
+//	private final double [] clockingPos = Constants.clockingPos;
 	
 
 	/**
@@ -64,6 +67,7 @@ public class LightLocalizer {
 	 * do light sensor localization taking into account the starting corner
 	 */
 	public void doLocalization() {
+		
 		double[] angles = new double[4];
 
 		// move forward until the x-axis is detected.
@@ -78,7 +82,7 @@ public class LightLocalizer {
 				break;
 			}
 		}
-		navigator.moveForwardBy(-1.5*SENSOR_DISTANCE);
+		navigator.moveForwardBy(-2*SENSOR_DISTANCE, Constants.LOC_SPEED);
 
 		// turn to 0 degrees & move along +ve x-axis until y-axis is crossed.
 		// Only update X position to 0.
@@ -94,7 +98,7 @@ public class LightLocalizer {
 				break;
 			}
 		}
-		navigator.moveForwardBy(-1.5*SENSOR_DISTANCE);
+		navigator.moveForwardBy(-2*SENSOR_DISTANCE,Constants.LOC_SPEED);
 
 		navigator.turnTo(290,Constants.LOC_SPEED);
 
@@ -103,7 +107,7 @@ public class LightLocalizer {
 		navigator.setSpeeds(Constants.LOC_SPEED, -Constants.LOC_SPEED);
 		
 		//*****************************************
-		RConsole.println("Start clocking");
+		//RConsole.println("Start clocking");
 		//*****************************************
 		
 		for (int i = 0; i < 4; i++) {
@@ -111,13 +115,13 @@ public class LightLocalizer {
 			// detect a line and store heading
 			while (true) {
 				if (lp.getLatestDerivative()<THRESH_BLACK) {
-					angles[i] = odo.getAng();
+					angles[i] = odo.getAng() - ANG_DELAY;
 					Sound.beep();
 					break;
 				}
 			}
 			try {
-				Thread.sleep(500);
+				Thread.sleep(300);
 			} catch (InterruptedException e) {
 			}
 

@@ -338,11 +338,11 @@ public class Navigation {
 	 * move forward by specified distance (-ve distance corresponds to moving backwards)
 	 * @param distance
 	 */
-	public void moveForwardBy(double distance){
+	public void moveForwardBy(double distance, int speed){
 		
 		// set motor speeds
-		leftMotor.setSpeed(SLOW);
-		rightMotor.setSpeed(SLOW);
+		leftMotor.setSpeed(speed);
+		rightMotor.setSpeed(speed);
 
 		// begin rotation and wait for completion
 		leftMotor.rotate(

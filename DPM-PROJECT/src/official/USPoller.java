@@ -1,8 +1,12 @@
 package official;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
+import official.Constants.theLock;
 import lejos.nxt.UltrasonicSensor;
+import lejos.util.Timer;
+import lejos.util.TimerListener;
 
 /**
  * instance of an UltrasonicSensor. Conserve both raw and filtered data
@@ -11,220 +15,168 @@ import lejos.nxt.UltrasonicSensor;
  * @author François
  * 
  */
-public class USPoller {
+public class USPoller implements TimerListener {
 
 	// class variables
+
 	/**
 	 * us sensor
 	 */
 	private UltrasonicSensor us;
-
 	/**
-	 * lock object used for atomic access
+	 * lock object
 	 */
-	private Object lock = Constants.theLock;
-
+	private theLock lock = Constants.lockObject;
 	/**
-	 * determines the number of readings to be held in rawData and filteredData
-	 * at a time
+	 * timer
 	 */
-	private int SAMPLE_SIZE;
+	private Timer timer;
+	/**
+	 * determines the number of readings to be held in rawData at a time
+	 */
+	private int NUM_SAMPLES;
 	/**
 	 * the number of derivatives stored in 'derivatives
 	 */
-	private int NUM_OF_DERIVATIVES;
+//	private int NUM_OF_DERIVATIVES = NUM_SAMPLES - 1;
 	/**
-	 * array that will hold raw data from sensors
+	 * ArrayList of integers that will hold raw data from sensors
 	 */
-	private int[] rawData;
+	private List<Integer> rawData;
 	/**
-	 * array of sensor readings in which the outliers have been removed
+	 * integer list of sensor readings in which the outliers have been removed
 	 */
-	private int[] filteredData;
+	private List<Integer> filteredData;
 	/**
-	 * array that will hold NUMBER_OF_DERIVATIVES consecutive values of discrete
-	 * diff.
+	 * integer list that will hold NUM_OF_DERIVATIVES consecutive values of
+	 * discrete diff.
 	 */
-	private int[] derivatives;
+	private int derivatives;
 
-	/**
-	 * index used for rawData
-	 */
-	private int indexR;
-	/**
-	 * index used for derivatives
-	 */
-	private int indexD;
-
-	/**
-	 * constructor
-	 * 
-	 * @param us
-	 * @param sample_size
-	 * @param num_of_derivatives
-	 */
-	public USPoller(UltrasonicSensor us, int sample_size, int num_of_derivatives) {
+	// constructor
+	public USPoller(UltrasonicSensor us, int num_samples, int period) {
 
 		this.us = us;
 
 		// avoid null pointer exceptions
-		if (sample_size <= 0) {
-			SAMPLE_SIZE = 1;
+		if (num_samples <= 0) {
+			NUM_SAMPLES = 1;
 		} else {
-			SAMPLE_SIZE = sample_size;
-		}
-		if (num_of_derivatives <= 0) {
-			NUM_OF_DERIVATIVES = 1;
-		} else {
-			NUM_OF_DERIVATIVES = num_of_derivatives;
+			NUM_SAMPLES = num_samples;
 		}
 
 		// initialize all data
-		this.rawData = new int[SAMPLE_SIZE];
-		this.filteredData = new int[SAMPLE_SIZE];
-		this.derivatives = new int[NUM_OF_DERIVATIVES];
+		this.rawData = new ArrayList<Integer>();
+		this.filteredData = new ArrayList<Integer>();
+		//this.derivatives = new ArrayList<Integer>();
 
-		// initialize indices
-		indexR = 0;
-		indexD = 0;
+		// fill rawData list
+		for (int i = 0; i < NUM_SAMPLES; i++) {
+			synchronized (lock) {
+				us.ping();
+				rawData.add(us.getDistance());
+			}
+		}
 
-		// set us sensor in single ping mode
-		this.us.setMode(UltrasonicSensor.MODE_PING);
+		// fill filteredData list
+		for (int i = 0; i < NUM_SAMPLES; i++) {
+			synchronized (lock) {
+				filteredData.add(DataFilter.medianFilter(rawData));
+			}
+		}
+
+		// fill derivatives
+		synchronized (lock) {
+			derivatives = filteredData.get(filteredData.size()-1) - filteredData.get(filteredData.size()-2);
+		}
+/*		int value = 0;
+		for (int i = 0; i < NUM_OF_DERIVATIVES; i++) {
+			synchronized (lock) {
+				value = filteredData.get(i + 1) - filteredData.get(i);
+				derivatives.add(value);
+			}
+
+		}
+*/
+		// set us sensor in ping mode
+		us.setMode(UltrasonicSensor.MODE_PING);
+		
+		// set up timer
+		timer = new Timer(period,this);
+		
+		// start timer
+		timer.start();
 	}
+	
+	/**
+	 * main thread
+	 */
+	public void timedOut(){
+		
+		// collect raw data
+		collectRawData();
+		
+		// apply median filter
+		addToFilteredData(DataFilter.medianFilter(
+				getRawDataList()));
+		
+		// apply derivative filter
+		addToDerivatives(DataFilter.derivativeFilter(getFilteredDataList()));
+		
+	}
+	
 
 	/**
-	 * get raw data from the UltrasonicSensor and store in rawData
+	 * get distance from the us sensor and add to rawData
 	 */
 	public void collectRawData() {
 
+		// get distance
 		us.ping();
-		setRawDataPoint(us.getDistance(), indexR);
+		int data = us.getDistance();
 
-		// set value of index
+		// remove tail and add sample at head
 		synchronized (lock) {
-			// if sample full, loop to index 0
-			if ((indexR + 1) == SAMPLE_SIZE) {
-				indexR = 0;
-			} else {
-				// increment index
-				indexR++;
-			}
-		}
-	}
+			rawData.add(data);
+			rawData.remove(0);
 
-	// data look-up methods
-
-	/**
-	 * search for a derivative value that is smaller or equal to threshold
-	 * 
-	 * @param threshold
-	 *            - derivative threshold
-	 * @return whether such a derivative exist
-	 */
-	public boolean searchForSmallerDerivative(int threshold) {
-
-		int[] temp = (int[]) getDerivativeArray().clone();
-
-		for (int i = 0; i < NUM_OF_DERIVATIVES; i++) {
-			if (temp[i] <= threshold) {
-				return true;
-			}
 		}
 
-		return false;
-	}
-
-	/**
-	 * search for a derivative value that is larger or equal to threshold
-	 * 
-	 * @param threshold
-	 *            - derivative threshold
-	 * @return whether such a derivative exists
-	 */
-	public boolean searchForLargerDerivative(int threshold) {
-
-		int[] temp = (int[]) getDerivativeArray().clone();
-
-		for (int i = 0; i < NUM_OF_DERIVATIVES; i++) {
-			if (temp[i] >= threshold) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 	// accessors
-	/**
-	 * atomic retrieval of raw data at specified index
-	 * 
-	 * @param index
-	 * @return value at index
-	 */
-	public int getRawData(int index) {
-		synchronized (lock) {
-			return rawData[index];
-		}
-	}
 
 	/**
-	 * atomic retrieval of raw data array
+	 * get address of rawData
 	 * 
-	 * @return array of raw data
+	 * @return address
 	 */
-	public int[] getRawDataArray() {
+	public List<Integer> getRawDataList() {
 		synchronized (lock) {
-			return (int[]) rawData.clone();
-		}
-	}
-
-	/**
-	 * atomic retrieval of filtered data at specified index
-	 * 
-	 * @param index
-	 * @return value at index
-	 */
-	public int getFilteredDataPoint(int index) {
-		synchronized (lock) {
-			return filteredData[index];
+			return rawData;
 		}
 	}
 
 	/**
 	 * get the value of the last filtered data point to have been added to
-	 * filteredData. The index of this data point corresponds approximately to
-	 * the value of 'this.index'.
+	 * filteredData.
 	 * 
 	 * @return data point
 	 */
 	public int getLatestFilteredDataPoint() {
-		int index1 = -1;
 		synchronized (lock) {
-			index1 = this.indexR;
-		}
-		return filteredData[index1];
-	}
-
-	/**
-	 * atomic retrieval of filtered data array
-	 * 
-	 * @return array of median-filtered data
-	 */
-	public int[] getfilteredDataArray() {
-		synchronized (lock) {
-			return (int[]) filteredData.clone();
+			return filteredData.get(filteredData.size() - 1);
 		}
 	}
 
 	/**
-	 * atomic retrieval of derivative at specified index
+	 * get address of 'filteredData'
 	 * 
-	 * @param index
-	 * @return value at index
+	 * @return address
 	 */
-	public int getDerivative(int index) {
+	public List<Integer> getFilteredDataList() {
 		synchronized (lock) {
-			return derivatives[index];
+			return filteredData;
 		}
 	}
 
@@ -234,106 +186,42 @@ public class USPoller {
 	 * @return value of derivative
 	 */
 	public int getLatestDerivative() {
-		int data = derivatives[indexD];
-
-		// set value of indexD
-		if ((indexD + 1) == NUM_OF_DERIVATIVES) {
-			indexD = 0;
-		} else {
-			indexD++;
-		}
-		return data;
-	}
-
-	/**
-	 * atomic retrieval of derivative array
-	 * 
-	 * @return array of derivatives
-	 */
-	public int[] getDerivativeArray() {
 		synchronized (lock) {
-			return (int[]) derivatives.clone();
+			//return derivatives.get(derivatives.size() - 1);
+			return derivatives;
 		}
 	}
 
 	// mutators
 
 	/**
-	 * atomic set of raw data at specified index
+	 * add data point to head of filteredData. Remove data point at its tail
 	 * 
 	 * @param value
 	 *            - data point
-	 * @param index
-	 *            - array index
 	 */
-	public void setRawDataPoint(int value, int index) {
+	public void addToFilteredData(int value) {
 		synchronized (lock) {
-			rawData[index] = value;
+			filteredData.add(value);
+			filteredData.remove(0);
 
 		}
+
 	}
 
 	/**
-	 * atomic set of raw data array
-	 * 
-	 * @param array
-	 *            - new array of raw data
-	 */
-	public void updateRawDataArray(int[] array) {
-		synchronized (lock) {
-			rawData = Arrays.copyOf(array, SAMPLE_SIZE);
-		}
-	}
-
-	/**
-	 * atomic set of median-filtered data at specified index
-	 * 
-	 * @param value
-	 *            - data point
-	 * @param index
-	 *            - array index
-	 */
-	public void setFilteredDataPoint(int value, int index) {
-		synchronized (lock) {
-			filteredData[index] = value;
-		}
-	}
-
-	/**
-	 * atomic set of median-filtered-data array
-	 * 
-	 * @param array
-	 *            - new array of raw data
-	 */
-	public void updateFilteredDataArray(int[] array) {
-		synchronized (lock) {
-			filteredData = Arrays.copyOf(array, SAMPLE_SIZE);
-		}
-	}
-
-	/**
-	 * atomic set of derivative at specified index
+	 * add value to head of derivatives. Remove element at its tail.
 	 * 
 	 * @param value
 	 *            - value of derivative
-	 * @param index
-	 *            - array index
 	 */
-	public void setDerivativePoint(int value, int index) {
+	public void addToDerivatives(int value) {
 		synchronized (lock) {
-			derivatives[index] = value;
-		}
-	}
+			//derivatives.add(value);
+			//derivatives.remove(0);
+			derivatives = value;
 
-	/**
-	 * atomic set of derivatives array
-	 * 
-	 * @param array
-	 *            - new array of derivatives
-	 */
-	public void updateDerivativesArray(int[] array) {
-		synchronized (lock) {
-			derivatives = Arrays.copyOf(array, NUM_OF_DERIVATIVES);
 		}
+
 	}
 }

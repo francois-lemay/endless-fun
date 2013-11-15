@@ -33,15 +33,14 @@ public class LineTest {
 				Constants.bottomSensorPort);
 
 		// us poller
-		USPoller bottom = new USPoller(bottomS, Constants.BOTT_SAMPLE,
-				Constants.BOTT_DIFF);
+		USPoller bottom = new USPoller(bottomS, Constants.BOTT_SAMPLE,Constants.M_PERIOD);
 		USPoller[] up = { bottom };
 
 		// back light sensor
 		ColorSensor backS = new ColorSensor(Constants.backSensorPort);
 
 		// light poller
-		LightPoller back = new LightPoller(backS, Constants.BACK_SAMPLE);
+		LightPoller back = new LightPoller(backS, Constants.BACK_SAMPLE,Constants.M_PERIOD);
 		LightPoller[] lp = { back };
 
 		// sensor controller

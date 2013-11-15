@@ -37,25 +37,24 @@ public class LocalizationTest {
 				Constants.bottomSensorPort);
 
 		// us poller
-		USPoller bottom = new USPoller(bottomS, Constants.BOTT_SAMPLE,
-				Constants.BOTT_DIFF);
-		USPoller[] up = { bottom };
+		USPoller bottom = new USPoller(bottomS, Constants.BOTT_SAMPLE, Constants.M_PERIOD);
+//		USPoller[] up = { bottom };
 
 		// back light sensor
 		ColorSensor backS = new ColorSensor(Constants.backSensorPort);
 
 		// light poller
-		LightPoller back = new LightPoller(backS, Constants.BACK_SAMPLE);
-		LightPoller[] lp = { back };
+		LightPoller back = new LightPoller(backS, Constants.BACK_SAMPLE,Constants.M_PERIOD);
+//		LightPoller[] lp = { back };
 
-		// sensor controller
+/*		// sensor controller
 		// no need for OdometryCorrection and ObjectDetection
 		SensorController cont = new SensorController(null, lp, up,
 				Constants.M_PERIOD, null);
 
 		// start controller
 		cont.startPolling();
-
+*/
 		// display menu
 		LCD.clear();
 		LCD.drawString("Choose task", 3, 0);
@@ -64,38 +63,31 @@ public class LocalizationTest {
 		LCD.drawString(" USLoc | LightLoc", 0, 4);
 		LCD.drawString("       |         ", 0, 5);
 
-		Button.waitForAnyPress();
-		int button = Button.readButtons();
-
-		// LCD display
-		LCDInfo lcd = new LCDInfo(odo);
-		lcd.start();
+		// Button.waitForAnyPress();
+		// int button = Button.readButtons();
 
 		/*
 		 * US LOCALIZATION
 		 */
-		if (button == Button.ID_LEFT) {
-			// set up us localization
-			USLocalizer usLoc = new USLocalizer(odo, nav, bottom,
-					USLocalizer.LocalizationType.RISING_EDGE);
+		// set up us localization
+		USLocalizer usLoc = new USLocalizer(odo, nav, bottom,
+				USLocalizer.LocalizationType.RISING_EDGE);
+		// do us localization
+		usLoc.doLocalization();
 
-			// do us localization
-			usLoc.doLocalization();
-		}
-		
 		/*
 		 * LIGHT LOCALIZATION
 		 */
-		else if (button == Button.ID_RIGHT) {
+		// if (button == Button.ID_RIGHT) {
 
-			// set up light localization
-			LightLocalizer lightLoc = new LightLocalizer(odo, nav, back);
+		// set up light localization
+		LightLocalizer lightLoc = new LightLocalizer(odo, nav, back);
 
-			// do light localization
-			lightLoc.doLocalization();
-		}
-
-		// Button.waitForAnyPress();
+		// do light localization
+		lightLoc.doLocalization();
 	}
+
+	// Button.waitForAnyPress();
+	// }
 
 }

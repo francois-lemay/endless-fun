@@ -1,8 +1,6 @@
 package official;
 
-import lejos.nxt.Button;
 import lejos.nxt.Sound;
-import lejos.nxt.comm.RConsole;
 
 /**
  * initial Localization using the Ultrasonic Sensor. Data is taken from the US
@@ -100,32 +98,30 @@ public class USLocalizer {
 
 		if (locType == LocalizationType.FALLING_EDGE) {
 
-			boolean noWall = false;
-
 			// rotate the robot until it sees no wall
 			navigator.setSpeeds(ROTATION_SPEED, -ROTATION_SPEED);
 
-			while (!noWall) {
+			while (true) {
 
 				if (getFilteredData() > NO_WALL) {
-					// keep rotating and set noWall to true
-					// to exit the loop
-					noWall = true;
+					break;
 				}
 			}
 			
 			// keep rotating until the robot sees a wall, then latch the angle
-			while (noWall) {
+			while (true) {
 				// enter noise margin
 				if (getFilteredData() <= WALL + NOISE_MARGIN) {
 
 					// wait until go below noise margin
-					while (noWall) {
+					while (true) {
 						if (getFilteredData() <= WALL - NOISE_MARGIN) {
 							angleA = odo.getAng();
-							noWall = false; // exit both loops
+							break; // exit secondary loop
 						}
 					}
+					
+					break; // exit main loop
 				}
 			}
 			Sound.beep();
@@ -133,28 +129,25 @@ public class USLocalizer {
 			// switch direction and wait until it sees no wall
 			navigator.setSpeeds(-ROTATION_SPEED, ROTATION_SPEED);
 
-			noWall = false;
-			while (!noWall) {
+			while (true) {
 				if (getFilteredData() > NO_WALL) {
-					// keep rotating and set noWall to true
-					// to exit the loop
-					noWall = true;
+					break; // exit loop
 				}
 			}
 
 			// keep rotating until the robot sees a wall, then latch the angle
-			noWall = true;
-			while (noWall) {
+			while (true) {
 				// enter noise margin
 				if (getFilteredData() <= WALL + NOISE_MARGIN) {
 
 					// wait until go below noise margin
-					while (noWall) {
+					while (true) {
 						if (getFilteredData() <= WALL - NOISE_MARGIN) {
 							angleB = odo.getAng();
-							noWall = false; // exit both loops
+							break; // exit secondary loop
 						}
 					}
+					break; // exit main loop
 				}
 			}
 			Sound.beep();
@@ -174,9 +167,6 @@ public class USLocalizer {
 					new double[] { 0.0, 0.0, odo.getAng() + deltaTheta },
 					new boolean[] { false, false, true });
 
-			// turnTo(90)
-			navigator.turnTo(90,Constants.LOC_SPEED);
-
 		} else {
 			/*
 			 * The robot should turn until it sees the wall, then look for the
@@ -185,49 +175,47 @@ public class USLocalizer {
 			 * face toward the wall for most of it.
 			 */
 
-			boolean noWall = false;
-
 			// rotate the robot until it sees no wall
 			navigator.setSpeeds(ROTATION_SPEED, -ROTATION_SPEED);
 
-			while (!noWall) {
+			while (true) {
 				if (getFilteredData() > NO_WALL) {
-					// keep rotating and set noWall to true
-					// to exit the loop
-					noWall = true;
+					// exit loop
+					break;
 				}
 			}
 
 			// keep rotating until the robot sees a wall, then latch the angle
-			while (noWall) {
+			while (true) {
 				// enter noise margin
 				if (getFilteredData() <= WALL + NOISE_MARGIN) {
 					
 					// wait until go below noise margin
-					while (noWall) {
+					while (true) {
 						if (getFilteredData() <= WALL - NOISE_MARGIN) {
 							angleA = odo.getAng();
-							noWall = false; // exit both loops
+							break; // exit secondary loop
 						}
 					}
+					
+					break; // exit main loop
 				}
 			}
 			Sound.beep();
 
-			noWall = true; // set to true for the upcoming while loop
-
 			// keep rotating until the robot detects a rising edge
-			while (noWall) {
+			while (true) {
 				// enter noise margin
 				if (getFilteredData() >= WALL - NOISE_MARGIN) {
 
 					// wait until goes above noise margin
-					while (noWall) {
+					while (true) {
 						if (getFilteredData() >= WALL + NOISE_MARGIN) {
 							angleB = odo.getAng();
-							noWall = false; // exit both loops
+							break; // exit secondary loop
 						}
 					}
+					break; // exit main loop
 				}
 			}
 			Sound.beep();

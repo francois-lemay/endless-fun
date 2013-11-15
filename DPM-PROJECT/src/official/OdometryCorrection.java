@@ -131,7 +131,7 @@ public class OdometryCorrection extends Thread {
 	 * @return - true or false
 	 */
 	public boolean isLineDetected() {
-		if (lp.searchForSmallerDerivative(GRIDLINE_THRESH)) {
+		if (lp.getLatestDerivative() <= GRIDLINE_THRESH) {
 			return true;
 		}
 		return false;

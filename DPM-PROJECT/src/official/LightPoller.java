@@ -2,7 +2,11 @@ package official;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import official.Constants.theLock;
 import lejos.nxt.ColorSensor;
+import lejos.util.Timer;
+import lejos.util.TimerListener;
 
 /**
  * Instance of a ColorSensor. Conserve both raw and filtered data retrieved from
@@ -11,7 +15,7 @@ import lejos.nxt.ColorSensor;
  * @author François
  * 
  */
-public class LightPoller {
+public class LightPoller implements TimerListener {
 
 	// class variables
 
@@ -19,32 +23,38 @@ public class LightPoller {
 	 * color sensor
 	 */
 	private ColorSensor ls;
-
 	/**
-	 * determines the number of readings to be held in rawData[] at a time
+	 * lock object
+	 */
+	private theLock lock = Constants.lockObject;
+	/**
+	 * timer
+	 */
+	private Timer timer;
+	/**
+	 * determines the number of readings to be held in rawData at a time
 	 */
 	private int NUM_SAMPLES;
 	/**
 	 * the number of derivatives stored in 'derivatives
 	 */
-	private int NUM_OF_DERIVATIVES = NUM_SAMPLES-1;
+//	private int NUM_OF_DERIVATIVES = NUM_SAMPLES - 1;
 	/**
-	 * ArrayList of integers that will hold raw data from sensors
+	 * integer list of integers that will hold raw data from sensors
 	 */
-	private List<Integer> rawData;
+	private List<Integer> rawData1;
 	/**
-	 * array of sensor readings in which the outliers have been removed
+	 * list of sensor readings in which the outliers have been removed
 	 */
-	private List<Integer> filteredData;
+	private List<Integer> filteredData1;
 	/**
-	 * array that will hold NUMBER_OF_DERIVATIVES consecutive values of discrete
-	 * diff.
+	 * integer list that will hold NUM_OF_DERIVATIVES consecutive values of
+	 * discrete diff.
 	 */
-	private List<Integer> derivatives;
-
+	private int derivatives1;
 
 	// constructor
-	public LightPoller(ColorSensor ls, int num_samples) {
+	public LightPoller(ColorSensor ls, int num_samples, int period) {
 
 		this.ls = ls;
 
@@ -54,34 +64,67 @@ public class LightPoller {
 		} else {
 			NUM_SAMPLES = num_samples;
 		}
-		
+
 		// initialize all data
-		this.rawData = new ArrayList<Integer>();
-		this.filteredData = new ArrayList<Integer>();
-		this.derivatives = new ArrayList<Integer>();
-		
+		this.rawData1 = new ArrayList<Integer>();
+		this.filteredData1 = new ArrayList<Integer>();
+		//this.derivatives1 = new ArrayList<Integer>();
+
 		// fill rawData list
-		for(int i=0;i<NUM_SAMPLES;i++){
-			rawData.add(ls.getRawLightValue());
+		for (int i = 0; i < NUM_SAMPLES; i++) {
+			synchronized (lock) {
+				rawData1.add(ls.getRawLightValue());
+			}
 		}
-		
+
 		// fill filteredData list
-		for(int i=0;i<NUM_SAMPLES;i++){
-			filteredData.add(DataFilter.medianFilter(rawData));
+		for (int i = 0; i < NUM_SAMPLES; i++) {
+			synchronized (lock) {
+				filteredData1.add(DataFilter.medianFilter(rawData1));
+			}
 		}
-		
+
 		// fill derivatives
-		int value = 0;
-		for(int i=0;i<NUM_SAMPLES-1;i++){
-			value = filteredData.get(i+1) - filteredData.get(i);
-			derivatives.add(value);
+		synchronized (lock) {
+			derivatives1 = filteredData1.get(filteredData1.size()-1) - filteredData1.get(filteredData1.size()-2);
 		}
-		
-		
+
+/*		int value = 0;
+		for (int i = 0; i < NUM_OF_DERIVATIVES; i++) {
+			synchronized (lock) {
+				value = filteredData1.get(i + 1) - filteredData1.get(i);
+				derivatives1.add(value);
+			}
+		}
+*/
 		// turn ON floodlight
 		ls.setFloodlight(true);
+		
+		
+		// set up timer
+		timer = new Timer(period,this);
+		
+		// start timer
+		timer.start();
 	}
 
+	/**
+	 * main thread
+	 */
+	public void timedOut(){
+		
+		// collect raw data
+		collectRawData();
+		
+		// apply median filter
+		addToFilteredData(DataFilter.medianFilter(
+				getRawDataList()));
+		
+		// apply derivative filter
+		addToDerivatives(DataFilter.derivativeFilter(getFilteredDataList()));
+		
+	}
+	
 	/**
 	 * get light value from the light sensor and add to rawData
 	 */
@@ -89,47 +132,14 @@ public class LightPoller {
 
 		// get light value
 		int data = ls.getRawLightValue();
-		
+
 		// remove tail and add sample at head
-		rawData.remove(0);
-		rawData.add(data);
+		synchronized (lock) {
+			rawData1.add(data);
+			rawData1.remove(0);
 
-	}
-
-	// data look-up methods
-
-	/**
-	 * search for a derivative value that is smaller or equal to threshold
-	 * 
-	 * @param threshold
-	 *            - derivative threshold
-	 * @return whether such a derivative exist
-	 */
-	public boolean searchForSmallerDerivative(int threshold) {
-
-		for (int i = 0; i < NUM_OF_DERIVATIVES; i++) {
-			if (derivatives.get(i) <= threshold) {
-				return true;
-			}
 		}
-		return false;
-	}
 
-	/**
-	 * search for a derivative value that is larger or equal to threshold
-	 * 
-	 * @param threshold
-	 *            - derivative threshold
-	 * @return whether such a derivative exists
-	 */
-	public boolean searchForLargerDerivative(int threshold) {
-
-		for (int i = 0; i < NUM_OF_DERIVATIVES; i++) {
-			if (derivatives.get(i) >= threshold) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	// accessors
@@ -139,8 +149,10 @@ public class LightPoller {
 	 * 
 	 * @return address
 	 */
-	public List<Integer> getRawData() {
-		return rawData;
+	public List<Integer> getRawDataList() {
+		synchronized (lock) {
+			return rawData1;
+		}
 	}
 
 	/**
@@ -150,8 +162,9 @@ public class LightPoller {
 	 * @return data point
 	 */
 	public int getLatestFilteredDataPoint() {
-
-		return filteredData.get(filteredData.size()-1);
+		synchronized (lock) {
+			return filteredData1.get(filteredData1.size() - 1);
+		}
 	}
 
 	/**
@@ -159,8 +172,10 @@ public class LightPoller {
 	 * 
 	 * @return address
 	 */
-	public List<Integer> getfilteredData() {
-		return filteredData;
+	public List<Integer> getFilteredDataList() {
+		synchronized (lock) {
+			return filteredData1;
+		}
 	}
 
 	/**
@@ -169,17 +184,10 @@ public class LightPoller {
 	 * @return value of derivative
 	 */
 	public int getLatestDerivative() {
-
-		return derivatives.get(derivatives.size()-1);
-	}
-
-	/**
-	 * get address of 'derivatives'
-	 * 
-	 * @return address
-	 */
-	public List<Integer> getDerivativeArray() {
-		return derivatives;
+		synchronized (lock) {
+			//return derivatives1.get(derivatives1.size() - 1);
+			return derivatives1;
+		}
 	}
 
 	// mutators
@@ -191,8 +199,11 @@ public class LightPoller {
 	 *            - data point
 	 */
 	public void addToFilteredData(int value) {
-		filteredData.remove(0);
-		filteredData.add(value);
+		synchronized (lock) {
+			filteredData1.add(value);
+			filteredData1.remove(0);
+
+		}
 	}
 
 	/**
@@ -202,7 +213,11 @@ public class LightPoller {
 	 *            - value of derivative
 	 */
 	public void addToDerivatives(int value) {
-		derivatives.remove(0);
-		derivatives.add(value);
+		synchronized (lock) {
+			//derivatives1.add(value);
+			//derivatives1.remove(0);
+			derivatives1 = value;
+
+		}
 	}
 }
