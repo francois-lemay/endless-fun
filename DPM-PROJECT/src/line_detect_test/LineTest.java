@@ -1,25 +1,21 @@
-package localization_testing;
+package line_detect_test;
 
-import lejos.nxt.Button;
 import lejos.nxt.ColorSensor;
-import lejos.nxt.LCD;
 import lejos.nxt.MotorPort;
 import lejos.nxt.NXTRegulatedMotor;
+import lejos.nxt.Sound;
 import lejos.nxt.UltrasonicSensor;
 import lejos.nxt.comm.RConsole;
 import official.Constants;
-import official.LightLocalizer;
 import official.LightPoller;
 import official.Navigation;
 import official.Odometer;
 import official.SensorController;
-import official.USLocalizer;
 import official.USPoller;
 
-public class LocalizationTest {
+public class LineTest {
 
 	public static void main(String[] args) {
-
 		//RConsole.openUSB(0);
 
 		// motors
@@ -51,51 +47,18 @@ public class LocalizationTest {
 		// sensor controller
 		// no need for OdometryCorrection and ObjectDetection
 		SensorController cont = new SensorController(null, lp, up,
-				Constants.M_PERIOD, null);
+			Constants.M_PERIOD, null);
 
 		// start controller
 		cont.startPolling();
 
-		// display menu
-		LCD.clear();
-		LCD.drawString("Choose task", 3, 0);
-		LCD.drawString("< Left | Right > ", 0, 2);
-		LCD.drawString("       |         ", 0, 3);
-		LCD.drawString(" USLoc | LightLoc", 0, 4);
-		LCD.drawString("       |         ", 0, 5);
-
-		Button.waitForAnyPress();
-		int button = Button.readButtons();
-
-		// LCD display
-		LCDInfo lcd = new LCDInfo(odo);
-		lcd.start();
-
-		/*
-		 * US LOCALIZATION
-		 */
-		if (button == Button.ID_LEFT) {
-			// set up us localization
-			USLocalizer usLoc = new USLocalizer(odo, nav, bottom,
-					USLocalizer.LocalizationType.RISING_EDGE);
-
-			// do us localization
-			usLoc.doLocalization();
-		}
+		// move forward
+		nav.setSpeeds(Navigation.FAST, Navigation.FAST);
 		
-		/*
-		 * LIGHT LOCALIZATION
-		 */
-		else if (button == Button.ID_RIGHT) {
-
-			// set up light localization
-			LightLocalizer lightLoc = new LightLocalizer(odo, nav, back);
-
-			// do light localization
-			lightLoc.doLocalization();
+		while(true){
+			if(back.getLatestDerivative()<=Constants.GRIDLINE_THRES){
+				Sound.twoBeeps();
+			}
 		}
-
-		// Button.waitForAnyPress();
 	}
-
 }

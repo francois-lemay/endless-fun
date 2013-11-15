@@ -61,8 +61,7 @@ public class Master {
 		ColorSensor backS = new ColorSensor(Constants.backSensorPort);
 
 		// light poller
-		LightPoller back = new LightPoller(backS, Constants.BACK_SAMPLE,
-				Constants.BACK_DIFF);
+		LightPoller back = new LightPoller(backS, Constants.BACK_SAMPLE);
 		LightPoller[] lp = { back };
 
 		// two front us sensors

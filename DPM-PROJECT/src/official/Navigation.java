@@ -30,32 +30,43 @@ public class Navigation {
 	/**
 	 * fast speed
 	 */
-	final static int FAST = 150;
+	public final static int FAST = 150;
 	/**
 	 * slow speed
 	 */
-	final static int SLOW = 100;
+	public final static int SLOW = 100;
 	/**
 	 * super slow speed
 	 */
-	final static int SUPER_SLOW = 50;
+	public final static int SUPER_SLOW = 50;
 	/**
 	 * motor acceleration
 	 */
-	final static int ACCELERATION = 2000;
+	public final static int ACCELERATION = 2000;
 	/**
 	 * permitted error in heading
 	 */
-	final static double DEG_ERR = 0.5;
+	private final double DEG_ERR = 0.5;
 	/**
 	 * permitted error in position
 	 */
-	final static double POSITION_ERR = 1.0;
+	private final double POSITION_ERR = 1.0;
 	
+	/**
+	 * 
+	 */
 	private Odometer odometer;
+	/**
+	 * 
+	 */
 	private NXTRegulatedMotor leftMotor, rightMotor;
-
+	/**
+	 * 
+	 */
 	private static boolean isNavigating;
+	/**
+	 * 
+	 */
 	private boolean destinationReached;
 
 	/**
@@ -135,7 +146,7 @@ public class Navigation {
 	 * @param x1 - x coordinate
 	 * @param y1 - y coordinate
 	 */
-	public void travelTo(double x1, double y1) {
+	public void travelTo(double x1, double y1, int speed) {
 
 		// instantiate variables
 		double x0, y0; // current position
@@ -176,7 +187,7 @@ public class Navigation {
 				theta1 = theta1 + 360;
 			}
 
-			turnTo(theta1);
+			turnTo(theta1,speed);
 			
 			// // Forward Error Calculation
 
@@ -206,8 +217,8 @@ public class Navigation {
 				// make robot move forward
 				leftMotor.forward();
 				rightMotor.forward();
-				leftMotor.setSpeed(FAST);
-				rightMotor.setSpeed(FAST);
+				leftMotor.setSpeed(speed);
+				rightMotor.setSpeed(speed);
 
 			}
 
@@ -222,7 +233,7 @@ public class Navigation {
 	 * turn robot to specified heading
 	 * @param theta1 - heading
 	 */
-	public void turnTo(double theta1) {
+	public void turnTo(double theta1, int speed) {
 
 		double theta0; // current heading
 		double deltaTheta; // change in heading
@@ -251,8 +262,8 @@ public class Navigation {
 		if (Math.abs(deltaTheta) >= DEG_ERR) {
 
 			// set motor speeds
-			leftMotor.setSpeed(SLOW);
-			rightMotor.setSpeed(SLOW);
+			leftMotor.setSpeed(speed);
+			rightMotor.setSpeed(speed);
 
 			// begin rotation and wait for completion
 			leftMotor.rotate(
@@ -295,7 +306,7 @@ public class Navigation {
 			theta1 = theta1 + 360;
 		}
 
-		turnTo(theta1);
+		turnTo(theta1, SLOW);
 	}	
 	
 	// ---- helper methods ---- //

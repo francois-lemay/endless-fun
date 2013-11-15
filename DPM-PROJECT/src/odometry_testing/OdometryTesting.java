@@ -59,7 +59,7 @@ public class OdometryTesting {
 
 			
 			// travel to x,y
-			nav.travelTo(destinations[i][0], destinations[i][1]);
+			nav.travelTo(destinations[i][0], destinations[i][1], Navigation.FAST);
 			
 			// wait for button press
 			LCD.clear();

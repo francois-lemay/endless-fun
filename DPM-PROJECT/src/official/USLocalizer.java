@@ -41,7 +41,7 @@ public class USLocalizer {
 	/**
 	 * robot's rotation speed used during us localization
 	 */
-	private final int ROTATION_SPEED = Constants.ROTATION_SPEED;
+	private final int ROTATION_SPEED = Constants.LOC_SPEED;
 	/**
 	 * distance considered as 'no wall present' (centimeters)
 	 */
@@ -114,8 +114,6 @@ public class USLocalizer {
 				}
 			}
 			
-			Sound.buzz();
-
 			// keep rotating until the robot sees a wall, then latch the angle
 			while (noWall) {
 				// enter noise margin
@@ -130,6 +128,7 @@ public class USLocalizer {
 					}
 				}
 			}
+			Sound.beep();
 
 			// switch direction and wait until it sees no wall
 			navigator.setSpeeds(-ROTATION_SPEED, ROTATION_SPEED);
@@ -158,6 +157,7 @@ public class USLocalizer {
 					}
 				}
 			}
+			Sound.beep();
 
 			navigator.setSpeeds(0, 0);
 
@@ -175,7 +175,7 @@ public class USLocalizer {
 					new boolean[] { false, false, true });
 
 			// turnTo(90)
-			navigator.turnTo(90);
+			navigator.turnTo(90,Constants.LOC_SPEED);
 
 		} else {
 			/*
@@ -249,8 +249,8 @@ public class USLocalizer {
 					new boolean[] { false, false, true });
 
 		}
-				
-		navigator.turnTo(90);
+		
+		navigator.turnTo(90,Constants.LOC_SPEED);
 
 		// re-close the clamp
 		//NXTComm.write(Constants.CLOSE_CLAMP);
@@ -265,7 +265,7 @@ public class USLocalizer {
 	private int getFilteredData() {
 		int dist = us.getLatestFilteredDataPoint();
 		// ------------------------------------------------------------//
-			RConsole.println(""+dist);
+			//RConsole.println(""+dist);
 		// -----------------------------------------------------------//
 		return dist;
 	}

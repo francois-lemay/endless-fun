@@ -1,5 +1,7 @@
 package official;
 
+import java.util.ArrayList;
+import java.util.List;
 import lejos.nxt.ColorSensor;
 
 /**
@@ -19,84 +21,79 @@ public class LightPoller {
 	private ColorSensor ls;
 
 	/**
-	 * lock object used for atomic access
-	 */
-	private Object lock = Constants.theLock;
-
-	/**
 	 * determines the number of readings to be held in rawData[] at a time
 	 */
-	private int SAMPLE_SIZE;
+	private int NUM_SAMPLES;
 	/**
 	 * the number of derivatives stored in 'derivatives
 	 */
-	private int NUM_OF_DERIVATIVES;
+	private int NUM_OF_DERIVATIVES = NUM_SAMPLES-1;
 	/**
-	 * array that will hold raw data from sensors
+	 * ArrayList of integers that will hold raw data from sensors
 	 */
-	private int[] rawData;
+	private List<Integer> rawData;
 	/**
 	 * array of sensor readings in which the outliers have been removed
 	 */
-	private int[] filteredData;
+	private List<Integer> filteredData;
 	/**
 	 * array that will hold NUMBER_OF_DERIVATIVES consecutive values of discrete
 	 * diff.
 	 */
-	private int[] derivatives;
+	private List<Integer> derivatives;
 
-	/**
-	 * index used for rawData
-	 */
-	private int index;
 
 	// constructor
-	public LightPoller(ColorSensor ls, int sample_size, int num_of_derivatives) {
+	public LightPoller(ColorSensor ls, int num_samples) {
 
 		this.ls = ls;
 
 		// avoid null pointer exceptions
-		if (sample_size <= 0) {
-			SAMPLE_SIZE = 1;
+		if (num_samples <= 0) {
+			NUM_SAMPLES = 1;
 		} else {
-			SAMPLE_SIZE = sample_size;
+			NUM_SAMPLES = num_samples;
 		}
-		if (num_of_derivatives <= 0) {
-			NUM_OF_DERIVATIVES = 1;
-		} else {
-			NUM_OF_DERIVATIVES = num_of_derivatives;
-		}
-
+		
 		// initialize all data
-		this.rawData = new int[SAMPLE_SIZE];
-		this.filteredData = new int[SAMPLE_SIZE];
-		this.derivatives = new int[NUM_OF_DERIVATIVES];
-
-		// initialize index
-		index = 0;
-
+		this.rawData = new ArrayList<Integer>();
+		this.filteredData = new ArrayList<Integer>();
+		this.derivatives = new ArrayList<Integer>();
+		
+		// fill rawData list
+		for(int i=0;i<NUM_SAMPLES;i++){
+			rawData.add(ls.getRawLightValue());
+		}
+		
+		// fill filteredData list
+		for(int i=0;i<NUM_SAMPLES;i++){
+			filteredData.add(DataFilter.medianFilter(rawData));
+		}
+		
+		// fill derivatives
+		int value = 0;
+		for(int i=0;i<NUM_SAMPLES-1;i++){
+			value = filteredData.get(i+1) - filteredData.get(i);
+			derivatives.add(value);
+		}
+		
+		
 		// turn ON floodlight
 		ls.setFloodlight(true);
 	}
 
 	/**
-	 * read light value from the light sensor and store into rawData
+	 * get light value from the light sensor and add to rawData
 	 */
 	public void collectRawData() {
 
-		ls.getNormalizedLightValue();
-		setRawDataPoint(ls.getNormalizedLightValue(), index);
+		// get light value
+		int data = ls.getRawLightValue();
+		
+		// remove tail and add sample at head
+		rawData.remove(0);
+		rawData.add(data);
 
-		// set value of index
-		synchronized (lock) {
-			// if sample full, loop to index 0
-			if ((index + 1) == SAMPLE_SIZE) {
-				index = 0;
-			} else {
-				// increment index
-				index++;
-			}
-		}
 	}
 
 	// data look-up methods
@@ -110,14 +107,11 @@ public class LightPoller {
 	 */
 	public boolean searchForSmallerDerivative(int threshold) {
 
-		int[] temp = getDerivativeArray();
-
 		for (int i = 0; i < NUM_OF_DERIVATIVES; i++) {
-			if (temp[i] <= threshold) {
+			if (derivatives.get(i) <= threshold) {
 				return true;
 			}
 		}
-
 		return false;
 	}
 
@@ -130,181 +124,85 @@ public class LightPoller {
 	 */
 	public boolean searchForLargerDerivative(int threshold) {
 
-		int[] temp = getDerivativeArray();
-
 		for (int i = 0; i < NUM_OF_DERIVATIVES; i++) {
-			if (temp[i] >= threshold) {
+			if (derivatives.get(i) >= threshold) {
 				return true;
 			}
 		}
-
 		return false;
 	}
 
 	// accessors
-	/**
-	 * atomic retrieval of raw data at specified index
-	 * 
-	 * @param index
-	 * @return value at index
-	 */
-	public int getRawData(int index) {
-		synchronized (lock) {
-			return rawData[index];
-		}
-	}
 
 	/**
-	 * atomic retrieval of raw data array
+	 * get address of rawData
 	 * 
-	 * @return array of raw data
+	 * @return address
 	 */
-	public int[] getRawDataArray() {
-		synchronized (lock) {
-			return rawData;
-		}
-	}
-
-	/**
-	 * atomic retrieval of filtered data at specified index
-	 * 
-	 * @param index
-	 * @return value at index
-	 */
-	public int getfilteredDataPoint(int index) {
-		synchronized (lock) {
-			return filteredData[index];
-		}
+	public List<Integer> getRawData() {
+		return rawData;
 	}
 
 	/**
 	 * get the value of the last filtered data point to have been added to
-	 * filteredData. The index of this data point corresponds approximately to
-	 * the value of 'this.index'.
+	 * filteredData.
 	 * 
 	 * @return data point
 	 */
 	public int getLatestFilteredDataPoint() {
-		int index1 = -1;
-		synchronized (lock) {
-			index1 = this.index;
-		}
-		return filteredData[index1];
+
+		return filteredData.get(filteredData.size()-1);
 	}
 
 	/**
-	 * atomic retrieval of filtered data array
+	 * get address of 'filteredData'
 	 * 
-	 * @return array of median-filtered data
+	 * @return address
 	 */
-	public int[] getfilteredDataArray() {
-		synchronized (lock) {
-			return filteredData;
-		}
+	public List<Integer> getfilteredData() {
+		return filteredData;
 	}
 
 	/**
-	 * atomic retrieval of derivative at specified index
+	 * get the value of the last derivative obtained
 	 * 
-	 * @param index
-	 * @return value at index
+	 * @return value of derivative
 	 */
-	public int getDerivative(int index) {
-		synchronized (lock) {
-			return derivatives[index];
-		}
+	public int getLatestDerivative() {
+
+		return derivatives.get(derivatives.size()-1);
 	}
 
 	/**
-	 * atomic retrieval of derivative array
+	 * get address of 'derivatives'
 	 * 
-	 * @return array of derivatives
+	 * @return address
 	 */
-	public int[] getDerivativeArray() {
-		synchronized (lock) {
-			return derivatives;
-		}
+	public List<Integer> getDerivativeArray() {
+		return derivatives;
 	}
 
 	// mutators
 
 	/**
-	 * atomic set of raw data at specified index
+	 * add data point to head of filteredData. Remove data point at its tail
 	 * 
 	 * @param value
 	 *            - data point
-	 * @param index
-	 *            - array index
 	 */
-	public void setRawDataPoint(int value, int index) {
-		synchronized (lock) {
-			rawData[index] = value;
-
-		}
+	public void addToFilteredData(int value) {
+		filteredData.remove(0);
+		filteredData.add(value);
 	}
 
 	/**
-	 * atomic set of raw data array
-	 * 
-	 * @param array
-	 *            - new array of raw data
-	 */
-	public void updateRawDataArray(int[] array) {
-		synchronized (lock) {
-			rawData = (int[]) array.clone();
-		}
-	}
-
-	/**
-	 * atomic set of median-filtered data at specified index
-	 * 
-	 * @param value
-	 *            - data point
-	 * @param index
-	 *            - array index
-	 */
-	public void setFilteredDataPoint(int value, int index) {
-		synchronized (lock) {
-			filteredData[index] = value;
-		}
-	}
-
-	/**
-	 * atomic set of median-filtered-data array
-	 * 
-	 * @param array
-	 *            - new array of raw data
-	 */
-	public void updateFilteredDataArray(int[] array) {
-		synchronized (lock) {
-			filteredData = (int[]) array.clone();
-		}
-	}
-
-	/**
-	 * atomic set of derivative at specified index
+	 * add value to head of derivatives. Remove element at its tail.
 	 * 
 	 * @param value
 	 *            - value of derivative
-	 * @param index
-	 *            - array index
 	 */
-	public void setDerivativePoint(int value, int index) {
-		synchronized (lock) {
-			derivatives[index] = value;
-		}
+	public void addToDerivatives(int value) {
+		derivatives.remove(0);
+		derivatives.add(value);
 	}
-
-	/**
-	 * atomic set of derivatives array
-	 * 
-	 * @param array
-	 *            - new array of derivatives
-	 */
-	public void updateDerivativesArray(int[] array) {
-		synchronized (lock) {
-			derivatives = (int[]) array.clone();
-		}
-	}
-
 }

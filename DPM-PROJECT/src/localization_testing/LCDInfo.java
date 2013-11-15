@@ -33,8 +33,6 @@ public class LCDInfo implements TimerListener {
 		// initialize the arrays for displaying data
 		pos = new double[3];
 
-		// start the timer
-		lcdTimer.start();
 	}
 
 	public void timedOut() {
@@ -45,7 +43,14 @@ public class LCDInfo implements TimerListener {
 		LCD.drawString("H: ", 0, 2);
 		LCD.drawInt((int) (pos[0]), 3, 0);
 		LCD.drawInt((int) (pos[1]), 3, 1);
-		LCD.drawInt((int) (pos[2]), 3, 2);		
+		LCD.drawInt((int) (pos[2]), 3, 2);
 
+	}
+	
+	/**
+	 * start timer
+	 */
+	public void start(){
+		this.lcdTimer.start();
 	}
 }

@@ -54,7 +54,7 @@ public class Constants {
 	/**
 	 * polling period for Master's SensorController
 	 */
-	public static final int M_PERIOD = 20;
+	public static final int M_PERIOD = 40;
 	/**
 	 * polling period for Master's SensorController
 	 */
@@ -84,7 +84,7 @@ public class Constants {
 	 * distance between back light sensor and center of wheel base (in
 	 * centimeters)
 	 */
-	public static final double BACK_SENSOR_DIST = 10;
+	public static final double BACK_SENSOR_DIST = 16.5;
 	
 	// port connections
 	/**
@@ -146,7 +146,7 @@ public class Constants {
 	/**
 	 * back light sensor sample size
 	 */
-	public static final int BACK_SAMPLE = 7;
+	public static final int BACK_SAMPLE = 9;
 	
 	/*
 	 * sensors' derivative sample sizes
@@ -170,7 +170,7 @@ public class Constants {
 	/**
 	 * back light sensor derivative sample size
 	 */
-	public static final int BACK_DIFF = 6;
+	public static final int BACK_DIFF = 2;
 	
 	/*
 	 * LOCALIZATION PARAMETERS
@@ -179,35 +179,40 @@ public class Constants {
 	/**
 	 * clocking position (x,y)
 	 */
-	public static final double [] clockingPos = {-6,0};
+	public static final double [] clockingPos = {-10,0};
+	/**
+	 * tweaking value (in degrees) for final
+	 * correction in heading
+	 */
+	public static final int ANG_TWEAK = -20;
 	/**
 	 * threshold derivative value used for gridline detection
 	 */
-	public static final int GRIDLINE_THRES = -50;
+	public static final int GRIDLINE_THRES = -40;
 	/**
 	 * robot's rotation speed used during us localization
 	 */
-	public static final int ROTATION_SPEED = 70;
+	public static final int LOC_SPEED = 150;
 	/**
 	 * distance considered as 'no wall present' (centimeters)
 	 */
-	public static final int NO_WALL = 80;
+	public static final int NO_WALL = 60;
 	/**
 	 * distance considered as 'wall detected' (centimeters)
 	 */
-	public static final int WALL = 30;
+	public static final int WALL = 40;
 	/**
 	 * size of noise margin
 	 */
-	public static final int NOISE_MARGIN = 0;
+	public static final int NOISE_MARGIN = 5;
 	/**
 	 * tweaking value (in degrees) for deltaTheta (in Falling Edge)
 	 */
-	public static final int FE_TWEAK = 0;
+	public static final int FE_TWEAK = 5;
 	/**
 	 * tweaking value (in degrees) for deltaTheta (in Rising Edge)
 	 */
-	public static final int RE_TWEAK = 15;
+	public static final int RE_TWEAK = 13;
 	
 	
 	/*

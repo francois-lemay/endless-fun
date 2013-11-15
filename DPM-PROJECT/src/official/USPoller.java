@@ -1,7 +1,8 @@
 package official;
 
+import java.util.Arrays;
+
 import lejos.nxt.UltrasonicSensor;
-import lejos.nxt.comm.RConsole;
 
 /**
  * instance of an UltrasonicSensor. Conserve both raw and filtered data
@@ -49,7 +50,11 @@ public class USPoller {
 	/**
 	 * index used for rawData
 	 */
-	private int index;
+	private int indexR;
+	/**
+	 * index used for derivatives
+	 */
+	private int indexD;
 
 	/**
 	 * constructor
@@ -79,9 +84,11 @@ public class USPoller {
 		this.filteredData = new int[SAMPLE_SIZE];
 		this.derivatives = new int[NUM_OF_DERIVATIVES];
 
-		// initialize index
-		index = 0;
+		// initialize indices
+		indexR = 0;
+		indexD = 0;
 
+		// set us sensor in single ping mode
 		this.us.setMode(UltrasonicSensor.MODE_PING);
 	}
 
@@ -91,16 +98,16 @@ public class USPoller {
 	public void collectRawData() {
 
 		us.ping();
-		setRawDataPoint(us.getDistance(), index);
+		setRawDataPoint(us.getDistance(), indexR);
 
 		// set value of index
 		synchronized (lock) {
 			// if sample full, loop to index 0
-			if ((index + 1) == SAMPLE_SIZE) {
-				index = 0;
+			if ((indexR + 1) == SAMPLE_SIZE) {
+				indexR = 0;
 			} else {
 				// increment index
-				index++;
+				indexR++;
 			}
 		}
 	}
@@ -116,7 +123,7 @@ public class USPoller {
 	 */
 	public boolean searchForSmallerDerivative(int threshold) {
 
-		int[] temp = getDerivativeArray();
+		int[] temp = (int[]) getDerivativeArray().clone();
 
 		for (int i = 0; i < NUM_OF_DERIVATIVES; i++) {
 			if (temp[i] <= threshold) {
@@ -136,7 +143,7 @@ public class USPoller {
 	 */
 	public boolean searchForLargerDerivative(int threshold) {
 
-		int[] temp = getDerivativeArray();
+		int[] temp = (int[]) getDerivativeArray().clone();
 
 		for (int i = 0; i < NUM_OF_DERIVATIVES; i++) {
 			if (temp[i] >= threshold) {
@@ -167,7 +174,7 @@ public class USPoller {
 	 */
 	public int[] getRawDataArray() {
 		synchronized (lock) {
-			return rawData;
+			return (int[]) rawData.clone();
 		}
 	}
 
@@ -193,7 +200,7 @@ public class USPoller {
 	public int getLatestFilteredDataPoint() {
 		int index1 = -1;
 		synchronized (lock) {
-			index1 = this.index;
+			index1 = this.indexR;
 		}
 		return filteredData[index1];
 	}
@@ -205,7 +212,7 @@ public class USPoller {
 	 */
 	public int[] getfilteredDataArray() {
 		synchronized (lock) {
-			return filteredData;
+			return (int[]) filteredData.clone();
 		}
 	}
 
@@ -222,13 +229,30 @@ public class USPoller {
 	}
 
 	/**
+	 * get the value of the last derivative obtained
+	 * 
+	 * @return value of derivative
+	 */
+	public int getLatestDerivative() {
+		int data = derivatives[indexD];
+
+		// set value of indexD
+		if ((indexD + 1) == NUM_OF_DERIVATIVES) {
+			indexD = 0;
+		} else {
+			indexD++;
+		}
+		return data;
+	}
+
+	/**
 	 * atomic retrieval of derivative array
 	 * 
 	 * @return array of derivatives
 	 */
 	public int[] getDerivativeArray() {
 		synchronized (lock) {
-			return derivatives;
+			return (int[]) derivatives.clone();
 		}
 	}
 
@@ -243,11 +267,9 @@ public class USPoller {
 	 *            - array index
 	 */
 	public void setRawDataPoint(int value, int index) {
-		// ------------------------------------------------------------//
-		// RConsole.println(""+value);
-		// -----------------------------------------------------------//
 		synchronized (lock) {
 			rawData[index] = value;
+
 		}
 	}
 
@@ -259,7 +281,7 @@ public class USPoller {
 	 */
 	public void updateRawDataArray(int[] array) {
 		synchronized (lock) {
-			rawData = (int[]) array.clone();
+			rawData = Arrays.copyOf(array, SAMPLE_SIZE);
 		}
 	}
 
@@ -285,7 +307,7 @@ public class USPoller {
 	 */
 	public void updateFilteredDataArray(int[] array) {
 		synchronized (lock) {
-			filteredData = (int[]) array.clone();
+			filteredData = Arrays.copyOf(array, SAMPLE_SIZE);
 		}
 	}
 
@@ -311,7 +333,7 @@ public class USPoller {
 	 */
 	public void updateDerivativesArray(int[] array) {
 		synchronized (lock) {
-			derivatives = (int[]) array.clone();
+			derivatives = Arrays.copyOf(array, NUM_OF_DERIVATIVES);
 		}
 	}
 }

@@ -1,6 +1,7 @@
 package official;
 
 import lejos.nxt.Sound;
+import lejos.nxt.comm.RConsole;
 
 /**
  * Localization using the light sensor. The robot travels to a location from
@@ -39,7 +40,7 @@ public class LightLocalizer {
 	 * tweaking value (in degrees) for final
 	 * correction in heading
 	 */
-	private final int ANG_TWEAK = -1;
+	private final int ANG_TWEAK = Constants.ANG_TWEAK;
 	/**
 	 * clocking position (x,y)
 	 */
@@ -65,63 +66,54 @@ public class LightLocalizer {
 	public void doLocalization() {
 		double[] angles = new double[4];
 
-		// //drive to location listed in tutorial.
-
-		// call turnTo(), orient robot to 90 degrees
-		navigator.turnTo(90);
-
 		// move forward until the x-axis is detected.
 		// Only update Y position to 0.0
-		navigator.setSpeeds(Navigation.FAST, Navigation.FAST);
-
-		boolean lineDetected = false;
-
-		while (!lineDetected) {
-			if (this.lp.searchForSmallerDerivative(THRESH_BLACK)) {
+		navigator.setSpeeds(Constants.LOC_SPEED, Constants.LOC_SPEED);
+		
+		while (true) {
+			if (lp.getLatestDerivative()<THRESH_BLACK) {
 				odo.setPosition(new double[] { 0, 0 + SENSOR_DISTANCE, 0 },
 						new boolean[] { false, true, false });
-				lineDetected = true;
 				Sound.beep();
+				break;
 			}
 		}
+		navigator.moveForwardBy(-1.5*SENSOR_DISTANCE);
 
 		// turn to 0 degrees & move along +ve x-axis until y-axis is crossed.
 		// Only update X position to 0.
 
-		navigator.turnTo(0);
-		navigator.setSpeeds(Navigation.FAST, Navigation.FAST);
+		navigator.turnTo(0,Constants.LOC_SPEED);
+		navigator.setSpeeds(Constants.LOC_SPEED, Constants.LOC_SPEED);
 
-		lineDetected = false;
-
-		while (!lineDetected) {
-			if (this.lp.searchForSmallerDerivative(THRESH_BLACK)) {
+		while (true) {
+			if (lp.getLatestDerivative()<THRESH_BLACK) {
 				odo.setPosition(new double[] { 0 + SENSOR_DISTANCE, 0, 0 },
 						new boolean[] { true, false, false });
-				lineDetected = true;
 				Sound.beep();
+				break;
 			}
 		}
+		navigator.moveForwardBy(-1.5*SENSOR_DISTANCE);
 
-		// travel to designated position
-		// in order to clock all 4 gridlines
-		navigator.travelTo(clockingPos[0], clockingPos[1]);
-		navigator.turnTo(270);
+		navigator.turnTo(290,Constants.LOC_SPEED);
 
 		// start rotating and clock all 4 gridlines.
-		// int[] angles = { Y+ , X+ , Y- , X- }
-		navigator.setSpeeds(Navigation.SLOW, -Navigation.SLOW);
-
+		// angles = { Y+ , X+ , Y- , X- }
+		navigator.setSpeeds(Constants.LOC_SPEED, -Constants.LOC_SPEED);
+		
+		//*****************************************
+		RConsole.println("Start clocking");
+		//*****************************************
+		
 		for (int i = 0; i < 4; i++) {
 
-			// reset boolean
-			lineDetected = false;
-
 			// detect a line and store heading
-			while (!lineDetected) {
-				if (this.lp.searchForSmallerDerivative(THRESH_BLACK)) {
+			while (true) {
+				if (lp.getLatestDerivative()<THRESH_BLACK) {
 					angles[i] = odo.getAng();
-					lineDetected = true; // exit while loop
 					Sound.beep();
+					break;
 				}
 			}
 			try {
@@ -146,11 +138,11 @@ public class LightLocalizer {
 				true, true });
 
 		// when done travel to (0,0) and turn to 90 degrees
-		navigator.travelTo(0, 0);
-		navigator.turnTo(90);
+		navigator.travelTo(0, 0, Constants.LOC_SPEED);
+		navigator.turnTo(90,Constants.LOC_SPEED);
 
 		// change origin to starting corner
-		correctCorner();
+		//correctCorner();
 	}
 
 	/**
