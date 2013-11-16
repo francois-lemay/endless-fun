@@ -2,7 +2,6 @@ package official;
 
 import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.List;
 
 /**
  * modular data filter. can filter data using a moving-window median filter
@@ -24,30 +23,21 @@ public class DataFilter {
 
 		// get first sample
 		int sample = data.get(0);
-		
-		// initialize window and median
-		int[] window = new int[data.size()];
-		int median = -1;
 
-			// copy samples contained in window
-			for (int j = 0; j < data.size(); j++) {
-				window[j] = data.get(j);
-			}
+		// calculate median of all the samples
+		int median = calculateMedian(data);
 
-			// calculate median of the samples in window
-			median = calculateMedian(window);
-
-			// if first sample in window > median ==> sample = median
-			if (sample > median) {
-				return median;
-			}else{
-				return sample;
-			}
+		// if first sample in window > median ==> sample = median
+		if (sample > median) {
+			return median;
+		} else {
+			return sample;
+		}
 	}
 	
 
 	/**
-	 * apply derivative filter to last two data samples of the
+	 * apply derivative filter to last two samples of the
 	 * inputed List
 	 * 
 	 * @param data
@@ -55,8 +45,10 @@ public class DataFilter {
 	 * @return filtered data
 	 */
 	public static int derivativeFilter(LinkedList<Integer> data) {
+		
+		int lastIndex = data.size()-1;
 
-		return data.get(data.size()-1) - data.get(data.size()-2);
+		return data.get(lastIndex) - data.get(lastIndex-1);
 		
 	}
 
@@ -69,25 +61,29 @@ public class DataFilter {
 	 *            - data sample for which median will be calculated
 	 * @return median
 	 */
-	public static int calculateMedian(int[] data) {
-
+	public static int calculateMedian(LinkedList<Integer> data) {
+		
+		// initialize window and median
+		int[] orderedArray = new int[data.size()];
 		int median = 0;
 
-		// create temp. int[] identical to data
-		int[] orderedArray = (int[]) data.clone();
+		// copy samples contained in data
+		for (int i = 0; i < data.size(); i++) {
+				orderedArray[i] = data.get(i);
+		}
 
 		// sort array in ascending order
 		Arrays.sort(orderedArray);
 
 		// find median depending on array size
 
-		if (data.length % 2 == 0) { // if orderedArray is of EVEN size, the
+		if (orderedArray.length % 2 == 0) { // if orderedArray is of EVEN size, the
 			// median is average of the 2 middle
 			// values
-			median = (orderedArray[(data.length / 2) - 1] + orderedArray[data.length / 2]) / 2; // take
+			median = (orderedArray[(orderedArray.length / 2) - 1] + orderedArray[orderedArray.length / 2]) / 2; // take
 			// average
 		} else {
-			median = orderedArray[(data.length - 1) / 2]; // if SAMPLE_SIZE is
+			median = orderedArray[(orderedArray.length - 1) / 2]; // if SAMPLE_SIZE is
 			// odd, median is
 			// middle value
 		}

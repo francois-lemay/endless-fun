@@ -1,4 +1,4 @@
-package bluetooth_test;
+package bluetooth;
 /*
 * @author Sean Lawlor, Stepan Salenikovich, Francois OD
 * @date November 6, 2013

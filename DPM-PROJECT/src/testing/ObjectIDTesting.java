@@ -1,4 +1,4 @@
-package objectIDtesting;
+package testing;
 
 import official.Constants;
 import official.USPoller;
@@ -6,7 +6,7 @@ import lejos.nxt.Button;
 import lejos.nxt.LCD;
 import lejos.nxt.UltrasonicSensor;
 
-public class StartHere {
+public class ObjectIDTesting {
 
 	public static void main(String[] args) {
 

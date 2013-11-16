@@ -1,4 +1,4 @@
-package line_detect_test;
+package testing;
 
 import lejos.nxt.ColorSensor;
 import lejos.nxt.MotorPort;

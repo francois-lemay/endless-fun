@@ -9,7 +9,7 @@
  * 
  */
 
-package localization_testing;
+package testing;
 
 import official.Odometer;
 import lejos.nxt.LCD;

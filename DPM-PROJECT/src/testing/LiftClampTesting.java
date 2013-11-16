@@ -1,4 +1,4 @@
-package lift_clamp_testing;
+package testing;
 
 import official.BlockPickUp;
 import lejos.nxt.Button;

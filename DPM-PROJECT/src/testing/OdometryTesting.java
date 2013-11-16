@@ -1,4 +1,4 @@
-package odometry_testing;
+package testing;
 
 import lejos.nxt.Button;
 import lejos.nxt.LCD;
