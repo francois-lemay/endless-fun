@@ -150,6 +150,19 @@ public class USPoller implements TimerListener {
 	}
 
 	// accessors
+	
+	/**
+	 * get the value of the last raw data point to have been added to
+	 * rawData.
+	 * 
+	 * @return data point
+	 */
+	public int getLatestRawDataPoint() {
+		synchronized (lock) {
+			int lastIndex = rawData.size()-1;
+			return rawData.get(lastIndex);
+		}
+	}
 
 	/**
 	 * get address of rawData

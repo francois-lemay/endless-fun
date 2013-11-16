@@ -44,35 +44,33 @@ public class Navigation {
 	 */
 	public final static int ACCELERATION = 2000;
 	/**
-	 * permitted error in heading
+	 * permitted error in heading (when reaching a destination)
 	 */
 	private final double DEG_ERR = 0.5;
 	/**
-	 * permitted error in position
+	 * permitted error in position (when reaching a destination)
 	 */
 	private final double POSITION_ERR = 1.0;
-	
 	/**
-	 * 
+	 * robot's odometry class
 	 */
 	private Odometer odometer;
 	/**
-	 * 
+	 * robot's left and right motor
 	 */
 	private NXTRegulatedMotor leftMotor, rightMotor;
 	/**
-	 * 
+	 * indicates if travelTo is being used
 	 */
 	private static boolean isNavigating;
 	/**
-	 * 
+	 * boolean indicating whether set destination has been reached or not
 	 */
 	public static boolean destinationReached;
 
 	/**
 	 * 
-	 * @param odo
-	 * @param sensorMotor
+	 * @param odo - robot's odometry class
 	 */
 	public Navigation(Odometer odo) {
 		this.odometer = odo;
@@ -86,13 +84,10 @@ public class Navigation {
 		this.rightMotor.setAcceleration(ACCELERATION);
 	}
 
-	/*
-	 * Functions to set the motor speeds jointly
-	 */
 	/**
-	 * 
-	 * @param lSpd
-	 * @param rSpd
+	 * function to set the motor speed jointly
+	 * @param lSpd - left motor speed
+	 * @param rSpd - right motor speed
 	 */
 	public void setSpeeds(float lSpd, float rSpd) {
 		this.leftMotor.setSpeed(lSpd);
@@ -108,9 +103,9 @@ public class Navigation {
 	}
 
 	/**
-	 * 
-	 * @param lSpd
-	 * @param rSpd
+	 * set the motor speeds jointly
+	 * @param lSpd - left motor speed
+	 * @param rSpd - right motor speed
 	 */
 	public void setSpeeds(int lSpd, int rSpd) {
 		this.leftMotor.setSpeed(lSpd);
@@ -125,17 +120,22 @@ public class Navigation {
 			this.rightMotor.forward();
 	}
 
-	/*
-	 * Float the two motors jointly
-	 */
 	/**
-	 * 
+	 * float the two motors jointly
 	 */
 	public void setFloat() {
 		this.leftMotor.stop();
 		this.rightMotor.stop();
 		this.leftMotor.flt(true);
 		this.rightMotor.flt(true);
+	}
+	
+	/**
+	 * stop the two motors jointly
+	 */
+	public void stopMotors(){
+		this.leftMotor.stop(true);
+		this.rightMotor.stop(true);
 	}
 
 	/*
@@ -166,6 +166,10 @@ public class Navigation {
 		setSpeeds(0, 0);
 
 		while (!destinationReached && !ObjectDetection.newObjectDetected ) {
+			
+			// set isNavigating to true
+			setIsNavigating(true);
+			
 			// get robot's current position
 			x0 = odometer.getX();
 			y0 = odometer.getY();
@@ -221,10 +225,11 @@ public class Navigation {
 				rightMotor.setSpeed(speed);
 
 			}
+			
+			// set isNavigating to false
+			setIsNavigating(false);
 
 		}
-		// set isNavigating to false
-		setIsNavigating(false);
 
 	}
 

@@ -152,7 +152,7 @@ public class USLocalizer {
 			}
 			Sound.beep();
 
-			navigator.setSpeeds(0, 0);
+			navigator.stopMotors();
 
 			// update the odometer position
 			double deltaTheta = 0;
@@ -251,10 +251,9 @@ public class USLocalizer {
 	 * @return the latest filteredData point
 	 */
 	private int getFilteredData() {
+		
 		int dist = us.getLatestFilteredDataPoint();
-		// ------------------------------------------------------------//
-			//RConsole.println(""+dist);
-		// -----------------------------------------------------------//
+		
 		return dist;
 	}
 

@@ -128,7 +128,7 @@ public class LightLocalizer {
 		}
 
 		// halt motion of robot
-		navigator.setSpeeds(0, 0);
+		navigator.stopMotors();
 
 		// do trig to compute (0,0) and 0 degrees
 		double x = -1 * SENSOR_DISTANCE

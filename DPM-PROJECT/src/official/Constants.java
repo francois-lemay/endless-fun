@@ -116,7 +116,11 @@ public class Constants {
 	/**
 	 * clamp motor port
 	 */
-	public static MotorPort clampMotorPort = MotorPort.C;
+	public static MotorPort clampMotorPort = MotorPort.A;
+	/**
+	 * lift motor port
+	 */
+	public static MotorPort liftMotorPort = MotorPort.B;
 	
 	// data indexing
 	/**

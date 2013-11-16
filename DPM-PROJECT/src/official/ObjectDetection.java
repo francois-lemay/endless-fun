@@ -146,6 +146,9 @@ public class ObjectDetection implements TimerListener {
 
 				// let user know that block has been found
 				Sound.beepSequenceUp();
+				
+				// wait for control of motors to be available
+				while(Navigation.getIsNavigating())
 
 				// approach block
 				while (up[Constants.bottomUSPollerIndex]
@@ -153,7 +156,7 @@ public class ObjectDetection implements TimerListener {
 					nav.setSpeeds(Navigation.SLOW, Navigation.SLOW);
 				}
 				// stop moving
-				nav.setSpeeds(0, 0);
+				nav.stopMotors();
 
 				bp.closeClamp();
 				
