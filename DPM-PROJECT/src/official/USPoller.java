@@ -85,7 +85,8 @@ public class USPoller implements TimerListener {
 
 		// fill derivatives
 		synchronized (lock) {
-			derivatives = filteredData.get(filteredData.size()-1) - filteredData.get(filteredData.size()-2);
+			int lastIndex = filteredData.size()-1;
+			derivatives = filteredData.get(lastIndex) - filteredData.get(lastIndex-1);
 		}
 /*		int value = 0;
 		for (int i = 0; i < NUM_OF_DERIVATIVES; i++) {
@@ -169,7 +170,8 @@ public class USPoller implements TimerListener {
 	 */
 	public int getLatestFilteredDataPoint() {
 		synchronized (lock) {
-			return filteredData.get(filteredData.size() - 1);
+			int lastIndex = filteredData.size()-1;
+			return filteredData.get(lastIndex);
 		}
 	}
 

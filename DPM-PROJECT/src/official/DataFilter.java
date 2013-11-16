@@ -1,6 +1,7 @@
 package official;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -19,7 +20,7 @@ public class DataFilter {
 	 *            - list of data
 	 * @return filtered data value
 	 */
-	public static int medianFilter(List<Integer> data) {
+	public static int medianFilter(LinkedList<Integer> data) {
 
 		// get first sample
 		int sample = data.get(0);
@@ -53,7 +54,7 @@ public class DataFilter {
 	 *            - integer list of data
 	 * @return filtered data
 	 */
-	public static int derivativeFilter(List<Integer> data) {
+	public static int derivativeFilter(LinkedList<Integer> data) {
 
 		return data.get(data.size()-1) - data.get(data.size()-2);
 		

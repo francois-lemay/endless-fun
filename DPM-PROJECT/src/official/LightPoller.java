@@ -40,16 +40,16 @@ public class LightPoller implements TimerListener {
 	/**
 	 * integer list of integers that will hold raw data from sensors
 	 */
-	private LinkedList<Integer> rawData1;
+	private LinkedList<Integer> rawData;
 	/**
 	 * list of sensor readings in which the outliers have been removed
 	 */
-	private LinkedList<Integer> filteredData1;
+	private LinkedList<Integer> filteredData;
 	/**
 	 * integer list that will hold NUM_OF_DERIVATIVES consecutive values of
 	 * discrete diff.
 	 */
-	private int derivatives1;
+	private int derivatives;
 
 	// constructor
 	public LightPoller(ColorSensor ls, int num_samples, int period) {
@@ -64,27 +64,28 @@ public class LightPoller implements TimerListener {
 		}
 
 		// initialize all data
-		this.rawData1 = new LinkedList<Integer>();
-		this.filteredData1 = new LinkedList<Integer>();
-		//this.derivatives1 = new ArrayList<Integer>();
+		this.rawData = new LinkedList<Integer>();
+		this.filteredData = new LinkedList<Integer>();
+		//this.derivatives = new ArrayList<Integer>();
 
 		// fill rawData list
 		for (int i = 0; i < NUM_SAMPLES; i++) {
 			synchronized (lock) {
-				rawData1.add(ls.getRawLightValue());
+				rawData.add(ls.getRawLightValue());
 			}
 		}
 
 		// fill filteredData list
 		for (int i = 0; i < NUM_SAMPLES; i++) {
 			synchronized (lock) {
-				filteredData1.add(DataFilter.medianFilter(rawData1));
+				filteredData.add(DataFilter.medianFilter(rawData));
 			}
 		}
 
 		// fill derivatives
 		synchronized (lock) {
-			derivatives1 = filteredData1.get(filteredData1.size()-1) - filteredData1.get(filteredData1.size()-2);
+			int lastIndex = filteredData.size()-1;
+			derivatives = filteredData.get(lastIndex) - filteredData.get(lastIndex-1);
 		}
 
 /*		int value = 0;
@@ -139,8 +140,8 @@ public class LightPoller implements TimerListener {
 
 		// remove tail and add sample at head
 		synchronized (lock) {
-			rawData1.add(data);
-			rawData1.remove(0);
+			rawData.add(data);
+			rawData.remove(0);
 
 		}
 
@@ -155,7 +156,7 @@ public class LightPoller implements TimerListener {
 	 */
 	public LinkedList<Integer> getRawDataList() {
 		synchronized (lock) {
-			return rawData1;
+			return rawData;
 		}
 	}
 
@@ -167,7 +168,8 @@ public class LightPoller implements TimerListener {
 	 */
 	public int getLatestFilteredDataPoint() {
 		synchronized (lock) {
-			return filteredData1.get(filteredData1.size() - 1);
+			int lastIndex = filteredData.size()-1;
+			return filteredData.get(lastIndex);
 		}
 	}
 
@@ -178,7 +180,7 @@ public class LightPoller implements TimerListener {
 	 */
 	public LinkedList<Integer> getFilteredDataList() {
 		synchronized (lock) {
-			return filteredData1;
+			return filteredData;
 		}
 	}
 
@@ -190,7 +192,7 @@ public class LightPoller implements TimerListener {
 	public int getLatestDerivative() {
 		synchronized (lock) {
 			//return derivatives1.get(derivatives1.size() - 1);
-			return derivatives1;
+			return derivatives;
 		}
 	}
 
@@ -204,8 +206,8 @@ public class LightPoller implements TimerListener {
 	 */
 	public void addToFilteredData(int value) {
 		synchronized (lock) {
-			filteredData1.add(value);
-			filteredData1.remove(0);
+			filteredData.add(value);
+			filteredData.remove(0);
 
 		}
 	}
@@ -220,7 +222,7 @@ public class LightPoller implements TimerListener {
 		synchronized (lock) {
 			//derivatives1.add(value);
 			//derivatives1.remove(0);
-			derivatives1 = value;
+			derivatives = value;
 
 		}
 	}
