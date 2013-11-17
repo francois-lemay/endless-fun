@@ -151,12 +151,10 @@ public class Master {
 		// travel to construction zone while detecting objects
 		do {
 			nav.travelTo(greenZone[0], greenZone[1], Navigation.FAST);
-			if(ObjectDetection.isObstacle){
-				nav.rotateBy(90, true);
-				nav.moveForwardBy(50, Navigation.FAST);
-				detector.start();
-			}
-		} while (!Navigation.destinationReached);		
+			
+		} while (!Navigation.destinationReached);
+		
+		// will need to re-start ObjectDetection some time
 		
 		
 		

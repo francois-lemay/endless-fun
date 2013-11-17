@@ -8,7 +8,10 @@ import lejos.util.TimerListener;
 import master.Master;
 
 /**
- * detection of objects in robot's surroundings
+ * detection of objects in robot's surroundings. The timer is stopped if a
+ * styrofoam block has been detected. This allows the robot to deal with the
+ * block without the possibility of being interrupted, until it re-starts it
+ * decides to re-start the timer.
  * 
  * @author Francois
  * 
@@ -38,8 +41,8 @@ public class ObjectDetection implements TimerListener {
 	/**
 	 * 
 	 */
-	NXTRegulatedMotor leftMotor,rightMotor;
-	
+	NXTRegulatedMotor leftMotor, rightMotor;
+
 	/**
 	 * timer
 	 */
@@ -63,7 +66,7 @@ public class ObjectDetection implements TimerListener {
 	/**
 	 * identification status booleans
 	 */
-	public static boolean isBlock, isDetecting, isObstacle;
+	public static boolean isBlock, isDetecting;
 
 	/**
 	 * determines whether the Master or the Slave brick is using this class.
@@ -99,7 +102,8 @@ public class ObjectDetection implements TimerListener {
 
 	// constructor
 	public ObjectDetection(Navigation nav, LightPoller[] lp, USPoller[] up,
-			boolean isMaster, BlockPickUp bp, NXTRegulatedMotor leftMotor, NXTRegulatedMotor rightMotor) {
+			boolean isMaster, BlockPickUp bp, NXTRegulatedMotor leftMotor,
+			NXTRegulatedMotor rightMotor) {
 
 		this.nav = nav;
 		this.lp = lp;
@@ -146,33 +150,35 @@ public class ObjectDetection implements TimerListener {
 
 				// let user know that block has been found
 				Sound.beepSequenceUp();
-				
-				// wait for control of motors to be available
-				while(Navigation.getIsNavigating())
 
-				// approach block
-				while (up[Constants.bottomUSPollerIndex]
+				// wait for control of navigation to be available
+				while (Navigation.getIsNavigating()) {
+				}
+
+				// approach block if necessary
+				if (up[Constants.bottomUSPollerIndex]
 						.getLatestFilteredDataPoint() > FINE_APPROACH) {
 					nav.setSpeeds(Navigation.SLOW, Navigation.SLOW);
+					while (up[Constants.bottomUSPollerIndex]
+							.getLatestFilteredDataPoint() > FINE_APPROACH) {
+						// wait for robot to be at a good distance from the
+						// block
+					}
 				}
+
 				// stop moving
 				nav.stopMotors();
-
+				// grab block
 				bp.closeClamp();
-				
-				isObstacle = false;
-
+				// increment number of blocks
 				Master.blocks++;
 
 			} else {
 				// let user know that is obstacle
 				Sound.beepSequence();
-				
-				// set status
-				//isObstacle = true;
-				
+
 				// otherwise, do ObstacleAvoidance
-				//avoidObstacle();
+				avoidObstacle();
 			}
 
 		}
@@ -181,13 +187,13 @@ public class ObjectDetection implements TimerListener {
 		isDetecting = false;
 
 		// re-start timer only if no block found
-		if (Master.blocks == 0 && !isObstacle) {
-			
+		if (Master.blocks == 0 && !isBlock) {
+
 			// reset all booleans
 			resetBooleans();
 			// re-start timer
 			start();
-		}else{
+		} else {
 			// reset all booleans
 			resetBooleans();
 		}
@@ -321,7 +327,6 @@ public class ObjectDetection implements TimerListener {
 		objectDetected = false;
 		newObjectDetected = false;
 		isBlock = false;
-		isObstacle = false;
 	}
 
 	/**
@@ -329,15 +334,29 @@ public class ObjectDetection implements TimerListener {
 	 */
 	private void avoidObstacle() {
 
-		// get distance from top us sensor
-		int dist = 0;
+		// wait for control of navigation to be available
+		while (Navigation.getIsNavigating()) {
+		}
 
-		// approach obstacle
-		do {
+		// initialize variable
+		int dist = up[Constants.topUSPollerIndex].getLatestFilteredDataPoint();
+
+		// approach obstacle if necessary
+		if (dist > OBSTACLE_APPROACH) {
 			nav.setSpeeds(Navigation.SLOW, Navigation.SLOW);
-			dist = up[Constants.topUSPollerIndex].getLatestFilteredDataPoint();
-		} while (dist > OBSTACLE_APPROACH);
+			do {
+				dist = up[Constants.topUSPollerIndex]
+						.getLatestFilteredDataPoint();
+			} while (dist > OBSTACLE_APPROACH);
+		} else {
+			nav.stopMotors();
+		}
 
+		// turn 90 degrees counter-clockwise
+		nav.rotateBy(90, false);
+
+		// move forward by given distance
+		nav.moveForwardBy(30, Navigation.FAST);
 	}
 
 	// start timer
@@ -349,5 +368,5 @@ public class ObjectDetection implements TimerListener {
 	public void stop() {
 		timer.stop();
 	}
-	
+
 }
