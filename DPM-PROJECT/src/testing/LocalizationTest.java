@@ -16,6 +16,11 @@ import official.SensorController;
 import official.USLocalizer;
 import official.USPoller;
 
+/**
+ * code used for testing us localization and light localization
+ * @author Francois
+ *
+ */
 public class LocalizationTest {
 
 	public static void main(String[] args) {

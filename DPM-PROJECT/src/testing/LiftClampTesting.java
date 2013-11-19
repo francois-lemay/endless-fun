@@ -7,7 +7,7 @@ import lejos.nxt.MotorPort;
 import lejos.nxt.NXTRegulatedMotor;
 
 /**
- * main class for lift and clamp testing
+ * basic code for lift and clamp testing
  * @author Francois
  *
  */

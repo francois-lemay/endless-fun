@@ -8,7 +8,7 @@ import official.Navigation;
 import official.Odometer;
 
 /**
- * Odometry testing program.
+ * Odometry testing program.  makes robot drive to specified locations on x,y maps
  * 
  * robot assumes to begin exactly at the (0,0) location
  * facing "north", i.e. 90 degrees

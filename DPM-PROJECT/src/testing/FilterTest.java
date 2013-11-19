@@ -4,6 +4,11 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import official.DataFilter;
 
+/**
+ * virtual testing of median-filtering found in DataFilter
+ * @author Francois
+ *
+ */
 public class FilterTest {
 
 	public static void main(String[] args) {

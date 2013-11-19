@@ -13,6 +13,11 @@ import official.Odometer;
 import official.SensorController;
 import official.USPoller;
 
+/**
+ * code used to test robot's ability to detect gridlines. This is also a great test for DataFilter and light sensor characterization
+ * @author Francois
+ *
+ */
 public class LineTest {
 
 	public static void main(String[] args) {
