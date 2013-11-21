@@ -86,10 +86,6 @@ public class Odometer implements TimerListener {
 		lastTachoLeft = leftMotor.getTachoCount();
 		lastTachoRight = rightMotor.getTachoCount();
 		
-		this.leftRadius = 2.15;
-		this.rightRadius = 2.15;
-		this.width = 20.4;
-		
 		lock = new Object();
 		
 		timer = new Timer(ODOMETER_PERIOD, this);

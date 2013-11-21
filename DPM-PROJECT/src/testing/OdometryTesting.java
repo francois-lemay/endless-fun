@@ -25,14 +25,17 @@ public class OdometryTesting {
 
 		Odometer odo = new Odometer(left,right);
 		Navigation nav = new Navigation(odo);
+		LCDInfo lcd = new LCDInfo(odo);
+		
+		lcd.start();
 		
 		/*
 		 * Insert destinations here!!!
 		 * {x,y}
 		 */
-		double[][] destinations = {{0,30},{30,30},{30,60},{60,0},{0,30},{0,0}};
+		double[][] destinations = {{0,30},{60,30},{60,60},{0,0}};
 		double x,y;
-		int button=99;
+		int button = -1;
 		
 		Button.waitForAnyPress();
 		
@@ -47,7 +50,7 @@ public class OdometryTesting {
 			// set destination
 			x = destinations[i][0];
 			y = destinations[i][1];
-			
+/*			
 			// print destination to screen
 			LCD.clear(5, 0, 5);
 			LCD.drawString("x = ",0,0);
@@ -56,23 +59,26 @@ public class OdometryTesting {
 			LCD.clear(5, 1, 5);
 			LCD.drawString("y = ", 0, 1);
 			LCD.drawInt((int)y, 5, 1);
-
+*/
 			
 			// travel to x,y
 			nav.travelTo(destinations[i][0], destinations[i][1], Navigation.FAST);
-			
+/*			
 			// wait for button press
 			LCD.clear();
 			LCD.drawString("Press escape to",0,0);
 			LCD.drawString("exit, or any",0,1);
 			LCD.drawString("other button to",0,2);
 			LCD.drawString("continue",0,3);
-			
-			Button.waitForAnyPress();
+*/			
+			//Button.waitForAnyPress();
 			if(button==Button.ID_ESCAPE){
 				System.exit(0);
 			}
 		}
+		
+		nav.turnTo(90, Navigation.FAST);
+		Button.waitForAnyPress();
 		
 	}
 

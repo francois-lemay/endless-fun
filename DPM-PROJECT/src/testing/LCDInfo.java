@@ -37,7 +37,7 @@ public class LCDInfo implements TimerListener {
 
 		// initialize the arrays for displaying data
 		pos = new double[3];
-
+		
 	}
 
 	public void timedOut() {

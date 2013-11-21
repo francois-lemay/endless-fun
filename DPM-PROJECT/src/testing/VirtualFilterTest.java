@@ -9,7 +9,7 @@ import official.DataFilter;
  * @author Francois
  *
  */
-public class FilterTest {
+public class VirtualFilterTest {
 
 	public static void main(String[] args) {
 

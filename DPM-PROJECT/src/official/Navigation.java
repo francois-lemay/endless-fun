@@ -124,8 +124,8 @@ public class Navigation {
 	 * float the two motors jointly
 	 */
 	public void setFloat() {
-		this.leftMotor.stop();
-		this.rightMotor.stop();
+		this.leftMotor.stop(true);
+		this.rightMotor.stop(false);
 		this.leftMotor.flt(true);
 		this.rightMotor.flt(true);
 	}

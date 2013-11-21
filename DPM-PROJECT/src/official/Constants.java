@@ -64,7 +64,7 @@ public class Constants {
 	/**
 	 * odometer's update period (in miliseconds)
 	 */
-	public static final int ODOMETER_PERIOD = 25;
+	public static final int ODOMETER_PERIOD = 20;
 	/**
 	 * object detection period
 	 */
@@ -77,15 +77,15 @@ public class Constants {
 	/**
 	 * left wheel radius (centimeters)
 	 */
-	public static final double leftRadius = 2.08;
+	public static final double leftRadius = 2;
 	/**
 	 * right wheel radius (centimeters)
 	 */
-	public static final double rightRadius = 2.08;
+	public static final double rightRadius = 2;
 	/**
 	 * wheelbase width (centimeters)
 	 */
-	public static final double width = 19.5;
+	public static final double width = 15.9;
 	/**
 	 * distance between back light sensor and center of wheel base (in
 	 * centimeters)
@@ -317,6 +317,15 @@ public class Constants {
 	 * dist used for fine approach towards styro block
 	 */
 	public static final int FINE_APPROACH = 10;
+	
+	/*
+	 * odometry correction parameters
+	 */
+	
+	/**
+	 * allowed bandwidth for odometry correction close to gridline intersections
+	 */
+	public static final double LINE_CROSS_BW = 0.3;
 	
 	
 }

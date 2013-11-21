@@ -2,7 +2,10 @@ package official;
 
 /**
  * odometry correction. Assumes the minimum x and y positions to be x = y = -30.
- * The first gridlines will therefore intersect at (0,0)
+ * The first gridlines will therefore intersect at (0,0).
+ * 
+ * the odometry correction algorithm used in this code assumes the light sensor to be positioned
+ * at a fixed distance behind the center of the wheel base
  * 
  * @author Francois
  * 
@@ -15,11 +18,6 @@ public class OdometryCorrection extends Thread {
 	 * robot's odometer
 	 */
 	private Odometer odo;
-
-	/**
-	 * light poller
-	 */
-	private LightPoller lp;
 
 	/**
 	 * grid width (i.e. the number of squares along x-axis)
@@ -47,15 +45,14 @@ public class OdometryCorrection extends Thread {
 	private final int SQUARE_LENGTH = Constants.SQUARE_LENGTH;
 
 	/**
-	 * threshold derivative value used for gridline detection
-	 */
-	public final int GRIDLINE_THRESH = Constants.GRIDLINE_THRES;
-
-	/**
 	 * distance between back light sensor and center of wheel base (in
 	 * centimeters)
 	 */
-	private final double DIST = Constants.BACK_SENSOR_DIST;
+	private final double LS_DIST = Constants.BACK_SENSOR_DIST;
+	/**
+	 * allowed bandwidth for odometry correction close to gridline intersections
+	 */
+	private final static double LINE_CROSS_BW = Constants.LINE_CROSS_BW;
 
 	/**
 	 * constructor
@@ -69,8 +66,6 @@ public class OdometryCorrection extends Thread {
 	 */
 	public OdometryCorrection(Odometer odo, LightPoller lp) {
 		this.odo = odo;
-
-		this.lp = lp;
 
 		x_lines = new int[grid_width];
 		y_lines = new int[grid_length];
@@ -95,10 +90,7 @@ public class OdometryCorrection extends Thread {
 	 */
 	public void run() {
 
-		// correct odometry if line gridline has been crossed
-		if (isLineDetected()) {
-			correctPosition();
-		}
+		correctPosition();
 	}
 
 	/**
@@ -106,8 +98,10 @@ public class OdometryCorrection extends Thread {
 	 */
 	public void correctPosition() {
 
-		boolean updateX = false;
+		boolean[] update = {false,false,false};
 		double[] position = new double[3];
+		double xLS,yLS;
+		int xMod,yMod, deltaMod;
 
 		// get actual position and heading
 		odo.getPosition(position);
@@ -115,26 +109,48 @@ public class OdometryCorrection extends Thread {
 		double y = position[1];
 		double heading = position[2];
 
-		// TODO
+		// Alex's algorithm:
+		
 		// determine which line has been crossed
-
+		
+		// calculate light sensor's position
+		xLS = x-LS_DIST*Math.cos(heading);
+		yLS = y-LS_DIST*Math.sin(heading);
+		
+		// apply modulo 30 operator
+		xMod = (int) (xLS % 30);
+		yMod = (int) (yLS % 30);
+		
+		// normalize results
+		// values may be normalized to -ve numbers in order to be used as flags for later
+		if(xMod > 15){
+			xMod = xMod - 30;
+		}
+		if(yMod > 15){
+			yMod = yMod - 30;
+		}
+		
+		// compute deltaMod
+		deltaMod = Math.abs(Math.abs(xMod)-Math.abs(yMod));
+		
+		// if robot is very close to intersection of gridlines
+		if(deltaMod < LINE_CROSS_BW){
+			x = x-xMod;
+			y = y-yMod;
+			update[0] = true;
+			update[1] = true;
+		}
+		else if(Math.abs(xMod)<Math.abs(yMod)){
+			x = x - xMod;
+			update[0] = true;
+		}
+		else{
+			y = y - yMod;
+			update[1] = true;
+		}
 		
 		// update x or y coord. accordingly
-
-		odo.setPosition(position, new boolean[] { updateX, !updateX, false });
+		odo.setPosition(position, update);
 
 	}
-
-	/**
-	 * determine if a grid line has been crossed
-	 * 
-	 * @return - true or false
-	 */
-	public boolean isLineDetected() {
-		if (lp.getLatestDerivative() <= GRIDLINE_THRESH) {
-			return true;
-		}
-		return false;
-	}
-
 }
