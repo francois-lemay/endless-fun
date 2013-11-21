@@ -14,14 +14,16 @@ import official.SensorController;
 import official.USPoller;
 
 /**
- * code used to test robot's ability to detect gridlines. This is also a great test for DataFilter and light sensor characterization
+ * code used to test robot's ability to detect gridlines. This is also a great
+ * test for DataFilter and light sensor characterization
+ * 
  * @author Francois
- *
+ * 
  */
 public class LineTest {
 
 	public static void main(String[] args) {
-		//RConsole.openUSB(0);
+		RConsole.openUSB(0);
 
 		// motors
 		NXTRegulatedMotor leftMotor = new NXTRegulatedMotor(MotorPort.A);
@@ -38,29 +40,31 @@ public class LineTest {
 				Constants.bottomSensorPort);
 
 		// us poller
-		USPoller bottom = new USPoller(bottomS, Constants.BOTT_SAMPLE,Constants.M_PERIOD);
+		USPoller bottom = new USPoller(bottomS, Constants.BOTT_SAMPLE,
+				Constants.M_PERIOD);
 		USPoller[] up = { bottom };
 
 		// back light sensor
 		ColorSensor backS = new ColorSensor(Constants.backSensorPort);
 
 		// light poller
-		LightPoller back = new LightPoller(backS, Constants.BACK_SAMPLE,Constants.M_PERIOD);
+		LightPoller back = new LightPoller(backS, Constants.BACK_SAMPLE,
+				Constants.M_PERIOD);
 		LightPoller[] lp = { back };
 
 		// sensor controller
 		// no need for OdometryCorrection and ObjectDetection
 		SensorController cont = new SensorController(null, lp, up,
-			Constants.M_PERIOD, null);
+				Constants.M_PERIOD, null);
 
 		// start controller
 		cont.startPolling();
 
 		// move forward
 		nav.setSpeeds(Navigation.FAST, Navigation.FAST);
-		
-		while(true){
-			if(back.getLatestDerivative()<=Constants.GRIDLINE_THRES){
+
+		while (true) {
+			if (back.getLatestDerivative() <= Constants.GRIDLINE_THRES) {
 				Sound.twoBeeps();
 			}
 		}

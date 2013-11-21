@@ -64,7 +64,7 @@ public class Constants {
 	/**
 	 * odometer's update period (in miliseconds)
 	 */
-	public static final int ODOMETER_PERIOD = 20;
+	public static final int ODOMETER_PERIOD = 25;
 	/**
 	 * object detection period
 	 */
@@ -77,15 +77,15 @@ public class Constants {
 	/**
 	 * left wheel radius (centimeters)
 	 */
-	public static final double leftRadius = 2;
+	public static final double leftRadius = 2.055;
 	/**
 	 * right wheel radius (centimeters)
 	 */
-	public static final double rightRadius = 2;
+	public static final double rightRadius = 2.055;
 	/**
 	 * wheelbase width (centimeters)
 	 */
-	public static final double width = 15.9;
+	public static final double width = 15.65;
 	/**
 	 * distance between back light sensor and center of wheel base (in
 	 * centimeters)
@@ -160,7 +160,7 @@ public class Constants {
 	/**
 	 * back light sensor sample size
 	 */
-	public static final int BACK_SAMPLE = 9;
+	public static final int BACK_SAMPLE = 7;
 	
 	/*
 	 * sensors' derivative sample sizes

@@ -108,8 +108,6 @@ public class OdometryCorrection extends Thread {
 		double x = position[0];
 		double y = position[1];
 		double heading = position[2];
-
-		// Alex's algorithm:
 		
 		// determine which line has been crossed
 		
@@ -118,39 +116,60 @@ public class OdometryCorrection extends Thread {
 		yLS = y-LS_DIST*Math.sin(heading);
 		
 		// apply modulo 30 operator
-		xMod = (int) (xLS % 30);
-		yMod = (int) (yLS % 30);
+		xMod = Math.abs((int) (xLS % 30));
+		yMod = Math.abs((int) (yLS % 30));
 		
-		// normalize results
-		// values may be normalized to -ve numbers in order to be used as flags for later
+		// normalize results for comparison
 		if(xMod > 15){
-			xMod = xMod - 30;
+			xMod = 30 - xMod;
 		}
 		if(yMod > 15){
-			yMod = yMod - 30;
+			yMod = 30 - yMod;
 		}
-		
+
 		// compute deltaMod
 		deltaMod = Math.abs(Math.abs(xMod)-Math.abs(yMod));
 		
-		// if robot is very close to intersection of gridlines
 		if(deltaMod < LINE_CROSS_BW){
-			x = x-xMod;
-			y = y-yMod;
+			// correct both xLS and yLS
+			xLS = (Math.ceil(xLS/10.0))*10;			
+			yLS = (Math.ceil(yLS/10.0))*10;
+			
+			// correct x and y
+			x = xLS +LS_DIST*Math.cos(heading);
+			y = yLS+LS_DIST*Math.sin(heading);
+			
+			// set update booleans
 			update[0] = true;
 			update[1] = true;
+
 		}
-		else if(Math.abs(xMod)<Math.abs(yMod)){
-			x = x - xMod;
+		else if(xMod < yMod){
+			//correct xLS only
+			xLS = (Math.rint(xLS/10.0))*10;
+			
+			// correct x only
+			x = xLS +LS_DIST*Math.cos(heading);
+			
+			// set update booleans
 			update[0] = true;
 		}
 		else{
-			y = y - yMod;
+			// correct yLS only
+			yLS = (Math.rint(yLS/10.0))*10;
+			
+			// correct y only
+			y = yLS+LS_DIST*Math.sin(heading);	
+			
+			// set update booleans
 			update[1] = true;
 		}
 		
-		// update x or y coord. accordingly
+		// update position array
+		position[0] = x;
+		position[1] = y;
+		
+		// update robot's position
 		odo.setPosition(position, update);
-
 	}
 }

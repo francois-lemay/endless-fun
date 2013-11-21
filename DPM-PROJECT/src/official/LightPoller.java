@@ -1,8 +1,10 @@
 package official;
 
 import java.util.LinkedList;
+
 import official.Constants.theLock;
 import lejos.nxt.ColorSensor;
+import lejos.nxt.comm.RConsole;
 import lejos.util.Timer;
 import lejos.util.TimerListener;
 
@@ -144,6 +146,11 @@ public class LightPoller implements TimerListener {
 			rawData.remove(0);
 
 		}
+		
+		//********************
+		//RConsole.println(""+data);
+		//*********************
+	
 
 	}
 
@@ -208,6 +215,10 @@ public class LightPoller implements TimerListener {
 		synchronized (lock) {
 			filteredData.add(value);
 			filteredData.remove(0);
+			
+			//********************
+			//RConsole.println(""+value);
+			//*********************
 
 		}
 	}
@@ -223,6 +234,10 @@ public class LightPoller implements TimerListener {
 			//derivatives1.add(value);
 			//derivatives1.remove(0);
 			derivatives = value;
+			
+			//********************
+			//RConsole.println(""+value);
+			//*********************
 
 		}
 	}
