@@ -5,7 +5,6 @@ import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.Sound;
 import lejos.util.Timer;
 import lejos.util.TimerListener;
-import master.Master;
 
 /**
  * detection of objects in robot's surroundings. The timer is stopped if a

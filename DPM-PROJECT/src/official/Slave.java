@@ -1,12 +1,9 @@
-package slave;
+package official;
 
 import lejos.nxt.Button;
 import lejos.nxt.LCD;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.comm.RS485;
-import official.BlockPickUp;
-import official.Constants;
-import official.NXTComm;
 
 
 /**
