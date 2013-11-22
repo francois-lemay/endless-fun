@@ -34,13 +34,13 @@ public class ObjectDetection implements TimerListener {
 	 */
 	private USPoller[] up;
 	/**
+	 * obstacle avoidance class
+	 */
+	private ObstacleAvoidance avoider;
+	/**
 	 * block pick up class
 	 */
-	BlockPickUp bp;
-	/**
-	 * motors
-	 */
-	NXTRegulatedMotor leftMotor, rightMotor, sensorMotor;
+	private BlockPickUp bp;
 
 	/**
 	 * timer
@@ -68,11 +68,6 @@ public class ObjectDetection implements TimerListener {
 	public static boolean isBlock, isDetecting;
 
 	/**
-	 * determines whether the Master or the Slave brick is using this class.
-	 */
-	private boolean isMaster;
-
-	/**
 	 * booleans that confirm presence of object at specified sensors
 	 */
 	private boolean bottom, top, left, right;
@@ -81,14 +76,7 @@ public class ObjectDetection implements TimerListener {
 	 * dist used for fine approach towards styro block
 	 */
 	private final int FINE_APPROACH = Constants.FINE_APPROACH;
-	/**
-	 * dist used for obstacle avoidance approach
-	 */
-	private final int OBSTACLE_APPROACH = Constants.OBSTACLE_APPROACH;
-	/**
-	 * dist used for obstacle dodging
-	 */
-	private final int OBSTACLE_PRESENT = Constants.OBSTACLE_PRESENT;
+
 
 	/**
 	 * 
@@ -99,23 +87,12 @@ public class ObjectDetection implements TimerListener {
 	 */
 
 	// constructor
-	public ObjectDetection(Navigation nav, LightPoller[] lp, USPoller[] up,
-			boolean isMaster, BlockPickUp bp, NXTRegulatedMotor leftMotor,
-			NXTRegulatedMotor rightMotor) {
+	public ObjectDetection(Odometer odo, Navigation nav, USPoller[] up, ObstacleAvoidance avoider) {
 
 		this.nav = nav;
 		this.lp = lp;
 		this.up = up;
-		this.isMaster = isMaster;
-		this.bp = bp;
-		this.leftMotor = leftMotor;
-		this.rightMotor = rightMotor;
-		
-		// initialize sensor motor
-		this.sensorMotor = new NXTRegulatedMotor(
-				Constants.sensorMotorPort);
-		sensorMotor.setSpeed(Navigation.SLOW);
-		sensorMotor.resetTachoCount();
+		this.avoider = avoider;
 
 		timer = new Timer(PERIOD, this);
 
@@ -137,13 +114,13 @@ public class ObjectDetection implements TimerListener {
 
 		// if yes, identify it
 		if (objectDetected) {
-			
-			// identify object			
+
+			// identify object
 			int bottomReading = up[Constants.bottomUSPollerIndex]
 					.getLatestFilteredDataPoint();
 			int topReading = up[Constants.topUSPollerIndex]
 					.getLatestFilteredDataPoint();
-			
+
 			// check difference in readings
 			if (Math.abs(bottomReading - topReading) < 15) {
 				isBlock = false;
@@ -158,19 +135,21 @@ public class ObjectDetection implements TimerListener {
 				Sound.beepSequenceUp();
 
 				// wait for control of navigation to be available
-				while (Navigation.getIsNavigating()) {}
+				while (Navigation.getIsNavigating()) {
+				}
 
 				// approach block if necessary
 				if (up[Constants.bottomUSPollerIndex]
 						.getLatestFilteredDataPoint() > FINE_APPROACH) {
-					
+
 					// slowly move forward
 					nav.setSpeeds(Navigation.SLOW, Navigation.SLOW);
-					
+
 					// wait for robot to be at a good distance from the
 					// block
 					while (up[Constants.bottomUSPollerIndex]
-							.getLatestFilteredDataPoint() > FINE_APPROACH) {}
+							.getLatestFilteredDataPoint() > FINE_APPROACH) {
+					}
 				}
 
 				// stop moving
@@ -185,7 +164,7 @@ public class ObjectDetection implements TimerListener {
 				Sound.beepSequence();
 
 				// otherwise, do ObstacleAvoidance
-				avoidObstacle();
+				avoider.avoidObstacle();
 			}
 
 		}
@@ -218,74 +197,36 @@ public class ObjectDetection implements TimerListener {
 
 		// check data from every sensor to see if an object is detected
 
-		// if Master
-		if (isMaster) {
-			try {
-				if (up != null) {
+		try {
+			if (up != null) {
 
-					int dist = -1;
+				int dist = -1;
 
-					// check us sensors
-					for (int i = 0; i < up.length; i++) {
+				// check us sensors
+				for (int i = 0; i < up.length; i++) {
 
-						// get latest filtered reading
-						dist = up[i].getLatestFilteredDataPoint();
+					// get latest filtered reading
+					dist = up[i].getLatestFilteredDataPoint();
 
-						// if object within range
-						if (dist < Constants.US_OBJECT_THRESH) {
+					// if object within range
+					if (dist < Constants.US_OBJECT_THRESH) {
 
-							// set corresponding boolean
-							switch (i) {
-							case Constants.bottomUSPollerIndex:
-								bottom = true;
-								break;
-							case Constants.topUSPollerIndex:
-								top = true;
-								break;
-							}
+						// set corresponding boolean
+						switch (i) {
+						case Constants.bottomUSPollerIndex:
+							bottom = true;
+							break;
+						case Constants.topUSPollerIndex:
+							top = true;
+							break;
 						}
 					}
 				}
-			} catch (Exception e) {
-				LCD.clear();
-				LCD.drawString("Object Detection", 0, 1);
-				LCD.drawString("up null", 0, 1);
 			}
-
-		}
-		// if Slave
-		else {
-
-			try {
-				// check light sensors if there are any
-				if (lp != null) {
-
-					int light = 0;
-
-					for (int i = 0; i < lp.length; i++) {
-
-						// get latest filtered reading
-						light = lp[i].getLatestFilteredDataPoint();
-
-						// if object within range
-						if (light > Constants.LIGHT_OBJECT_THRESH) {
-							switch (i) {
-							case Constants.leftLightPollerIndex:
-								left = true;
-								break;
-							case Constants.rightLightPollerIndex:
-								right = true;
-								break;
-							}
-
-						}
-					}
-				}
-			} catch (Exception e) {
-				LCD.clear();
-				LCD.drawString("Object Detection", 0, 1);
-				LCD.drawString("lp null", 0, 1);
-			}
+		} catch (Exception e) {
+			LCD.clear();
+			LCD.drawString("Object Detection", 0, 1);
+			LCD.drawString("up null", 0, 1);
 		}
 
 		// set value of objectDetected
@@ -298,73 +239,6 @@ public class ObjectDetection implements TimerListener {
 		}
 	}
 
-	/**
-	 * make robot avoid obstacle while staying on track to its destination
-	 */
-	private void avoidObstacle() {
-
-		// initialize variable
-		int dist = up[Constants.topUSPollerIndex].getLatestFilteredDataPoint();
-		
-		// approach obstacle if necessary
-		if (dist > OBSTACLE_APPROACH) {
-			
-			// slowly approach obstacle
-			nav.setSpeeds(Navigation.SLOW, Navigation.SLOW);
-			
-			do {
-				dist = up[Constants.topUSPollerIndex]
-						.getLatestFilteredDataPoint();
-			} while (dist > OBSTACLE_APPROACH);
-		} else {
-			
-			// stop approaching obstacle
-			nav.stopMotors();
-		}
-
-		// turn 90 degrees clockwise
-		nav.rotateBy(-90, false);
-		
-		// turn us sensor towards obstacle
-		sensorMotor.rotateTo(-90, false);
-		try{
-			Thread.sleep(500);
-		}catch(Exception e){}
-		
-		// move forward until obstacle is not seen
-		nav.setSpeeds(Navigation.FAST, Navigation.FAST);
-		
-		do{
-			// check for obstacle (e.g. a robot passing in front) at the front at the same time
-			if(up[Constants.bottomUSPollerIndex].getLatestFilteredDataPoint() < 20){
-				
-				// stop motors
-				nav.stopMotors();
-				
-				// wait until robot passes by
-				while(up[Constants.bottomUSPollerIndex].getLatestFilteredDataPoint() < 20){}
-				
-				// reset the motor speeds
-				nav.setSpeeds(Navigation.FAST, Navigation.FAST);
-			}
-			
-			// get reading from top us sensor
-			dist = up[Constants.topUSPollerIndex]
-					.getLatestFilteredDataPoint();
-			
-		}while(dist < Constants.OBSTACLE_PRESENT);
-		
-		// turn sensor back
-		sensorMotor.rotateTo(0, false);
-		
-		// continue moving forward to contour the obstacle
-		nav.moveForwardBy(20, Navigation.FAST);
-		
-		
-		// turn 90 degrees counter-clockwise
-		nav.rotateBy(90, false);
-	}
-	
 	/**
 	 * reset all booleans that are used to flag the presence of an object
 	 */
@@ -391,5 +265,4 @@ public class ObjectDetection implements TimerListener {
 	public void stop() {
 		timer.stop();
 	}
-
 }

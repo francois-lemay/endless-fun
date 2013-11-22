@@ -98,10 +98,12 @@ public class Master {
 
 		// odometry correction
 		// OdometryCorrection odoCorr = new OdometryCorrection(odo, back);
+		
+		// obstacle avoidance
+		ObstacleAvoidance avoider = new ObstacleAvoidance(odo,nav,up, leftMotor, rightMotor);
 
 		// object detection
-		ObjectDetection detector = new ObjectDetection(nav, null, up, true, bp,
-				leftMotor, rightMotor);
+		ObjectDetection detector = new ObjectDetection(odo, nav, up, avoider);
 
 		// obstacle avoidance
 
