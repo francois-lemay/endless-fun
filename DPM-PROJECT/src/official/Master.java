@@ -44,23 +44,22 @@ public class Master {
 		 * LCD.clear(); LCD.drawString("Press to write to DOS", 0, 0);
 		 * Button.waitForAnyPress(); NXTComm.write(9);
 		 */
-		
-		
-		//**************************************************************
-		
+
+		// **************************************************************
+
 		Button.waitForAnyPress();
-		Constants.greenZone = new int[]{4*Constants.SQUARE_LENGTH,3*Constants.SQUARE_LENGTH};
-		
+		Constants.greenZone = new int[] { 4 * Constants.SQUARE_LENGTH,
+				3 * Constants.SQUARE_LENGTH };
+
 		// set up clamp motor
 		NXTRegulatedMotor clampM = new NXTRegulatedMotor(MotorPort.C);
-		NXTRegulatedMotor[] clamp = {null,clampM};
-		
+		NXTRegulatedMotor[] clamp = { null, clampM };
+
 		// set up block pickup
 		BlockPickUp bp = new BlockPickUp(clamp);
-		
-		//***************************************************************
-		
-		
+
+		// ***************************************************************
+
 		/*
 		 * hardware initialization
 		 */
@@ -83,7 +82,7 @@ public class Master {
 		// light poller
 		LightPoller back = new LightPoller(backS, Constants.BACK_SAMPLE,
 				Constants.M_PERIOD);
-//		LightPoller[] lp = { back };
+		// LightPoller[] lp = { back };
 
 		// two front us sensors
 		UltrasonicSensor bottomS = new UltrasonicSensor(
@@ -103,7 +102,8 @@ public class Master {
 		// OdometryCorrection odoCorr = new OdometryCorrection(odo, back);
 
 		// object detection
-		ObjectDetection detector = new ObjectDetection(nav, null, up, true,bp,leftMotor,rightMotor);
+		ObjectDetection detector = new ObjectDetection(nav, null, up, true, bp,
+				leftMotor, rightMotor);
 
 		// obstacle avoidance
 
@@ -130,8 +130,7 @@ public class Master {
 
 		// do light localization
 		lightLoc.doLocalization();
-		
-		
+
 		/*
 		 * main program loop
 		 */
@@ -140,24 +139,20 @@ public class Master {
 		double[] greenZone = { Constants.greenZone[0], Constants.greenZone[1] };
 
 		// start object detection
-		try{
-		detector.start();
-		}catch(Exception e){
+		try {
+			detector.start();
+		} catch (Exception e) {
 			LCD.clear();
 			LCD.drawString("problem", 0, 0);
-					
+
 		}
 
 		// travel to construction zone while detecting objects
 		do {
 			nav.travelTo(greenZone[0], greenZone[1], Navigation.FAST);
-			
+
 		} while (!Navigation.destinationReached);
-		
-		// will need to re-start ObjectDetection some time
-		
-		
-		
+
 		// find one block if none found yet
 		if (blocks >= 1) {
 			while (blocks < 1) {
@@ -167,9 +162,21 @@ public class Master {
 			}
 		}
 
-		// go deposit block(s) to construction zone
-//		builder.deliverTower();
+		// will need to re-start ObjectDetection before re-starting search. Also
+		// reset 'blocks' to 0.
+		// ObjectDetection is stopped when a styrofoam block has been found
+		// (i.e. when blocks is not equal to zero)
+		
+		
+		// start searching thread.
+		
 
+		// go deposit block(s) to construction zone
+		// builder.deliverTower();
+
+		
+		
+		
 		/*
 		 * end communication with Slave. & end program
 		 */
@@ -198,8 +205,8 @@ public class Master {
 			// green zone is defined by these (bottom-left and top-right)
 			// corners:
 			Constants.greenZone = new int[2];
-			Constants.greenZone[0] = t.greenZone[0]*Constants.SQUARE_LENGTH;
-			Constants.greenZone[1] = t.greenZone[1]*Constants.SQUARE_LENGTH;
+			Constants.greenZone[0] = t.greenZone[0] * Constants.SQUARE_LENGTH;
+			Constants.greenZone[1] = t.greenZone[1] * Constants.SQUARE_LENGTH;
 
 			// red zone is defined by these (bottom-left and top-right) corners:
 			Constants.redZone = t.redZone;

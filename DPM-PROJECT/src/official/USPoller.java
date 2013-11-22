@@ -1,8 +1,10 @@
 package official;
 
 import java.util.LinkedList;
+
 import official.Constants.theLock;
 import lejos.nxt.UltrasonicSensor;
+import lejos.nxt.comm.RConsole;
 import lejos.util.Timer;
 import lejos.util.TimerListener;
 
@@ -146,6 +148,10 @@ public class USPoller implements TimerListener {
 			rawData.remove(0);
 
 		}
+		
+		//******************************
+		//RConsole.println(""+data);
+		//******************************
 
 	}
 

@@ -198,7 +198,7 @@ public class Constants {
 	 * tweaking value (in degrees) for final
 	 * correction in heading
 	 */
-	public static final int ANG_TWEAK = -35;
+	public static final int ANG_TWEAK = 0;
 	/**
 	 * tweaking value to compensate for line detection lag
 	 */
@@ -210,7 +210,11 @@ public class Constants {
 	/**
 	 * robot's rotation speed used during us localization
 	 */
-	public static final int LOC_SPEED = 150;
+	public static final int US_LOC_SPEED = 300;
+	/**
+	 * robot's rotation speed used during light localization
+	 */
+	public static final int LIGHT_LOC_SPEED = 250;
 	/**
 	 * distance considered as 'no wall present' (centimeters)
 	 */
@@ -222,15 +226,15 @@ public class Constants {
 	/**
 	 * size of noise margin
 	 */
-	public static final int NOISE_MARGIN = 5;
+	public static final int NOISE_MARGIN = 10;
 	/**
 	 * tweaking value (in degrees) for deltaTheta (in Falling Edge)
 	 */
-	public static final int FE_TWEAK = 5;
+	public static final int FE_TWEAK = 0;
 	/**
 	 * tweaking value (in degrees) for deltaTheta (in Rising Edge)
 	 */
-	public static final int RE_TWEAK = 22;
+	public static final int RE_TWEAK = 16;
 	
 	
 	/*
@@ -317,6 +321,14 @@ public class Constants {
 	 * dist used for fine approach towards styro block
 	 */
 	public static final int FINE_APPROACH = 10;
+	/**
+	 * dist used for obstacle avoidance approach
+	 */
+	public static final int OBSTACLE_APPROACH = 30;
+	/**
+	 * dist used for obstacle dodging
+	 */
+	public static final int OBSTACLE_PRESENT = 60;
 	
 	/*
 	 * odometry correction parameters

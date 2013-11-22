@@ -1,6 +1,7 @@
 package official;
 
 import lejos.nxt.Sound;
+import lejos.nxt.comm.RConsole;
 
 /**
  * initial Localization using the Ultrasonic Sensor. Data is taken from the US
@@ -39,7 +40,7 @@ public class USLocalizer {
 	/**
 	 * robot's rotation speed used during us localization
 	 */
-	private final int ROTATION_SPEED = Constants.LOC_SPEED;
+	private final int ROTATION_SPEED = Constants.US_LOC_SPEED;
 	/**
 	 * distance considered as 'no wall present' (centimeters)
 	 */
@@ -238,7 +239,7 @@ public class USLocalizer {
 
 		}
 		
-		navigator.turnTo(90,Constants.LOC_SPEED);
+		navigator.turnTo(90,Constants.US_LOC_SPEED);
 
 		// re-close the clamp
 		//NXTComm.write(Constants.CLOSE_CLAMP);
@@ -251,10 +252,37 @@ public class USLocalizer {
 	 * @return the latest filteredData point
 	 */
 	private int getFilteredData() {
+		int distance = 0;
+		int filterCtl = 0;
+		int FILTER_OUT = 20;
+		boolean badValue = true;
 		
-		int dist = us.getLatestFilteredDataPoint();
-		
-		return dist;
+		// this while loop is intended for filtering of 255 values
+		while(badValue){
+			
+			// there will be a delay here
+			distance = us.getLatestRawDataPoint();
+			
+			// the following if statement filters inconsistent readings of 255
+			if (distance == 255 && filterCtl < FILTER_OUT) {  
+				// bad value, do not set the distance variable, however do increment the filter value
+				filterCtl ++;
+						
+			// the distance variable is set to 255 if the 255 value has been read FILTER_OUT times or more
+			} else if (distance == 255){
+				// true 255, therefore set distance to 255 and exit while loop
+				badValue = false;
+				
+			} else {
+				// distance went below 255, therefore reset filterControl and exit while loop
+				filterCtl = 0;
+				badValue = false;
+			}
+		}
+		//******************************
+		//RConsole.println(""+distance);
+		//******************************
+		return distance;
 	}
 
 }

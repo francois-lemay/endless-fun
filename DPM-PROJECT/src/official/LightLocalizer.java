@@ -69,10 +69,10 @@ public class LightLocalizer {
 	public void doLocalization() {
 		
 		double[] angles = new double[4];
-
+/*
 		// move forward until the x-axis is detected.
 		// Only update Y position to 0.0
-		navigator.setSpeeds(Constants.LOC_SPEED, Constants.LOC_SPEED);
+		navigator.setSpeeds(Constants.US_LOC_SPEED, Constants.US_LOC_SPEED);
 		
 		while (true) {
 			if (lp.getLatestDerivative()<THRESH_BLACK) {
@@ -82,13 +82,13 @@ public class LightLocalizer {
 				break;
 			}
 		}
-		navigator.moveForwardBy(-2*SENSOR_DISTANCE, Constants.LOC_SPEED);
+		navigator.moveForwardBy(-2*SENSOR_DISTANCE, Constants.US_LOC_SPEED);
 
 		// turn to 0 degrees & move along +ve x-axis until y-axis is crossed.
 		// Only update X position to 0.
 
-		navigator.turnTo(0,Constants.LOC_SPEED);
-		navigator.setSpeeds(Constants.LOC_SPEED, Constants.LOC_SPEED);
+		navigator.turnTo(0,Constants.US_LOC_SPEED);
+		navigator.setSpeeds(Constants.US_LOC_SPEED, Constants.US_LOC_SPEED);
 
 		while (true) {
 			if (lp.getLatestDerivative()<THRESH_BLACK) {
@@ -98,13 +98,15 @@ public class LightLocalizer {
 				break;
 			}
 		}
-		navigator.moveForwardBy(-2*SENSOR_DISTANCE,Constants.LOC_SPEED);
-
-		navigator.turnTo(290,Constants.LOC_SPEED);
-
+		navigator.moveForwardBy(-2*SENSOR_DISTANCE,Constants.US_LOC_SPEED);
+		
+		// position robot to clock gridlines
+		navigator.travelTo(-5,-5, Constants.US_LOC_SPEED);		
+		navigator.turnTo(90,Constants.US_LOC_SPEED);
+*/
 		// start rotating and clock all 4 gridlines.
-		// angles = { Y+ , X+ , Y- , X- }
-		navigator.setSpeeds(Constants.LOC_SPEED, -Constants.LOC_SPEED);
+		// angles = { X- , Y+ , X+ , Y- }
+		navigator.setSpeeds(Constants.LIGHT_LOC_SPEED, -Constants.LIGHT_LOC_SPEED);
 		
 		//*****************************************
 		//RConsole.println("Start clocking");
@@ -121,7 +123,7 @@ public class LightLocalizer {
 				}
 			}
 			try {
-				Thread.sleep(300);
+				Thread.sleep(100);
 			} catch (InterruptedException e) {
 			}
 
@@ -132,18 +134,18 @@ public class LightLocalizer {
 
 		// do trig to compute (0,0) and 0 degrees
 		double x = -1 * SENSOR_DISTANCE
-				* Math.cos(Math.toRadians((angles[0] - angles[2]) / 2));
+				* Math.cos(Math.toRadians((angles[1] - angles[3]) / 2));
 		double y = -1 * SENSOR_DISTANCE
-				* Math.cos(Math.toRadians((angles[3] - angles[1]) / 2));
-		double theta = odo.getAng() - angles[0]
-				+ ((angles[0] + 360 - angles[2]) / 2) + ANG_TWEAK;
+				* Math.cos(Math.toRadians((angles[0] - angles[2]) / 2));
+		double theta = odo.getAng() - angles[1]
+				+ ((angles[1] + 360 - angles[3]) / 2) + ANG_TWEAK;
 
 		odo.setPosition(new double[] { x, y, theta }, new boolean[] { true,
 				true, true });
 
 		// when done travel to (0,0) and turn to 90 degrees
-		navigator.travelTo(0, 0, Constants.LOC_SPEED);
-		navigator.turnTo(90,Constants.LOC_SPEED);
+		navigator.travelTo(0, 0, Constants.LIGHT_LOC_SPEED);
+		navigator.turnTo(90,Constants.LIGHT_LOC_SPEED);
 
 		// change origin to starting corner
 		//correctCorner();

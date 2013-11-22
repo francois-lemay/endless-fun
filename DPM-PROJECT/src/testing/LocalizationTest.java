@@ -68,8 +68,8 @@ public class LocalizationTest {
 		LCD.drawString(" USLoc | LightLoc", 0, 4);
 		LCD.drawString("       |         ", 0, 5);
 
-		// Button.waitForAnyPress();
-		// int button = Button.readButtons();
+		Button.waitForAnyPress();
+		int button = Button.readButtons();
 
 		/*
 		 * US LOCALIZATION
@@ -83,16 +83,13 @@ public class LocalizationTest {
 		/*
 		 * LIGHT LOCALIZATION
 		 */
-		// if (button == Button.ID_RIGHT) {
-
+		
+		if(button == Button.ID_RIGHT){
 		// set up light localization
 		LightLocalizer lightLoc = new LightLocalizer(odo, nav, back);
 
 		// do light localization
 		lightLoc.doLocalization();
+		}
 	}
-
-	// Button.waitForAnyPress();
-	// }
-
 }

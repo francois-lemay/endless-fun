@@ -78,18 +78,17 @@ public class ObjectDetection implements TimerListener {
 	private boolean bottom, top, left, right;
 
 	/**
-	 * strings used in LCDInfo
-	 */
-	// private final String[] objectType = { "Block", "Not Block" };
-
-	/**
 	 * dist used for fine approach towards styro block
 	 */
 	private final int FINE_APPROACH = Constants.FINE_APPROACH;
 	/**
 	 * dist used for obstacle avoidance approach
 	 */
-	private final int OBSTACLE_APPROACH = 30;
+	private final int OBSTACLE_APPROACH = Constants.OBSTACLE_APPROACH;
+	/**
+	 * dist used for obstacle dodging
+	 */
+	private final int OBSTACLE_PRESENT = Constants.OBSTACLE_PRESENT;
 
 	/**
 	 * 
@@ -132,13 +131,15 @@ public class ObjectDetection implements TimerListener {
 
 		// if yes, identify it
 		if (objectDetected) {
-			// go identify object
-			// identifyObject();
-
-			if (Math.abs(up[Constants.bottomUSPollerIndex]
-					.getLatestFilteredDataPoint()
-					- up[Constants.topUSPollerIndex]
-							.getLatestFilteredDataPoint()) < 15) {
+			
+			// identify object			
+			int bottomReading = up[Constants.bottomUSPollerIndex]
+					.getLatestFilteredDataPoint();
+			int topReading = up[Constants.topUSPollerIndex]
+					.getLatestFilteredDataPoint();
+			
+			// check difference in readings
+			if (Math.abs(bottomReading - topReading) < 15) {
 				isBlock = false;
 			} else {
 				isBlock = true;
@@ -151,18 +152,19 @@ public class ObjectDetection implements TimerListener {
 				Sound.beepSequenceUp();
 
 				// wait for control of navigation to be available
-				while (Navigation.getIsNavigating()) {
-				}
+				while (Navigation.getIsNavigating()) {}
 
 				// approach block if necessary
 				if (up[Constants.bottomUSPollerIndex]
 						.getLatestFilteredDataPoint() > FINE_APPROACH) {
+					
+					// slowly move forward
 					nav.setSpeeds(Navigation.SLOW, Navigation.SLOW);
+					
+					// wait for robot to be at a good distance from the
+					// block
 					while (up[Constants.bottomUSPollerIndex]
-							.getLatestFilteredDataPoint() > FINE_APPROACH) {
-						// wait for robot to be at a good distance from the
-						// block
-					}
+							.getLatestFilteredDataPoint() > FINE_APPROACH) {}
 				}
 
 				// stop moving
@@ -316,6 +318,64 @@ public class ObjectDetection implements TimerListener {
 	}
 
 	/**
+	 * make robot avoid obstacle while staying on track to its destination
+	 */
+	private void avoidObstacle() {
+
+		// wait for control of navigation to be available
+		while (Navigation.getIsNavigating()) {}
+
+		// initialize variable
+		int dist = up[Constants.topUSPollerIndex].getLatestFilteredDataPoint();
+
+		// approach obstacle if necessary
+		if (dist > OBSTACLE_APPROACH) {
+			
+			// slowly approach obstacle
+			nav.setSpeeds(Navigation.SLOW, Navigation.SLOW);
+			
+			do {
+				dist = up[Constants.topUSPollerIndex]
+						.getLatestFilteredDataPoint();
+			} while (dist > OBSTACLE_APPROACH);
+		} else {
+			
+			// stop approaching obstacle
+			nav.stopMotors();
+		}
+
+		// turn 90 degrees clockwise
+		nav.rotateBy(-90, false);
+		
+		// turn us sensor towards obstacle
+		
+		
+		// move forward until obstacle is not seen
+		nav.setSpeeds(Navigation.FAST, Navigation.FAST);
+		
+		do{
+			// check for obstacle (e.g. a robot passing in front) at the front at the same time
+			if(up[Constants.bottomUSPollerIndex].getLatestFilteredDataPoint() < 20){
+				
+				// stop motors
+				nav.stopMotors();
+				
+				// wait until robot passes by
+				while(up[Constants.bottomUSPollerIndex].getLatestFilteredDataPoint() < 20){}
+				
+				// reset the motor speeds
+				nav.setSpeeds(Navigation.FAST, Navigation.FAST);
+			}
+			
+			// get reading from top us sensor
+			dist = up[Constants.topUSPollerIndex]
+					.getLatestFilteredDataPoint();
+			
+		}while(dist < Constants.OBSTACLE_PRESENT);
+		
+	}
+	
+	/**
 	 * reset all booleans that are used to flag the presence of an object
 	 */
 	private void resetBooleans() {
@@ -329,41 +389,15 @@ public class ObjectDetection implements TimerListener {
 	}
 
 	/**
-	 * make robot avoid obstacle while staying on track to its destination
+	 * start timer
 	 */
-	private void avoidObstacle() {
-
-		// wait for control of navigation to be available
-		while (Navigation.getIsNavigating()) {
-		}
-
-		// initialize variable
-		int dist = up[Constants.topUSPollerIndex].getLatestFilteredDataPoint();
-
-		// approach obstacle if necessary
-		if (dist > OBSTACLE_APPROACH) {
-			nav.setSpeeds(Navigation.SLOW, Navigation.SLOW);
-			do {
-				dist = up[Constants.topUSPollerIndex]
-						.getLatestFilteredDataPoint();
-			} while (dist > OBSTACLE_APPROACH);
-		} else {
-			nav.stopMotors();
-		}
-
-		// turn 90 degrees counter-clockwise
-		nav.rotateBy(90, false);
-
-		// move forward by given distance
-		nav.moveForwardBy(30, Navigation.FAST);
-	}
-
-	// start timer
 	public void start() {
 		timer.start();
 	}
 
-	// stop timer
+	/**
+	 * stop timer
+	 */
 	public void stop() {
 		timer.stop();
 	}
