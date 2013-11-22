@@ -4,26 +4,31 @@ import bluetooth.*;
 import lejos.nxt.Button;
 import lejos.nxt.ColorSensor;
 import lejos.nxt.LCD;
-import lejos.nxt.MotorPort;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.Sound;
 import lejos.nxt.UltrasonicSensor;
 import lejos.nxt.comm.RS485;
 
 /**
- * master brick's main class
+ * master brick's main class.
+ * <p>
+ * initiates communication with Slave brick. Controls lifting and clamping
+ * mechanism via commands given to Slave brick.
  * 
- * @author François Lemay
+ * @author Francois Lemay
  */
 public class Master {
 
-	// class variables
+	/**
+	 * number of blocks being carried by robot at a given time
+	 */
 	public static int blocks = 0;
 
 	/**
 	 * main program thread
 	 * 
 	 * @param args
+	 *            - default argument
 	 */
 	public static void main(String[] args) {
 
@@ -31,30 +36,17 @@ public class Master {
 		 * bluetooth initialization
 		 */
 
-		//bluetoothInit();
+		// bluetoothInit();
 
 		/*
 		 * inter-brick communication initialization
 		 */
-		//commInit();
-
-		// write to DOS
-		/*
-		 * LCD.clear(); LCD.drawString("Press to write to DOS", 0, 0);
-		 * Button.waitForAnyPress(); NXTComm.write(9);
-		 */
+		// commInit();
 
 		// **************************************************************
 
 		Constants.greenZone = new int[] { 2 * Constants.SQUARE_LENGTH,
 				2 * Constants.SQUARE_LENGTH };
-
-		// set up clamp motor
-		NXTRegulatedMotor clampM = new NXTRegulatedMotor(MotorPort.C);
-		NXTRegulatedMotor[] clamp = { null, clampM };
-
-		// set up block pickup
-		BlockPickUp bp = new BlockPickUp(clamp);
 
 		// ***************************************************************
 
@@ -80,7 +72,6 @@ public class Master {
 		// light poller
 		LightPoller back = new LightPoller(backS, Constants.BACK_SAMPLE,
 				Constants.M_PERIOD);
-		// LightPoller[] lp = { back };
 
 		// two front us sensors
 		UltrasonicSensor bottomS = new UltrasonicSensor(
@@ -92,51 +83,46 @@ public class Master {
 				Constants.M_PERIOD);
 		USPoller top = new USPoller(topS, Constants.TOP_SAMPLE,
 				Constants.M_PERIOD);
+		
+		// us poller array
 		USPoller[] up = new USPoller[2];
 		up[Constants.bottomUSPollerIndex] = bottom;
 		up[Constants.topUSPollerIndex] = top;
 
 		// odometry correction
 		// OdometryCorrection odoCorr = new OdometryCorrection(odo, back);
-		
+
 		// obstacle avoidance
-		ObstacleAvoidance avoider = new ObstacleAvoidance(odo,nav,up, leftMotor, rightMotor);
+		ObstacleAvoidance avoider = new ObstacleAvoidance(odo, nav, up,
+				leftMotor, rightMotor);
 
 		// object detection
 		ObjectDetection detector = new ObjectDetection(odo, nav, up, avoider);
 
-		// obstacle avoidance
-
-		// tower building
-		// TowerBuilding builder = new TowerBuilding(nav);
-
 		/*
-		 * us localization
+		 * US LOCALIZATION
 		 */
 /*
-		// set up us localization
-		USLocalizer usLoc = new USLocalizer(odo, nav, bottom,
-				USLocalizer.LocalizationType.RISING_EDGE);
-
-		// do us localization
-		usLoc.doLocalization();
+		  // set up us localization USLocalizer usLoc = new USLocalizer(odo,
+		  nav, bottom, USLocalizer.LocalizationType.RISING_EDGE);
+		  
+		  // do us localization
+		  usLoc.doLocalization();
+*/		 
+		 /*
+		  * LIGHT LOCALIZATION
+		  */
+/*		 
+		  // set up light localization LightLocalizer lightLoc = new
+		  LightLocalizer(odo, nav, back);
+		  
+		  // do light localization
+		  lightLoc.doLocalization();
 */
-		/*
-		 * LIGHT LOCALIZATION
-		 */
-/*
-		// set up light localization
-		LightLocalizer lightLoc = new LightLocalizer(odo, nav, back);
-
-		// do light localization
-		lightLoc.doLocalization();
-*/
+		
 		/*
 		 * main program loop
 		 */
-
-		// bottom left corner of green zone
-		double[] greenZone = { Constants.greenZone[0], Constants.greenZone[1] };
 
 		// start object detection
 		try {
@@ -147,14 +133,21 @@ public class Master {
 
 		}
 
+		// set robot's destination
+		Constants.robotDest[0] = Constants.greenZone[0];
+		Constants.robotDest[1] = Constants.greenZone[1];
+
 		// travel to construction zone while detecting objects
 		do {
-			if(!detector.objectDetected){
-			nav.travelTo(greenZone[0], greenZone[1], Navigation.FAST);
+			
+			// travel if no object detected
+			if (!ObjectDetection.objectDetected) {
+				nav.travelTo(Constants.robotDest[0], Constants.robotDest[1],
+						Navigation.FAST);
 			}
 
 		} while (!Navigation.destinationReached);
-		
+
 		
 		System.exit(0);
 
@@ -171,17 +164,12 @@ public class Master {
 		// reset 'blocks' to 0.
 		// ObjectDetection is stopped when a styrofoam block has been found
 		// (i.e. when blocks is not equal to zero)
-		
-		
+
 		// start searching thread.
-		
 
 		// go deposit block(s) to construction zone
 		// builder.deliverTower();
 
-		
-		
-		
 		/*
 		 * end communication with Slave. & end program
 		 */

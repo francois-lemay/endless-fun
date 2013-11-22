@@ -1,15 +1,14 @@
 package official;
 
-import lejos.nxt.Motor;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.Sound;
-import lejos.util.Timer;
-import lejos.util.TimerListener;
 
 /**
- * avoid obstacles while remain on travel course
+ * avoid obstacles while remaining on travel course. Employs a
+ * BangBang-controlled wall follower to go around obstacles. The wall follower
+ * is stopped once the robot is aligned with its destination point.
  * 
- * @author Francois
+ * @author Francois Lemay
  * 
  */
 public class ObstacleAvoidance {
@@ -31,13 +30,37 @@ public class ObstacleAvoidance {
 	 * array of us pollers
 	 */
 	private USPoller[] up;
-
+	/**
+	 * distance to keep between robot and obstacle/wall
+	 */
 	private final int bandCenter = 50;
+	/**
+	 * error bandwidth before bangbang control kicks in
+	 */
 	private final int bandwith = 5;
+	/**
+	 * high motor speed for bangbang controller
+	 */
 	private final int motorHigh = 250;
+	/**
+	 * low motor speed for bangbang controller
+	 */
 	private final int motorLow = 100;
 
-	// constructor
+	/**
+	 * constructor
+	 * 
+	 * @param odo
+	 *            - robot's odometry class
+	 * @param nav
+	 *            - robot's navigation
+	 * @param up
+	 *            - bottom and top us sensors
+	 * @param leftMotor
+	 *            - left motor
+	 * @param rightMotor
+	 *            - right motor
+	 */
 	public ObstacleAvoidance(Odometer odo, Navigation nav, USPoller[] up,
 			NXTRegulatedMotor leftMotor, NXTRegulatedMotor rightMotor) {
 
@@ -54,17 +77,22 @@ public class ObstacleAvoidance {
 
 	}
 
+	/**
+	 * avoid incoming obstacles at front of the robot
+	 */
 	public void avoidObstacle() {
 
-		// initialize variables
+		// intialize variables
 		double delta = 0;
+
+		// get reading from top us sensor
 		int dist = up[Constants.topUSPollerIndex].getLatestFilteredDataPoint();
 
 		// get actual destination
-		double x1 = Constants.greenZone[0];
-		double y1 = Constants.greenZone[1];
+		double x1 = Constants.robotDest[0];
+		double y1 = Constants.robotDest[1];
 
-		// approach obstacle if necessary
+		// approach obstacle if too far
 		if (dist > Constants.OBSTACLE_APPROACH) {
 
 			// slowly approach obstacle
@@ -74,7 +102,6 @@ public class ObstacleAvoidance {
 				dist = up[Constants.topUSPollerIndex]
 						.getLatestFilteredDataPoint();
 			} while (dist > Constants.OBSTACLE_APPROACH);
-		} else {
 
 			// stop approaching obstacle
 			nav.stopMotors();
@@ -85,7 +112,7 @@ public class ObstacleAvoidance {
 
 		// turn us sensor towards obstacle
 		sensorMotor.rotateTo(-90, false);
-		
+
 		Sound.buzz();
 
 		// do bang bang wall follower
@@ -105,33 +132,37 @@ public class ObstacleAvoidance {
 				while (up[Constants.bottomUSPollerIndex]
 						.getLatestFilteredDataPoint() < 20) {
 				}
-
-				// reset the motor speeds
-				nav.setSpeeds(Navigation.FAST, Navigation.FAST);
 			}
 
-			// check if in-line with destination point. Stop bang bang if so.
+			// check if in-line with destination point
+			// by calculating difference in heading.
+			// if so, stop bang bang
 
-			// calculate difference in heading
-			delta = Math.abs(odo.getAng() - destAng(x1, y1));
+			// get destination heading
+			double destAng = destAng(x1, y1);
+			double robotAng = odo.getAng();
 
-		} while (delta!=100034);
-		
+			// calculate difference in heading in two ways
+			double delta1 = Math.abs(robotAng - destAng);
+			double delta2 = Math.abs(robotAng - destAng + 360);
+
+			// choose smallest difference in heading
+			delta = Math.min(delta1, delta2);
+
+		} while (delta < 10);
+
 		// turn sensor back
 		sensorMotor.rotateTo(0, false);
 
-		// continue moving forward to contour the obstacle
-		nav.moveForwardBy(20, Navigation.FAST);
-
-		// turn 90 degrees counter-clockwise
-		nav.rotateBy(100, false);
 	}
 
+	/**
+	 * do wall/obstacle following (with bangbang controller) using one us sensor
+	 */
 	private void doBangBang() {
 
 		// get reading from top us sensor
-		int distance = up[Constants.topUSPollerIndex]
-				.getLatestRawDataPoint();
+		int distance = up[Constants.topUSPollerIndex].getLatestRawDataPoint();
 
 		// calculate error
 		int error = bandCenter - distance;
@@ -151,7 +182,7 @@ public class ObstacleAvoidance {
 		} else if (error > 0) { // Too close to the wall
 			leftMotor.forward(); // Set left motor to spin forward
 			leftMotor.setSpeed(Navigation.FAST); // and right motor to backward
-												// (for greater compensation
+													// (for greater compensation
 			rightMotor.backward(); // in concave corners)
 			rightMotor.setSpeed(50);
 		}

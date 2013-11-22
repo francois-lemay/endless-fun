@@ -40,6 +40,11 @@ public class Constants {
 	 */
 	public static int[] redZone;
 	
+	/**
+	 * robot's current destination (x,y)
+	 */
+	public static double[] robotDest = new double[2];
+	
 	/*
 	 * NXT COMMAND CODES
 	 */

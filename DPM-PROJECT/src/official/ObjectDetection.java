@@ -1,34 +1,25 @@
 package official;
 
 import lejos.nxt.LCD;
-import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.Sound;
 import lejos.util.Timer;
 import lejos.util.TimerListener;
 
 /**
- * detection of objects in robot's surroundings. The timer is stopped if a
- * styrofoam block has been detected. This allows the robot to deal with the
- * block without the possibility of being interrupted, until it re-starts it
- * decides to re-start the timer.
+ * detection of objects in a scope of approx. 30 degrees towards the front of
+ * the robot. Currently, the timer is stopped if a styrofoam block has been detected. This
+ * allows the robot to deal with the block without the possibility of being
+ * interrupted.
  * 
- * @author Francois
+ * @author Francois Lemay
  * 
  */
 public class ObjectDetection implements TimerListener {
-
-	// class variables
 
 	/**
 	 * robot's navigation class
 	 */
 	private Navigation nav;
-
-	/**
-	 * array of light pollers
-	 */
-	private LightPoller[] lp;
-
 	/**
 	 * array of us pollers
 	 */
@@ -38,29 +29,17 @@ public class ObjectDetection implements TimerListener {
 	 */
 	private ObstacleAvoidance avoider;
 	/**
-	 * block pick up class
-	 */
-	private BlockPickUp bp;
-
-	/**
 	 * timer
 	 */
 	private Timer timer;
-
 	/**
 	 * timed out period
 	 */
 	private final int PERIOD = Constants.OBJ_DETECT_PERIOD;
-
 	/**
-	 * detection status booleans
+	 * object detection boolean
 	 */
-	public static boolean newObjectDetected;
-
-	/**
-	 * 
-	 */
-	public boolean objectDetected, sameObject;
+	public static boolean objectDetected;
 
 	/**
 	 * identification status booleans
@@ -77,29 +56,30 @@ public class ObjectDetection implements TimerListener {
 	 */
 	private final int FINE_APPROACH = Constants.FINE_APPROACH;
 
-
 	/**
-	 * 
+	 * constructor
+	 * @param odo
+	 *            - robot's odometry
 	 * @param nav
-	 * @param lp
+	 *            - robot's navigation class
 	 * @param up
-	 * @param isMaster
+	 *            - bottom and top us sensors
+	 * @param avoider
+	 *            - obstacle avoidance class
 	 */
-
-	// constructor
-	public ObjectDetection(Odometer odo, Navigation nav, USPoller[] up, ObstacleAvoidance avoider) {
+	public ObjectDetection(Odometer odo, Navigation nav, USPoller[] up,
+			ObstacleAvoidance avoider) {
 
 		this.nav = nav;
-		this.lp = lp;
 		this.up = up;
 		this.avoider = avoider;
 
+		// set up timer
 		timer = new Timer(PERIOD, this);
-
 	}
 
 	/**
-	 * main thread
+	 * main thread controlled by timer
 	 */
 	public void timedOut() {
 
@@ -116,8 +96,12 @@ public class ObjectDetection implements TimerListener {
 		if (objectDetected) {
 
 			// identify object
+
+			// get reading from bottom us sensor
 			int bottomReading = up[Constants.bottomUSPollerIndex]
 					.getLatestFilteredDataPoint();
+
+			// get reading from top us sensor
 			int topReading = up[Constants.topUSPollerIndex]
 					.getLatestFilteredDataPoint();
 
@@ -128,7 +112,7 @@ public class ObjectDetection implements TimerListener {
 				isBlock = true;
 			}
 
-			// if block, do BlockPickUp
+			// if is a block, go pick up block
 			if (isBlock) {
 
 				// let user know that block has been found
@@ -138,7 +122,7 @@ public class ObjectDetection implements TimerListener {
 				while (Navigation.getIsNavigating()) {
 				}
 
-				// approach block if necessary
+				// approach block if too far
 				if (up[Constants.bottomUSPollerIndex]
 						.getLatestFilteredDataPoint() > FINE_APPROACH) {
 
@@ -154,8 +138,10 @@ public class ObjectDetection implements TimerListener {
 
 				// stop moving
 				nav.stopMotors();
-				// grab block
-				bp.closeClamp();
+
+				// tell Slave to pick up block
+				NXTComm.write(Constants.CODE_CLOSE_CLAMP);
+
 				// increment number of blocks
 				Master.blocks++;
 
@@ -232,10 +218,8 @@ public class ObjectDetection implements TimerListener {
 		// set value of objectDetected
 		if (bottom || top || left || right) {
 			objectDetected = true;
-			newObjectDetected = true;
 		} else {
 			objectDetected = false;
-			newObjectDetected = false;
 		}
 	}
 
@@ -248,7 +232,6 @@ public class ObjectDetection implements TimerListener {
 		bottom = false;
 		top = false;
 		objectDetected = false;
-		newObjectDetected = false;
 		isBlock = false;
 	}
 

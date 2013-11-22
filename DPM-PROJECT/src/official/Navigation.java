@@ -138,9 +138,6 @@ public class Navigation {
 		this.rightMotor.stop(true);
 	}
 
-	/*
-	 * My own travelTo method from Lab3
-	 */
 	/**
 	 * make robot travel to specified position. Can get interrupted by ObjectDetection.isNewObjectDetected
 	 * @param x1 - x coordinate
@@ -165,7 +162,7 @@ public class Navigation {
 		// stop motors
 		setSpeeds(0, 0);
 
-		while (!destinationReached && !ObjectDetection.newObjectDetected ) {
+		while (!destinationReached && !ObjectDetection.objectDetected ) {
 			
 			// set isNavigating to true
 			setIsNavigating(true);
