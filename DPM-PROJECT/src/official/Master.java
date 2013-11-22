@@ -1,7 +1,6 @@
 package official;
 
 import bluetooth.*;
-import official.*;
 import lejos.nxt.Button;
 import lejos.nxt.ColorSensor;
 import lejos.nxt.LCD;
@@ -32,12 +31,12 @@ public class Master {
 		 * bluetooth initialization
 		 */
 
-		bluetoothInit();
+		//bluetoothInit();
 
 		/*
 		 * inter-brick communication initialization
 		 */
-		// commInit();
+		commInit();
 
 		// write to DOS
 		/*
@@ -48,8 +47,8 @@ public class Master {
 		// **************************************************************
 
 		Button.waitForAnyPress();
-		Constants.greenZone = new int[] { 4 * Constants.SQUARE_LENGTH,
-				3 * Constants.SQUARE_LENGTH };
+		Constants.greenZone = new int[] { 2 * Constants.SQUARE_LENGTH,
+				2 * Constants.SQUARE_LENGTH };
 
 		// set up clamp motor
 		NXTRegulatedMotor clampM = new NXTRegulatedMotor(MotorPort.C);

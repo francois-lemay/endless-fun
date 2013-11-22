@@ -46,11 +46,36 @@ public class Constants {
 	/**
 	 * order slave to open clamp
 	 */
-	public static int OPEN_CLAMP = 49;
+	public static final int CODE_OPEN_CLAMP = 49;
 	/**
 	 * order slave to close clamp
 	 */
-	public static int CLOSE_CLAMP = 51;
+	public static final int CODE_CLOSE_CLAMP = 51;
+	/**
+	 * order slave to raise to IDLE
+	 */
+	public static final int CODE_RAISE_IDLE = 53;
+	/**
+	 * order Slave to lower to MIN
+	 */
+	public static final int CODE_LOWER_MIN = 55;
+	/**
+	 * order Slave to raise to MAX
+	 */
+	public static final int CODE_RAISE_MAX = 57;
+	/**
+	 * order Slave to raise by BLOCK HEIGHT
+	 */
+	public static final int CODE_RAISE_BLOCK_HEIGHT = 59;
+	/**
+	 * order Slave to lower by BLOCK HEIGHT
+	 */
+	public static final int CODE_LOWER_BLOCK_HEIGHT = 61;
+	/**
+	 * order Slave to exit program
+	 */
+	public static final int CODE_EXIT = 99;
+	
 	
 	// polling periods
 	/**

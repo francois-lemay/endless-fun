@@ -45,31 +45,31 @@ public class Slave {
 			switch (n){
 			
 			// Block pick up orders
-			case 49:
+			case Constants.CODE_CLOSE_CLAMP:
 				bp.closeClamp();
 				break;
-			case 50:
+			case Constants.CODE_OPEN_CLAMP:
 				bp.openClamp();
 				break;
-			case 51:
+			case Constants.CODE_RAISE_IDLE:
 				bp.raiseTo(BlockPickUp.IDLE);
 				break;
-			case 52:
+			case Constants.CODE_RAISE_BLOCK_HEIGHT:
 				bp.raiseBy(BlockPickUp.BLOCK_HEIGHT);
 				break;
-			case 53:
+			case Constants.CODE_LOWER_BLOCK_HEIGHT:
 				bp.lowerBy(BlockPickUp.BLOCK_HEIGHT);
 				break;
-			case 54:
+			case Constants.CODE_LOWER_MIN:
 				bp.raiseTo(BlockPickUp.MIN_HEIGHT);
-			case 55:
+			case Constants.CODE_RAISE_MAX:
 				bp.raiseTo(BlockPickUp.MAX_HEIGHT);
 			case 56:
 				bp.straightenBlock();
 				break;
 			
 			// end program orders
-			case 99:
+			case Constants.CODE_EXIT:
 				System.exit(0);
 			}
 		}
