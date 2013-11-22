@@ -36,7 +36,7 @@ public class Master {
 		/*
 		 * inter-brick communication initialization
 		 */
-		commInit();
+		//commInit();
 
 		// write to DOS
 		/*
@@ -46,7 +46,6 @@ public class Master {
 
 		// **************************************************************
 
-		Button.waitForAnyPress();
 		Constants.greenZone = new int[] { 2 * Constants.SQUARE_LENGTH,
 				2 * Constants.SQUARE_LENGTH };
 
@@ -112,24 +111,24 @@ public class Master {
 		/*
 		 * us localization
 		 */
-
+/*
 		// set up us localization
 		USLocalizer usLoc = new USLocalizer(odo, nav, bottom,
 				USLocalizer.LocalizationType.RISING_EDGE);
 
 		// do us localization
 		usLoc.doLocalization();
-
+*/
 		/*
 		 * LIGHT LOCALIZATION
 		 */
-
+/*
 		// set up light localization
 		LightLocalizer lightLoc = new LightLocalizer(odo, nav, back);
 
 		// do light localization
 		lightLoc.doLocalization();
-
+*/
 		/*
 		 * main program loop
 		 */
@@ -148,9 +147,14 @@ public class Master {
 
 		// travel to construction zone while detecting objects
 		do {
+			if(!detector.objectDetected){
 			nav.travelTo(greenZone[0], greenZone[1], Navigation.FAST);
+			}
 
 		} while (!Navigation.destinationReached);
+		
+		
+		System.exit(0);
 
 		// find one block if none found yet
 		if (blocks >= 1) {

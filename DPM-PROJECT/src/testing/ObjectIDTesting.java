@@ -5,6 +5,7 @@ import official.USPoller;
 import lejos.nxt.Button;
 import lejos.nxt.LCD;
 import lejos.nxt.UltrasonicSensor;
+import lejos.nxt.comm.RConsole;
 
 /**
  * code to test robot's ability for identifying styrofoam blocks using two ultrasonic sensors. (one at top and another at bottom).
@@ -14,7 +15,7 @@ import lejos.nxt.UltrasonicSensor;
 public class ObjectIDTesting {
 
 	public static void main(String[] args) {
-
+		
 		// two front us sensors
 		UltrasonicSensor bottomS = new UltrasonicSensor(
 				Constants.bottomSensorPort);

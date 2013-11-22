@@ -38,9 +38,9 @@ public class ObjectDetection implements TimerListener {
 	 */
 	BlockPickUp bp;
 	/**
-	 * 
+	 * motors
 	 */
-	NXTRegulatedMotor leftMotor, rightMotor;
+	NXTRegulatedMotor leftMotor, rightMotor, sensorMotor;
 
 	/**
 	 * timer
@@ -110,6 +110,12 @@ public class ObjectDetection implements TimerListener {
 		this.bp = bp;
 		this.leftMotor = leftMotor;
 		this.rightMotor = rightMotor;
+		
+		// initialize sensor motor
+		this.sensorMotor = new NXTRegulatedMotor(
+				Constants.sensorMotorPort);
+		sensorMotor.setSpeed(Navigation.SLOW);
+		sensorMotor.resetTachoCount();
 
 		timer = new Timer(PERIOD, this);
 
@@ -293,41 +299,13 @@ public class ObjectDetection implements TimerListener {
 	}
 
 	/**
-	 * identify the detected object. Method of identification will vary
-	 * according to the sensor that detected the object and the position of the
-	 * object relative to the robot
-	 */
-	private void identifyObject() {
-
-		// if Master
-		if (isMaster) {
-
-			if (bottom && top) {
-				isBlock = false;
-			} else if (bottom && !top) {
-				isBlock = true;
-			}
-		}
-		// if Slave
-		else {
-			/*
-			 * do object identification with the appropriate light sensor as in
-			 * lab 5
-			 */
-		}
-	}
-
-	/**
 	 * make robot avoid obstacle while staying on track to its destination
 	 */
 	private void avoidObstacle() {
 
-		// wait for control of navigation to be available
-		while (Navigation.getIsNavigating()) {}
-
 		// initialize variable
 		int dist = up[Constants.topUSPollerIndex].getLatestFilteredDataPoint();
-
+		
 		// approach obstacle if necessary
 		if (dist > OBSTACLE_APPROACH) {
 			
@@ -348,7 +326,10 @@ public class ObjectDetection implements TimerListener {
 		nav.rotateBy(-90, false);
 		
 		// turn us sensor towards obstacle
-		
+		sensorMotor.rotateTo(-90, false);
+		try{
+			Thread.sleep(500);
+		}catch(Exception e){}
 		
 		// move forward until obstacle is not seen
 		nav.setSpeeds(Navigation.FAST, Navigation.FAST);
@@ -373,6 +354,15 @@ public class ObjectDetection implements TimerListener {
 			
 		}while(dist < Constants.OBSTACLE_PRESENT);
 		
+		// turn sensor back
+		sensorMotor.rotateTo(0, false);
+		
+		// continue moving forward to contour the obstacle
+		nav.moveForwardBy(20, Navigation.FAST);
+		
+		
+		// turn 90 degrees counter-clockwise
+		nav.rotateBy(90, false);
 	}
 	
 	/**

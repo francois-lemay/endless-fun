@@ -127,6 +127,10 @@ public class Constants {
 	 */
 	public static MotorPort rightMotorPort = MotorPort.B;
 	/**
+	 * right motor port
+	 */
+	public static MotorPort sensorMotorPort = MotorPort.C;
+	/**
 	 * back light sensor's port
 	 */
 	public static SensorPort backSensorPort = SensorPort.S1;
@@ -169,11 +173,11 @@ public class Constants {
 	/**
 	 * bottom us sensor sample size
 	 */
-	public static final int BOTT_SAMPLE = 7;
+	public static final int BOTT_SAMPLE = 9;
 	/**
 	 * top us sensor sample size
 	 */
-	public static final int TOP_SAMPLE = 7;
+	public static final int TOP_SAMPLE = 9;
 	/**
 	 * left light sensor sample size
 	 */
