@@ -356,10 +356,6 @@ public class Constants {
 	 */
 	public static final int FINE_APPROACH = 10;
 	/**
-	 * dist used for obstacle avoidance approach
-	 */
-	public static final int OBSTACLE_APPROACH = 30;
-	/**
 	 * dist used for obstacle dodging
 	 */
 	public static final int OBSTACLE_PRESENT = 60;

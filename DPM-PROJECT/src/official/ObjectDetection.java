@@ -1,6 +1,7 @@
 package official;
 
 import lejos.nxt.LCD;
+import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.Sound;
 import lejos.util.Timer;
 import lejos.util.TimerListener;
@@ -28,6 +29,10 @@ public class ObjectDetection implements TimerListener {
 	 * obstacle avoidance class
 	 */
 	private ObstacleAvoidance avoider;
+	/**
+	 * top us sensor motor
+	 */
+	private NXTRegulatedMotor sensorMotor;
 	/**
 	 * timer
 	 */
@@ -68,11 +73,12 @@ public class ObjectDetection implements TimerListener {
 	 *            - obstacle avoidance class
 	 */
 	public ObjectDetection(Odometer odo, Navigation nav, USPoller[] up,
-			ObstacleAvoidance avoider) {
+			ObstacleAvoidance avoider, NXTRegulatedMotor sensorMotor) {
 
 		this.nav = nav;
 		this.up = up;
 		this.avoider = avoider;
+		this.sensorMotor = sensorMotor;
 
 		// set up timer
 		timer = new Timer(PERIOD, this);
@@ -109,8 +115,31 @@ public class ObjectDetection implements TimerListener {
 			if (Math.abs(bottomReading - topReading) < 15) {
 				isBlock = false;
 			} else {
-				isBlock = true;
-			}
+				// double check that it is truly a styro block
+				nav.stopMotors();
+				sensorMotor.rotateTo(40,false);
+				
+				// pause thread to acquire better readings
+				try{
+					Thread.sleep(2000);
+				}catch(Exception e){}
+				
+				// get reading from bottom us sensor
+				bottomReading = up[Constants.bottomUSPollerIndex]
+						.getLatestFilteredDataPoint();
+
+				// get reading from top us sensor
+				topReading = up[Constants.topUSPollerIndex]
+						.getLatestFilteredDataPoint();
+				
+				// check difference in readings
+				if (Math.abs(bottomReading - topReading) > 15) {
+					isBlock = true;
+				}
+				
+				// rotate sensor motor back to forward
+				sensorMotor.rotateTo(0, false);
+			}	
 
 			// if is a block, go pick up block
 			if (isBlock) {
@@ -140,7 +169,9 @@ public class ObjectDetection implements TimerListener {
 				nav.stopMotors();
 
 				// tell Slave to pick up block
-				NXTComm.write(Constants.CODE_CLOSE_CLAMP);
+				try{
+					NXTComm.write(Constants.CODE_CLOSE_CLAMP);
+				}catch(NullPointerException e){}
 
 				// increment number of blocks
 				Master.blocks++;
@@ -148,7 +179,12 @@ public class ObjectDetection implements TimerListener {
 			} else {
 				// let user know that is obstacle
 				Sound.beepSequence();
-
+				
+/*				// turn sensor to the right if obstacle is on right hand side
+				if(bottom){
+					sensorMotor.rotateTo(20, false);
+				}
+*/
 				// otherwise, do ObstacleAvoidance
 				avoider.avoidObstacle();
 			}

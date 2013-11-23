@@ -45,8 +45,10 @@ public class Master {
 
 		// **************************************************************
 
-		Constants.greenZone = new int[] { 2 * Constants.SQUARE_LENGTH,
-				2 * Constants.SQUARE_LENGTH };
+		Constants.greenZone = new int[] { -1 * Constants.SQUARE_LENGTH,
+				6 * Constants.SQUARE_LENGTH };
+		
+		Button.waitForAnyPress();
 
 		// ***************************************************************
 
@@ -54,11 +56,16 @@ public class Master {
 		 * hardware initialization
 		 */
 
-		// set up motors
+		// set up robot motors
 		NXTRegulatedMotor leftMotor = new NXTRegulatedMotor(
 				Constants.leftMotorPort);
 		NXTRegulatedMotor rightMotor = new NXTRegulatedMotor(
 				Constants.rightMotorPort);
+		
+		// initialize sensor motor
+		NXTRegulatedMotor sensorMotor = new NXTRegulatedMotor(Constants.sensorMotorPort);
+		sensorMotor.setSpeed(Navigation.SLOW);
+		sensorMotor.resetTachoCount();
 
 		// odometry
 		Odometer odo = new Odometer(leftMotor, rightMotor);
@@ -94,10 +101,10 @@ public class Master {
 
 		// obstacle avoidance
 		ObstacleAvoidance avoider = new ObstacleAvoidance(odo, nav, up,
-				leftMotor, rightMotor);
+				leftMotor, rightMotor, sensorMotor);
 
 		// object detection
-		ObjectDetection detector = new ObjectDetection(odo, nav, up, avoider);
+		ObjectDetection detector = new ObjectDetection(odo, nav, up, avoider, sensorMotor);
 
 		/*
 		 * US LOCALIZATION

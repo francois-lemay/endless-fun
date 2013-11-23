@@ -1,5 +1,6 @@
 package official;
 
+import lejos.nxt.LCD;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.Sound;
 
@@ -33,7 +34,7 @@ public class ObstacleAvoidance {
 	/**
 	 * distance to keep between robot and obstacle/wall
 	 */
-	private final int bandCenter = 50;
+	private final int bandCenter = 25;
 	/**
 	 * error bandwidth before bangbang control kicks in
 	 */
@@ -62,18 +63,14 @@ public class ObstacleAvoidance {
 	 *            - right motor
 	 */
 	public ObstacleAvoidance(Odometer odo, Navigation nav, USPoller[] up,
-			NXTRegulatedMotor leftMotor, NXTRegulatedMotor rightMotor) {
+			NXTRegulatedMotor leftMotor, NXTRegulatedMotor rightMotor, NXTRegulatedMotor sensorMotor) {
 
 		this.odo = odo;
 		this.nav = nav;
 		this.up = up;
 		this.leftMotor = leftMotor;
 		this.rightMotor = rightMotor;
-
-		// initialize sensor motor
-		this.sensorMotor = new NXTRegulatedMotor(Constants.sensorMotorPort);
-		sensorMotor.setSpeed(Navigation.SLOW);
-		sensorMotor.resetTachoCount();
+		this.sensorMotor = sensorMotor;
 
 	}
 
@@ -82,38 +79,37 @@ public class ObstacleAvoidance {
 	 */
 	public void avoidObstacle() {
 
-		// intialize variables
+		// initialize variables
 		double delta = 0;
+		double fwdError = 0;
 
 		// get reading from top us sensor
-		int dist = up[Constants.topUSPollerIndex].getLatestFilteredDataPoint();
+		int dist = up[Constants.bottomUSPollerIndex].getLatestFilteredDataPoint();
 
 		// get actual destination
 		double x1 = Constants.robotDest[0];
 		double y1 = Constants.robotDest[1];
 
 		// approach obstacle if too far
-		if (dist > Constants.OBSTACLE_APPROACH) {
+		if (dist > 20) {
 
 			// slowly approach obstacle
 			nav.setSpeeds(Navigation.SLOW, Navigation.SLOW);
 
 			do {
-				dist = up[Constants.topUSPollerIndex]
+				dist = up[Constants.bottomUSPollerIndex]
 						.getLatestFilteredDataPoint();
-			} while (dist > Constants.OBSTACLE_APPROACH);
+			} while (dist > 23);
 
 			// stop approaching obstacle
 			nav.stopMotors();
 		}
 
-		// turn 90 degrees clockwise
+		// turn robot 90 degrees clockwise
 		nav.rotateBy(-90, false);
-
+		
 		// turn us sensor towards obstacle
-		sensorMotor.rotateTo(-90, false);
-
-		Sound.buzz();
+		sensorMotor.rotateTo(-110, false);
 
 		// do bang bang wall follower
 
@@ -131,7 +127,10 @@ public class ObstacleAvoidance {
 				// wait until robot passes by
 				while (up[Constants.bottomUSPollerIndex]
 						.getLatestFilteredDataPoint() < 20) {
+					LCD.drawString("Waiting for obstacle",0,0);
+					LCD.drawString("at front to move",0,1);
 				}
+				
 			}
 
 			// check if in-line with destination point
@@ -148,12 +147,22 @@ public class ObstacleAvoidance {
 
 			// choose smallest difference in heading
 			delta = Math.min(delta1, delta2);
+			
+			// calculate position error between position and destination
+			fwdError = calcFwdError(x1, y1);
 
-		} while (delta < 10);
-
+		} while (delta > 10  && fwdError > 10);
+		
+		// stop robot
+		nav.stopMotors();
+		
 		// turn sensor back
 		sensorMotor.rotateTo(0, false);
-
+		
+		try{
+			Thread.sleep(1000);
+		}catch(Exception e){}
+		
 	}
 
 	/**
@@ -161,8 +170,34 @@ public class ObstacleAvoidance {
 	 */
 	private void doBangBang() {
 
-		// get reading from top us sensor
-		int distance = up[Constants.topUSPollerIndex].getLatestRawDataPoint();
+		// initialize variables
+		int FILTER_OUT = 10;
+		int filterControl = 0;
+		int distance = 0;
+		boolean foo = true;
+		
+		do {
+			// get reading from top us sensor
+			distance = up[Constants.topUSPollerIndex]
+					.getLatestRawDataPoint();
+
+			// the following if statement filters inconsistent readings of 255
+			if (distance == 255 && filterControl < FILTER_OUT) {
+				// bad value, do not set the distance variable, however do
+				// increment
+				// the filter value
+				filterControl++;
+				foo = true;
+
+			} else if (distance == 255) {
+				// true 255, therefore set distance to 255
+				foo = false;
+			} else {
+				// distance went below 255, therefore reset filterControl
+				filterControl = 0;
+				foo = false;
+			}
+		} while (foo);
 
 		// calculate error
 		int error = bandCenter - distance;
@@ -172,19 +207,18 @@ public class ObstacleAvoidance {
 		if (Math.abs(error) <= bandwith) { // Within range of error
 			leftMotor.forward(); // Set motors to spin forward
 			rightMotor.forward();
-			leftMotor.setSpeed(Navigation.FAST); // Maintain same speed for
+			leftMotor.setSpeed(Navigation.FAST); // maintain same speed for
 			rightMotor.setSpeed(Navigation.FAST); // both motors
-		} else if (error < 0) { // Too far from the wall
-			leftMotor.forward(); // Set motors to spin forward
+		} else if (error < 0) { // too far from the wall
+			leftMotor.forward(); // set motors to spin forward
 			rightMotor.forward();
 			leftMotor.setSpeed(motorLow);
-			rightMotor.setSpeed(motorHigh); // Speed up right motor
-		} else if (error > 0) { // Too close to the wall
-			leftMotor.forward(); // Set left motor to spin forward
-			leftMotor.setSpeed(Navigation.FAST); // and right motor to backward
-													// (for greater compensation
-			rightMotor.backward(); // in concave corners)
-			rightMotor.setSpeed(50);
+			rightMotor.setSpeed(motorHigh); // speed up right motor
+		} else if (error > 0) { // too close to the wall
+			leftMotor.forward();
+			rightMotor.forward();
+			leftMotor.setSpeed(motorHigh);
+			rightMotor.setSpeed(motorLow);
 		}
 
 	}
@@ -215,6 +249,24 @@ public class ObstacleAvoidance {
 		}
 
 		return theta1;
+	}
+	
+	private double calcFwdError(double x1, double y1) {
+		// // Forward Error Calculation
+
+		double[] displacementVector = new double[2];
+
+		// get update robot's current position and heading
+		double x0 = odo.getX();
+		double y0 = odo.getY();
+
+		// calculation of displacement vector
+		displacementVector[0] = x1 - x0;
+		displacementVector[1] = y1 - y0;
+
+		// find magnitude of displacement vector to obtain forward error
+		return Math.sqrt((displacementVector[0] * displacementVector[0])
+				+ (displacementVector[1] * displacementVector[1]));
 	}
 
 }
