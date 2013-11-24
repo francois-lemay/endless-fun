@@ -1,10 +1,14 @@
 package testing;
 
 import lejos.nxt.Button;
+import lejos.nxt.ColorSensor;
 import lejos.nxt.MotorPort;
 import lejos.nxt.NXTRegulatedMotor;
+import official.Constants;
+import official.LightPoller;
 import official.Navigation;
 import official.Odometer;
+import official.OdometryCorrection;
 
 /**
  * Odometry testing program.  makes robot drive to specified locations on x,y maps
@@ -19,6 +23,8 @@ public class OdometryTesting {
 	
 	public static void main(String[] args){
 		
+		Button.waitForAnyPress();
+		
 		NXTRegulatedMotor left = new NXTRegulatedMotor(MotorPort.A);
 		NXTRegulatedMotor right = new NXTRegulatedMotor(MotorPort.B);
 
@@ -26,6 +32,24 @@ public class OdometryTesting {
 		Navigation nav = new Navigation(odo);
 		LCDInfo lcd = new LCDInfo(odo);
 		
+		
+		//*********** set up odometry correction ***************//
+		
+		// back light sensor
+		ColorSensor backS = new ColorSensor(Constants.backSensorPort);
+
+		// light poller
+		LightPoller back = new LightPoller(backS, Constants.BACK_SAMPLE,
+				Constants.M_PERIOD);
+		
+		OdometryCorrection odoCorr = new OdometryCorrection(odo, back);
+		
+		//odoCorr.start();
+		
+		// ********************************************************//
+		
+		
+		// start displaying on LCD
 		lcd.start();
 		
 		/*
@@ -35,7 +59,6 @@ public class OdometryTesting {
 		double[][] destinations = {{0,30},{60,30},{60,60},{0,0}};
 		double x,y;
 		
-		Button.waitForAnyPress();
 		
 		/*
 		 * will travel at every destination in the above array.

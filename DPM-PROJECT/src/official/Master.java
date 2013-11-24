@@ -46,7 +46,7 @@ public class Master {
 
 		// **************************************************************
 
-		Constants.greenZone = new int[] { -1 * Constants.SQUARE_LENGTH,
+		Constants.goodZone = new int[] { -1 * Constants.SQUARE_LENGTH,
 				2 * Constants.SQUARE_LENGTH };
 		
 		// ***************************************************************
@@ -136,10 +136,11 @@ public class Master {
 		 * main program loop
 		 */
 
-		// start object detection and sensor sweep
+		// start odometry correction, object detection and sensor sweep
 		try {
 			sweeper.start();
 			detector.start();
+			//odoCorr.start();
 		} catch (Exception e) {
 			LCD.clear();
 			LCD.drawString("problem", 0, 0);
@@ -147,8 +148,8 @@ public class Master {
 		}
 		
 		// set robot's destination
-		Constants.robotDest[0] = Constants.greenZone[0];
-		Constants.robotDest[1] = Constants.greenZone[1];
+		Constants.robotDest[0] = Constants.goodZone[0];
+		Constants.robotDest[1] = Constants.goodZone[1];
 		
 		// travel to construction zone while detecting objects
 		do {
@@ -206,16 +207,37 @@ public class Master {
 		if (t == null) {
 			LCD.drawString("Failed to read transmission", 0, 5);
 		} else {
+			
 			Constants.corner = t.startingCorner;
 			Constants.role = t.role;
+			
+			if(Constants.role == PlayerRole.BUILDER){
+				
 			// green zone is defined by these (bottom-left and top-right)
 			// corners:
-			Constants.greenZone = new int[2];
-			Constants.greenZone[0] = t.greenZone[0] * Constants.SQUARE_LENGTH;
-			Constants.greenZone[1] = t.greenZone[1] * Constants.SQUARE_LENGTH;
+			Constants.goodZone = new int[2];
+			Constants.goodZone[0] = t.greenZone[0] * Constants.SQUARE_LENGTH;
+			Constants.goodZone[1] = t.greenZone[1] * Constants.SQUARE_LENGTH;
 
 			// red zone is defined by these (bottom-left and top-right) corners:
-			Constants.redZone = t.redZone;
+			Constants.badZone = new int[2];
+			Constants.badZone[0] = t.redZone[0] * Constants.SQUARE_LENGTH;
+			Constants.badZone[1] = t.redZone[1] * Constants.SQUARE_LENGTH;
+
+			}else{
+				
+				// red zone is defined by these (bottom-left and top-right)
+				// corners:
+				Constants.badZone = new int[2];
+				Constants.badZone[0] = t.greenZone[0] * Constants.SQUARE_LENGTH;
+				Constants.badZone[1] = t.greenZone[1] * Constants.SQUARE_LENGTH;
+
+				// green zone is defined by these (bottom-left and top-right) corners:
+				Constants.goodZone = new int[2];
+				Constants.goodZone[0] = t.redZone[0] * Constants.SQUARE_LENGTH;
+				Constants.goodZone[1] = t.redZone[1] * Constants.SQUARE_LENGTH;
+				
+			}
 
 			// print out the transmission information to the LCD
 			conn.printTransmission();

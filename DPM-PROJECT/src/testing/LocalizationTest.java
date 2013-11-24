@@ -43,23 +43,13 @@ public class LocalizationTest {
 
 		// us poller
 		USPoller bottom = new USPoller(bottomS, Constants.BOTT_SAMPLE, Constants.M_PERIOD);
-//		USPoller[] up = { bottom };
 
 		// back light sensor
 		ColorSensor backS = new ColorSensor(Constants.backSensorPort);
 
 		// light poller
 		LightPoller back = new LightPoller(backS, Constants.BACK_SAMPLE,Constants.M_PERIOD);
-//		LightPoller[] lp = { back };
 
-/*		// sensor controller
-		// no need for OdometryCorrection and ObjectDetection
-		SensorController cont = new SensorController(null, lp, up,
-				Constants.M_PERIOD, null);
-
-		// start controller
-		cont.startPolling();
-*/
 		// display menu
 		LCD.clear();
 		LCD.drawString("Choose task", 3, 0);

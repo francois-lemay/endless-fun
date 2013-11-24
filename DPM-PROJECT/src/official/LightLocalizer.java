@@ -44,11 +44,6 @@ public class LightLocalizer {
 	 * tweaking value to compensate for line detection lag
 	 */
 	private final int ANG_DELAY = Constants.ANG_DELAY;
-	/**
-	 * clocking position (x,y)
-	 */
-//	private final double [] clockingPos = Constants.clockingPos;
-	
 
 	/**
 	 * constructor
@@ -157,6 +152,7 @@ public class LightLocalizer {
 	 */
 	private void correctCorner() {
 		
+		int id = Constants.corner.getId();
 		double x = Constants.corner.getX();
 		double y = Constants.corner.getY();
 		double heading = 90;
@@ -164,21 +160,22 @@ public class LightLocalizer {
 		// calculate new heading
 		
 		// bottom left corner
-		if(x==0 && y==0){
+		if(id==1){
 			heading = 90;
 		}
 		// bottom right corner
-		if(x==10 && y==0){
+		if(id==2){
 			heading = 180;
 		}
-		// top left corner
-		if(x==0 && y==10){
-			heading = 0;
-		}
 		// top right corner
-		if(x==10 && y==10){
+		if(id==3){
 			heading = 270;
 		}
+		// top left corner
+		if(id==4){
+			heading = 0;
+		}
+
 		
 		// convert x,y to centimeters
 		x = x*Constants.SQUARE_LENGTH;

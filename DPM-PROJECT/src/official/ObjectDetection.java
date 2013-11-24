@@ -156,10 +156,9 @@ public class ObjectDetection implements TimerListener {
 						// break out of nested loop
 						break;
 					}
-					
 				}
 				
-				// break out of main loop
+				// break out of main loop if is an obstacle
 				if (!isBlock) {
 					break;
 				}

@@ -1,9 +1,7 @@
 package official;
 
-import lejos.nxt.Button;
 import lejos.nxt.LCD;
 import lejos.nxt.NXTRegulatedMotor;
-import lejos.nxt.Sound;
 
 /**
  * avoid obstacles while remaining on travel course. Employs a
@@ -77,7 +75,7 @@ public class ObstacleAvoidance {
 		this.rightMotor = rightMotor;
 		this.sensorMotor = sensorMotor;
 		
-		this.isAvoiding = false;
+		isAvoiding = false;
 
 	}
 

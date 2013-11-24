@@ -1,8 +1,9 @@
 package official;
 
+import lejos.util.Timer;
+import lejos.util.TimerListener;
+
 /**
- * odometry correction. Assumes the minimum x and y positions to be x = y = -30.
- * The first gridlines will therefore intersect at (0,0).
  * 
  * the odometry correction algorithm used in this code assumes the light sensor to be positioned
  * at a fixed distance behind the center of the wheel base
@@ -10,7 +11,7 @@ package official;
  * @author Francois
  * 
  */
-public class OdometryCorrection extends Thread {
+public class OdometryCorrection implements TimerListener {
 
 	// class variables
 
@@ -18,7 +19,18 @@ public class OdometryCorrection extends Thread {
 	 * robot's odometer
 	 */
 	private Odometer odo;
-
+	/**
+	 * timer
+	 */
+	private Timer timer;
+	/**
+	 * polling period
+	 */
+	private int period;
+	/**
+	 * back light sensor
+	 */
+	private LightPoller back;
 	/**
 	 * grid width (i.e. the number of squares along x-axis)
 	 */
@@ -66,6 +78,7 @@ public class OdometryCorrection extends Thread {
 	 */
 	public OdometryCorrection(Odometer odo, LightPoller lp) {
 		this.odo = odo;
+		this.back = lp;
 
 		x_lines = new int[grid_width];
 		y_lines = new int[grid_length];
@@ -83,14 +96,19 @@ public class OdometryCorrection extends Thread {
 			y_lines[i] = y_lines[i - 1] + SQUARE_LENGTH;
 		}
 
+		// set up timer
+		period = 200;
+		timer = new Timer(period,this);
 	}
 
 	/**
 	 * main thread
 	 */
-	public void run() {
+	public void timedOut() {
 
-		correctPosition();
+		if (back.getLatestDerivative() < Constants.GRIDLINE_THRES) {
+			correctPosition();
+		}
 	}
 
 	/**
@@ -171,5 +189,18 @@ public class OdometryCorrection extends Thread {
 		
 		// update robot's position
 		odo.setPosition(position, update);
+	}
+	
+	/**
+	 * start timer
+	 */
+	public void start(){
+		this.timer.start();
+	}
+	/**
+	 * stop timer
+	 */
+	public void stop(){
+		this.timer.stop();
 	}
 }

@@ -33,12 +33,12 @@ public class Constants {
 	 * green zone is defined by these (bottom-left and top-right)
 	 * corners
 	 */
-	public static int[] greenZone;
+	public static int[] goodZone;
 
 	/**
 	 * red zone is defined by these (bottom-left and top-right) corners:
 	 */
-	public static int[] redZone;
+	public static int[] badZone;
 	
 	/**
 	 * robot's current destination (x,y)
