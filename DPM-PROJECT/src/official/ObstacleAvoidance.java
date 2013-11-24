@@ -92,6 +92,8 @@ public class ObstacleAvoidance {
 		// initialize variables
 		double delta = 0;
 		double fwdError = 0;
+		long time1=0;
+		long time2=0;
 
 		// get reading from top us sensor
 		int dist = up[Constants.topUSPollerIndex].getLatestFilteredDataPoint();
@@ -105,10 +107,22 @@ public class ObstacleAvoidance {
 
 			// slowly approach obstacle
 			nav.setSpeeds(Navigation.SLOW, Navigation.SLOW);
+			
+			// start time keeping for timeout
+			time1 = System.currentTimeMillis();
 
 			do {
+				
 				dist = up[Constants.topUSPollerIndex]
 						.getLatestFilteredDataPoint();
+				
+				time2 = System.currentTimeMillis();
+				
+				// stop approach if timed out
+				if(time2 - time1 > 2000){
+					break;
+				}
+				
 			} while (dist > 23);
 
 			// stop approaching obstacle

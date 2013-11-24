@@ -112,6 +112,10 @@ public class ObjectDetection implements TimerListener {
 			int bottomReading = 0;
 			int topReading = 0;
 			
+			// vars for timing out
+			long time1=0;
+			long time2=0;
+			
 			// wait for control of navigation
 			while(Navigation.getIsNavigating()){}
 			
@@ -186,10 +190,20 @@ public class ObjectDetection implements TimerListener {
 					// slowly move forward
 					nav.setSpeeds(Navigation.SLOW, Navigation.SLOW);
 
+					//start time keeping for timeout
+					time1 = System.currentTimeMillis();
+					
 					// wait for robot to be at a good distance from the
 					// block
 					while (up[Constants.bottomUSPollerIndex]
 							.getLatestFilteredDataPoint() > FINE_APPROACH) {
+						
+						time2 = System.currentTimeMillis();
+						
+						// stop approach if timed out
+						if(time2 - time1 > 3000){
+							break;
+						}
 					}
 				}
 
