@@ -1,5 +1,6 @@
 package official;
 
+import lejos.nxt.Button;
 import lejos.nxt.LCD;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.Sound;
@@ -8,9 +9,9 @@ import lejos.util.TimerListener;
 
 /**
  * detection of objects in a scope of approx. 30 degrees towards the front of
- * the robot. Currently, the timer is stopped if a styrofoam block has been detected. This
- * allows the robot to deal with the block without the possibility of being
- * interrupted.
+ * the robot. Currently, the timer is stopped if a styrofoam block has been
+ * detected. This allows the robot to deal with the block without the
+ * possibility of being interrupted.
  * 
  * @author Francois Lemay
  * 
@@ -63,6 +64,7 @@ public class ObjectDetection implements TimerListener {
 
 	/**
 	 * constructor
+	 * 
 	 * @param odo
 	 *            - robot's odometry
 	 * @param nav
@@ -92,6 +94,9 @@ public class ObjectDetection implements TimerListener {
 		// stop timer to ensure completion of thread
 		stop();
 
+		// reset all booleans
+		resetBooleans();
+
 		// set isDetecting
 		isDetecting = true;
 
@@ -100,46 +105,69 @@ public class ObjectDetection implements TimerListener {
 
 		// if yes, identify it
 		if (objectDetected) {
-
+			
 			// identify object
 
-			// get reading from bottom us sensor
-			int bottomReading = up[Constants.bottomUSPollerIndex]
-					.getLatestFilteredDataPoint();
-
-			// get reading from top us sensor
-			int topReading = up[Constants.topUSPollerIndex]
-					.getLatestFilteredDataPoint();
-
-			// check difference in readings
-			if (Math.abs(bottomReading - topReading) < 15) {
-				isBlock = false;
-			} else {
-				// double check that it is truly a styro block
-				nav.stopMotors();
-				sensorMotor.rotateTo(40,false);
+			// initialize vars
+			int bottomReading = 0;
+			int topReading = 0;
+			
+			// wait for control of navigation
+			while(Navigation.getIsNavigating()){}
+			
+			// stop motors
+			nav.stopMotors();
+			
+			// assume it is a styro block
+			isBlock = true;
+			
+			// check left and right
+			for (int j = 1; j > -2; j--) {
 				
-				// pause thread to acquire better readings
+				// check right, front then to the left
+				sensorMotor.rotateTo(j * 30, false);
+				
 				try{
-					Thread.sleep(2000);
+					Thread.sleep(1000);
 				}catch(Exception e){}
-				
-				// get reading from bottom us sensor
-				bottomReading = up[Constants.bottomUSPollerIndex]
-						.getLatestFilteredDataPoint();
 
-				// get reading from top us sensor
-				topReading = up[Constants.topUSPollerIndex]
-						.getLatestFilteredDataPoint();
-				
-				// check difference in readings
-				if (Math.abs(bottomReading - topReading) > 15) {
-					isBlock = true;
+				// take many readings and check if styro block
+				for (int i = 0; i < 20; i++) {
+					
+					// give enough time for sensor polling
+					try{
+						Thread.sleep(30);
+					}catch(Exception e){}
+					
+					// get reading from bottom us sensor
+					bottomReading = up[Constants.bottomUSPollerIndex]
+							.getLatestFilteredDataPoint();
+
+					// get reading from top us sensor
+					topReading = up[Constants.topUSPollerIndex]
+							.getLatestFilteredDataPoint();
+					// check difference in readings
+					if (Math.abs(bottomReading - topReading) < 15) {
+						isBlock = false;
+						// break out of nested loop
+						break;
+					}
+					
 				}
 				
-				// rotate sensor motor back to forward
-				sensorMotor.rotateTo(0, false);
-			}	
+				// break out of main loop
+				if (!isBlock) {
+					break;
+				}
+			}
+			
+			Sound.buzz();
+			
+			// rotate robot towards object
+			nav.rotateBy(-2*sensorMotor.getPosition(), true);
+			// rotate sensor motor back to forward
+			sensorMotor.rotateTo(0, false);
+			
 
 			// if is a block, go pick up block
 			if (isBlock) {
@@ -169,9 +197,10 @@ public class ObjectDetection implements TimerListener {
 				nav.stopMotors();
 
 				// tell Slave to pick up block
-				try{
-					NXTComm.write(Constants.CODE_CLOSE_CLAMP);
-				}catch(NullPointerException e){}
+				try {
+					// NXTComm.write(Constants.CODE_CLOSE_CLAMP);
+				} catch (NullPointerException e) {
+				}
 
 				// increment number of blocks
 				Master.blocks++;
@@ -179,16 +208,10 @@ public class ObjectDetection implements TimerListener {
 			} else {
 				// let user know that is obstacle
 				Sound.beepSequence();
-				
-/*				// turn sensor to the right if obstacle is on right hand side
-				if(bottom){
-					sensorMotor.rotateTo(20, false);
-				}
-*/
+
 				// otherwise, do ObstacleAvoidance
 				avoider.avoidObstacle();
 			}
-
 		}
 
 		// reset isDetecting
@@ -205,7 +228,6 @@ public class ObjectDetection implements TimerListener {
 			// reset all booleans
 			resetBooleans();
 		}
-
 	}
 
 	/**

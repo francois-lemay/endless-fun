@@ -7,6 +7,7 @@ import lejos.nxt.LCD;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.Sound;
 import lejos.nxt.UltrasonicSensor;
+import lejos.nxt.comm.RConsole;
 import lejos.nxt.comm.RS485;
 
 /**
@@ -31,7 +32,7 @@ public class Master {
 	 *            - default argument
 	 */
 	public static void main(String[] args) {
-
+						
 		/*
 		 * bluetooth initialization
 		 */
@@ -41,15 +42,13 @@ public class Master {
 		/*
 		 * inter-brick communication initialization
 		 */
-		// commInit();
+		//commInit();
 
 		// **************************************************************
 
 		Constants.greenZone = new int[] { -1 * Constants.SQUARE_LENGTH,
-				6 * Constants.SQUARE_LENGTH };
+				2 * Constants.SQUARE_LENGTH };
 		
-		Button.waitForAnyPress();
-
 		// ***************************************************************
 
 		/*
@@ -98,6 +97,9 @@ public class Master {
 
 		// odometry correction
 		// OdometryCorrection odoCorr = new OdometryCorrection(odo, back);
+		
+		// sensor sweep
+		SensorSweep sweeper = new SensorSweep(sensorMotor);
 
 		// obstacle avoidance
 		ObstacleAvoidance avoider = new ObstacleAvoidance(odo, nav, up,
@@ -105,6 +107,9 @@ public class Master {
 
 		// object detection
 		ObjectDetection detector = new ObjectDetection(odo, nav, up, avoider, sensorMotor);
+		
+		Button.waitForAnyPress();
+
 
 		/*
 		 * US LOCALIZATION
@@ -131,19 +136,20 @@ public class Master {
 		 * main program loop
 		 */
 
-		// start object detection
+		// start object detection and sensor sweep
 		try {
+			sweeper.start();
 			detector.start();
 		} catch (Exception e) {
 			LCD.clear();
 			LCD.drawString("problem", 0, 0);
 
 		}
-
+		
 		// set robot's destination
 		Constants.robotDest[0] = Constants.greenZone[0];
 		Constants.robotDest[1] = Constants.greenZone[1];
-
+		
 		// travel to construction zone while detecting objects
 		do {
 			

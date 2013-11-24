@@ -135,7 +135,7 @@ public class Navigation {
 	 */
 	public void stopMotors(){
 		this.leftMotor.stop(true);
-		this.rightMotor.stop(true);
+		this.rightMotor.stop(false);
 	}
 
 	/**

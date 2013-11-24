@@ -1,5 +1,6 @@
 package official;
 
+import lejos.nxt.Button;
 import lejos.nxt.LCD;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.Sound;
@@ -32,6 +33,10 @@ public class ObstacleAvoidance {
 	 */
 	private USPoller[] up;
 	/**
+	 * boolean status
+	 */
+	public static boolean isAvoiding;
+	/**
 	 * distance to keep between robot and obstacle/wall
 	 */
 	private final int bandCenter = 25;
@@ -42,7 +47,7 @@ public class ObstacleAvoidance {
 	/**
 	 * high motor speed for bangbang controller
 	 */
-	private final int motorHigh = 250;
+	private final int motorHigh = 220;
 	/**
 	 * low motor speed for bangbang controller
 	 */
@@ -71,6 +76,8 @@ public class ObstacleAvoidance {
 		this.leftMotor = leftMotor;
 		this.rightMotor = rightMotor;
 		this.sensorMotor = sensorMotor;
+		
+		this.isAvoiding = false;
 
 	}
 
@@ -78,13 +85,16 @@ public class ObstacleAvoidance {
 	 * avoid incoming obstacles at front of the robot
 	 */
 	public void avoidObstacle() {
-
+		
+		// set status
+		isAvoiding = true;
+		
 		// initialize variables
 		double delta = 0;
 		double fwdError = 0;
 
 		// get reading from top us sensor
-		int dist = up[Constants.bottomUSPollerIndex].getLatestFilteredDataPoint();
+		int dist = up[Constants.topUSPollerIndex].getLatestFilteredDataPoint();
 
 		// get actual destination
 		double x1 = Constants.robotDest[0];
@@ -97,7 +107,7 @@ public class ObstacleAvoidance {
 			nav.setSpeeds(Navigation.SLOW, Navigation.SLOW);
 
 			do {
-				dist = up[Constants.bottomUSPollerIndex]
+				dist = up[Constants.topUSPollerIndex]
 						.getLatestFilteredDataPoint();
 			} while (dist > 23);
 
@@ -107,7 +117,7 @@ public class ObstacleAvoidance {
 
 		// turn robot 90 degrees clockwise
 		nav.rotateBy(-90, false);
-		
+				
 		// turn us sensor towards obstacle
 		sensorMotor.rotateTo(-110, false);
 
@@ -158,6 +168,9 @@ public class ObstacleAvoidance {
 		
 		// turn sensor back
 		sensorMotor.rotateTo(0, false);
+		
+		// reset status
+		isAvoiding = false;
 		
 		try{
 			Thread.sleep(1000);

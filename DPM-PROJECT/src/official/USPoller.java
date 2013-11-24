@@ -228,6 +228,7 @@ public class USPoller implements TimerListener {
 	public void addToFilteredData(int value) {
 		synchronized (lock) {
 			filteredData.add(value);
+			//RConsole.println(""+value);
 			filteredData.remove(0);
 
 		}
