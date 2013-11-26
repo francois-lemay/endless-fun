@@ -31,7 +31,7 @@ public class Navigation {
 	/**
 	 * fast speed
 	 */
-	public final static int FAST = 150;
+	public final static int FAST = 200;
 	/**
 	 * slow speed
 	 */

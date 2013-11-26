@@ -66,11 +66,11 @@ public class Constants {
 	/**
 	 * left wheel radius (centimeters)
 	 */
-	public static final double leftRadius = 2.055;
+	public static final double leftRadius = 2.11;
 	/**
 	 * right wheel radius (centimeters)
 	 */
-	public static final double rightRadius = 2.055;
+	public static final double rightRadius = 2.11;
 	/**
 	 * wheelbase width (centimeters)
 	 */
@@ -79,7 +79,7 @@ public class Constants {
 	 * distance between back light sensor and center of wheel base (in
 	 * centimeters)
 	 */
-	public static final double BACK_SENSOR_DIST = 11.1;
+	public static final double BACK_SENSOR_DIST = 20.0;
 	
 	// port connections
 	/**
@@ -194,7 +194,7 @@ public class Constants {
 	/**
 	 * robot's rotation speed used during light localization
 	 */
-	public static final int LIGHT_LOC_SPEED = 250;
+	public static final int LIGHT_LOC_SPEED = 200;
 	/**
 	 * distance considered as 'no wall present' (centimeters)
 	 */
@@ -214,7 +214,7 @@ public class Constants {
 	/**
 	 * tweaking value (in degrees) for deltaTheta (in Rising Edge)
 	 */
-	public static final int RE_TWEAK = 16;
+	public static final int RE_TWEAK = 22;
 	
 	
 	/*

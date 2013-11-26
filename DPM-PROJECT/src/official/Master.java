@@ -7,7 +7,9 @@ import bluetooth.*;
 import lejos.nxt.Button;
 import lejos.nxt.ColorSensor;
 import lejos.nxt.LCD;
+import lejos.nxt.NXT;
 import lejos.nxt.NXTRegulatedMotor;
+import lejos.nxt.SensorPort;
 import lejos.nxt.Sound;
 import lejos.nxt.UltrasonicSensor;
 import lejos.nxt.comm.NXTCommConnector;
@@ -81,7 +83,7 @@ public class Master {
 		// navigation
 		Navigation nav = new Navigation(odo);
 
-		// back light sensor
+		// light sensors
 		ColorSensor backS = new ColorSensor(Constants.backSensorPort);
 
 		// light poller
@@ -109,22 +111,32 @@ public class Master {
 		/*
 		 * US LOCALIZATION
 		 */
-		/*
-		 * // set up us localization USLocalizer usLoc = new USLocalizer(odo,
-		 * nav, bottom, USLocalizer.LocalizationType.RISING_EDGE);
-		 * 
-		 * // do us localization usLoc.doLocalization();
-		 */
+		
+		Button.waitForAnyPress();
+		
+		  //set up us localization 
+		USLocalizer usLoc = new USLocalizer(odo,
+		  nav, left, USLocalizer.LocalizationType.RISING_EDGE);
+		  
+		  // do us localization
+		usLoc.doLocalization();
+		
+		Button.waitForAnyPress();
+		
 		/*
 		 * LIGHT LOCALIZATION
 		 */
-		/*
-		 * // set up light localization LightLocalizer lightLoc = new
-		 * LightLocalizer(odo, nav, back);
-		 * 
-		 * // do light localization lightLoc.doLocalization();
-		 */
+		
+		  // set up light localization
+		LightLocalizer lightLoc = new
+		  LightLocalizer(odo, nav, back);
+		  
+		  // do light localization
+		lightLoc.doLocalization();
+		 
 
+		Button.waitForAnyPress();
+		
 		/*
 		 * main program loop
 		 */
@@ -154,46 +166,56 @@ public class Master {
 			nav.turnTowards(Constants.robotDest[0], Constants.robotDest[1]);
 
 			// move forward with goFwdUS
-			status = nav.goFwdCaution(30, Navigation.FAST, bottom, left, right);
+			status = nav.goFwdCaution(35, Navigation.FAST, bottom, left, right);
 
 			// check various scenarios
 
 			if (status.equals("obstacle")) {
 
 				Sound.beepSequence();
-				// identify object
 
-				// avoid obstacle
+				// identify object
+				
+				
+
+				// // avoid obstacle
 
 				// check if right is clear
 				nav.rotateBy(-90, false, Navigation.FAST);
+				try {
+					Thread.sleep(200);
+				} catch (Exception e) {
+				}
 				if (left.getLatestFilteredDataPoint() > 10
 						&& right.getLatestFilteredDataPoint() > 10
 						&& bottom.getLatestFilteredDataPoint() > 10) {
 					nav.goFwdCaution(30, Navigation.FAST, bottom, left, right);
-				}else{
-					nav.rotateBy(180,false, Navigation.FAST);
+				} 
+				// check if left is clear
+				else {
+					nav.rotateBy(180, false, Navigation.FAST);
+					try {
+						Thread.sleep(200);
+					} catch (Exception e) {
+					}
 					nav.goFwdCaution(30, Navigation.FAST, bottom, left, right);
 				}
-				
+
 				System.exit(0);
+	
 
-				// check if left is clear
-
-			}
-			else if (status.equals("destination")) {
+			} else if (status.equals("destination")) {
 
 				Sound.beepSequenceUp();
 				System.exit(0);
 
 				// exit loop
 				break;
-			}
-			else if (status.equals("enemy")) {
+			} else if (status.equals("enemy")) {
 
 				// avoid enemy's zone
 				Sound.buzz();
-				//System.exit(0);
+				// System.exit(0);
 
 			}
 
@@ -218,7 +240,61 @@ public class Master {
 		Sound.beepSequence();
 		System.exit(0);
 	}
-
+/*	
+	public static int identify(){
+		
+		
+		for(int i=0; i<4; i++){
+			
+			BlockPickUp.nxt.S1.readRawValue()
+						
+			ColorSensor censor = new ColorSensor(BlockPickUp.nxt.S1.se);
+			ColorSensor.Color vals = censor.getColor();
+		    ColorSensor.Color rawVals = censor.getRawColor();
+		    int lightValue = vals.getBlue();
+		    int rawBlue = rawVals.getBlue();
+		    
+			RConsole.println("Light Value"+ vals.getBlue());
+			RConsole.println("Raw value " + rawVals.getBlue());
+			
+			if(lightValue > 50){
+				buffer++;
+				if(buffer == 3){
+					objectDetected = true;
+				}
+				
+				if(objectDetected == true){
+					
+					if(rawBlue >= 450 && rawBlue <= 550){
+						RConsole.println("foam");
+						
+						LCD.drawString("	foam	" + rawBlue, 0, 1);
+						
+						foam = true;
+						
+					}else{
+						obstacle = true;
+						LCD.drawString("	Obstacle	" + rawBlue, 0, 1);
+						RConsole.println(" obstacle");
+						
+					}
+					
+				}
+				
+			}else{
+				buffer = 0;
+				objectDetected = false;
+				obstacle = false;
+				foam = false;
+			}
+			
+			
+			
+		}
+		
+		return 1;
+	}
+*/
 	/**
 	 * method for bluetooth client connection
 	 */

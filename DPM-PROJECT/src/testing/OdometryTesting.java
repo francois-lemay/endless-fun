@@ -25,8 +25,8 @@ public class OdometryTesting {
 		
 		Button.waitForAnyPress();
 		
-		NXTRegulatedMotor left = new NXTRegulatedMotor(MotorPort.A);
-		NXTRegulatedMotor right = new NXTRegulatedMotor(MotorPort.B);
+		NXTRegulatedMotor left = new NXTRegulatedMotor(Constants.leftMotorPort);
+		NXTRegulatedMotor right = new NXTRegulatedMotor(Constants.rightMotorPort);
 
 		Odometer odo = new Odometer(left,right);
 		Navigation nav = new Navigation(odo);
@@ -44,7 +44,7 @@ public class OdometryTesting {
 		
 		OdometryCorrection odoCorr = new OdometryCorrection(odo, back);
 		
-		//odoCorr.start();
+		odoCorr.start();
 		
 		// ********************************************************//
 		
@@ -56,7 +56,7 @@ public class OdometryTesting {
 		 * Insert destinations here!!!
 		 * {x,y}
 		 */
-		double[][] destinations = {{0,30},{60,30},{60,60},{0,0}};
+		double[][] destinations = {{0,30},{60,30},{60,60},{0,60},{30,0},{0,0}};
 		double x,y;
 		
 		

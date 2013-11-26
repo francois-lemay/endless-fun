@@ -25,7 +25,7 @@ public class BlockPickUp {
 	/**
 	 * remote nxt object
 	 */
-	private static RemoteNXT nxt;
+	public static RemoteNXT nxt;
 	
 	/**
 	 * lift motor

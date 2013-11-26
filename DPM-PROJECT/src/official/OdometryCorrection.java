@@ -1,12 +1,13 @@
 package official;
 
+import lejos.nxt.Sound;
 import lejos.util.Timer;
 import lejos.util.TimerListener;
 
 /**
  * 
- * the odometry correction algorithm used in this code assumes the light sensor to be positioned
- * at a fixed distance behind the center of the wheel base
+ * the odometry correction algorithm used in this code assumes the light sensor
+ * to be positioned at a fixed distance behind the center of the wheel base
  * 
  * @author Francois
  * 
@@ -97,8 +98,8 @@ public class OdometryCorrection implements TimerListener {
 		}
 
 		// set up timer
-		period = 200;
-		timer = new Timer(period,this);
+		period = 100;
+		timer = new Timer(period, this);
 	}
 
 	/**
@@ -107,8 +108,14 @@ public class OdometryCorrection implements TimerListener {
 	public void timedOut() {
 
 		if (back.getLatestDerivative() < Constants.GRIDLINE_THRES) {
+			Sound.beep();
 			correctPosition();
+			try {
+				Thread.sleep(1000);
+			} catch (Exception e) {
+			}
 		}
+
 	}
 
 	/**
@@ -116,91 +123,90 @@ public class OdometryCorrection implements TimerListener {
 	 */
 	public void correctPosition() {
 
-		boolean[] update = {false,false,false};
+		boolean[] update = { false, false, false };
 		double[] position = new double[3];
-		double xLS,yLS;
-		int xMod,yMod, deltaMod;
+		double xLS, yLS;
+		int xMod, yMod, deltaMod;
 
 		// get actual position and heading
 		odo.getPosition(position);
 		double x = position[0];
 		double y = position[1];
 		double heading = position[2];
-		
+
 		// determine which line has been crossed
-		
+
 		// calculate light sensor's position
-		xLS = x-LS_DIST*Math.cos(heading);
-		yLS = y-LS_DIST*Math.sin(heading);
-		
+		xLS = x - LS_DIST * Math.cos(heading);
+		yLS = y - LS_DIST * Math.sin(heading);
+
 		// apply modulo 30 operator
 		xMod = Math.abs((int) (xLS % 30));
 		yMod = Math.abs((int) (yLS % 30));
-		
+
 		// normalize results for comparison
-		if(xMod > 15){
+		if (xMod > 15) {
 			xMod = 30 - xMod;
 		}
-		if(yMod > 15){
+		if (yMod > 15) {
 			yMod = 30 - yMod;
 		}
 
 		// compute deltaMod
-		deltaMod = Math.abs(Math.abs(xMod)-Math.abs(yMod));
-		
-		if(deltaMod < LINE_CROSS_BW){
+		deltaMod = Math.abs(Math.abs(xMod) - Math.abs(yMod));
+
+		if (deltaMod < LINE_CROSS_BW) {
 			// correct both xLS and yLS
-			xLS = (Math.ceil(xLS/10.0))*10;			
-			yLS = (Math.ceil(yLS/10.0))*10;
-			
+			xLS = (Math.ceil(xLS / 10.0)) * 10;
+			yLS = (Math.ceil(yLS / 10.0)) * 10;
+
 			// correct x and y
-			x = xLS +LS_DIST*Math.cos(heading);
-			y = yLS+LS_DIST*Math.sin(heading);
-			
+			x = xLS + LS_DIST * Math.cos(heading);
+			y = yLS + LS_DIST * Math.sin(heading);
+
 			// set update booleans
 			update[0] = true;
 			update[1] = true;
 
-		}
-		else if(xMod < yMod){
-			//correct xLS only
-			xLS = (Math.rint(xLS/10.0))*10;
-			
+		} else if (xMod < yMod) {
+			// correct xLS only
+			xLS = (Math.rint(xLS / 10.0)) * 10;
+
 			// correct x only
-			x = xLS +LS_DIST*Math.cos(heading);
-			
+			x = xLS + LS_DIST * Math.cos(heading);
+
 			// set update booleans
 			update[0] = true;
-		}
-		else{
+		} else {
 			// correct yLS only
-			yLS = (Math.rint(yLS/10.0))*10;
-			
+			yLS = (Math.rint(yLS / 10.0)) * 10;
+
 			// correct y only
-			y = yLS+LS_DIST*Math.sin(heading);	
-			
+			y = yLS + LS_DIST * Math.sin(heading);
+
 			// set update booleans
 			update[1] = true;
 		}
-		
+
 		// update position array
 		position[0] = x;
 		position[1] = y;
-		
+
 		// update robot's position
 		odo.setPosition(position, update);
 	}
-	
+
 	/**
 	 * start timer
 	 */
-	public void start(){
+	public void start() {
 		this.timer.start();
 	}
+
 	/**
 	 * stop timer
 	 */
-	public void stop(){
+	public void stop() {
 		this.timer.stop();
 	}
 }
