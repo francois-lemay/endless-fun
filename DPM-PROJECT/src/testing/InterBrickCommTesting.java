@@ -1,10 +1,5 @@
 package testing;
 
-import official.Constants;
-import official.NXTComm;
-import lejos.nxt.*;
-import lejos.nxt.comm.*;
-
 /**
  * send/receive testing between master and slave brick
  * @author Francois
@@ -15,9 +10,9 @@ public class InterBrickCommTesting {
 	public static void main(String[] args) throws Exception{	
 		
 		// initialize connection
-		commInit();
+	//	commInit();
 		
-		// open clamp
+	/*	// open clamp
 		NXTComm.write(Constants.CODE_OPEN_CLAMP);
 		Thread.sleep(1000);
 		// close clamp
@@ -32,13 +27,14 @@ public class InterBrickCommTesting {
 		// exit
 		NXTComm.write(Constants.CODE_EXIT);
 		Thread.sleep(1000);
+		*/
 	}
 		
 	/**
 	 * initialization of inter-brick communication
 	 */
 	public static void commInit() {
-		// set master brick's friendly name
+	/*	// set master brick's friendly name
 		RS485.setName("Master");
 
 		String receiver = "Slave";
@@ -49,6 +45,7 @@ public class InterBrickCommTesting {
 
 		// connect with slave brick
 		NXTComm.connect(receiver, true);
+		*/
 	}
 		
 		

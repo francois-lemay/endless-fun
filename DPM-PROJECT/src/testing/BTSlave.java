@@ -1,12 +1,12 @@
-package testing;
+/*package testing;
 
+import deprecated.NXTCommBT;
 import lejos.nxt.Button;
 import lejos.nxt.LCD;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.comm.Bluetooth;
 import official.BlockPickUp;
 import official.Constants;
-import official.NXTCommBT;
 
 public class BTSlave {
 	
@@ -71,3 +71,4 @@ public static void main(String[] args){
 	}
 
 }
+*/

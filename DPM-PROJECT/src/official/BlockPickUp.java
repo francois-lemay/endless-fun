@@ -1,9 +1,13 @@
 package official;
 
+import java.io.IOException;
+
 import lejos.nxt.Button;
 import lejos.nxt.LCD;
-import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.Sound;
+import lejos.nxt.comm.Bluetooth;
+import lejos.nxt.remote.RemoteMotor;
+import lejos.nxt.remote.RemoteNXT;
 
 /**
  * basic controls to pick up blocks. The lift is positioned at absolute heights
@@ -19,34 +23,39 @@ public class BlockPickUp {
 	// class variables
 
 	/**
+	 * remote nxt object
+	 */
+	private static RemoteNXT nxt;
+	
+	/**
 	 * lift motor
 	 */
-	private NXTRegulatedMotor lift;
+	private static RemoteMotor lift;
 
 	/**
 	 * clamp motor
 	 */
-	private NXTRegulatedMotor clamp;
+	private static RemoteMotor clamp;
 	
 	/**
 	 * lift motor speed
 	 */
-	private final int LIFT_SPEED = Constants.LIFT_SPEED;
+	private static final int LIFT_SPEED = 200;
 	
 	/**
 	 * clamp motor speed
 	 */
-	private final int CLAMP_SPEED = Constants.CLAMP_SPEED;
+	private static final int CLAMP_SPEED = 100;
 	
 	/**
 	 * motor acceleration
 	 */
-	private final static int ACCELERATION = Constants.LIFT_ACC;
+	private final static int ACCELERATION = 2000;
 	
 	/**
 	 * maximum block capacity
 	 */
-	public static final int MAX_BLOCK = Constants.MAX_BLOCK;
+	public static final int MAX_BLOCK = 3;
 
 	/**
 	 * number of blocks being carried by robot
@@ -56,90 +65,79 @@ public class BlockPickUp {
 	/**
 	 * max allowed height for lift
 	 */
-	public static final int MAX_HEIGHT = Constants.MAX_HEIGHT;
+	public static final int MAX_HEIGHT = 1200;
 	
 	/**
 	 * min allowed height for lift
 	 */
-	public static final int MIN_HEIGHT = Constants.MIN_HEIGHT;
+	public static final int MIN_HEIGHT = 0;
 	
 	/**
 	 * height at which to keep lift while this class is not in use. (the given
 	 * value is in degrees of motor rotation that translate in vertical
 	 * displacement of the lift)
 	 */
-	public static final int IDLE = Constants.IDLE;
+	public static final int IDLE = 1100;
 
 	/**
 	 * incremental height that corresponds to the height of one styrofoam block.
 	 * (the given value is in degrees of motor rotation that translate in
 	 * vertical displacement of the lift)
 	 */
-	public static final int BLOCK_HEIGHT = Constants.BLOCK_HEIGHT;
+	public static final int BLOCK_HEIGHT = 300;
 
 	/**
 	 * limit angle of clamp motor considered as the open position
 	 */
-	public static final int OPEN = Constants.OPEN_POS;
+	public static final int OPEN = 0;
 
 	/**
 	 * limit angle of clamp motor considered as the closed position
 	 */
-	public static final int CLOSED = Constants.CLOSED_POS;
+	public static final int CLOSED = 70;
 
 	/**
 	 * constructor
 	 * @param motors - motors being used for the lift and the clamp
 	 */
-	public BlockPickUp(NXTRegulatedMotor[] motors) {
+	public static void init() throws IOException{
 		
-		lift = motors[0];
-		clamp = motors[1];
-
+		nxt = new RemoteNXT("Slave", Bluetooth.getConnector());
+		clamp = nxt.A;
+		lift = nxt.B;
+		
 		// set speeds
-		if (lift != null) {
-			lift.setSpeed(LIFT_SPEED);
-		}
+		lift.setSpeed(LIFT_SPEED);
 		clamp.setSpeed(CLAMP_SPEED);
 		
 		//set accelerations
-		if (lift != null) {
 		lift.setAcceleration(ACCELERATION);
-		}
 		clamp.setAcceleration(ACCELERATION);
 		
 		// reset lift and clamp tacho counts
-		if (lift != null) {
 		lift.resetTachoCount();
-		}
 		clamp.resetTachoCount();
 		
 		// reset blocks
 		blocks = 0;
 	}
 
-	/**
-	 * position robot for picking up block
-	 */
-	public void positionRobot() {
-
-	}
 
 	// lift methods
 
 	/**
 	 * position lift at specified height above its lowest point. (blocking)
 	 */
-	public void raiseTo(int height) {
+	public static void raiseTo(int height) {
 		
 		if(height<=MAX_HEIGHT && height>=MIN_HEIGHT){
 			
 			LCD.clear();
 			LCD.drawString("changing height", 0, 5);
 			
-			int deltaH = height - (lift.getTachoCount());
+			int deltaH = height - (-lift.getTachoCount());
 			// raise or lower depending on relative positioning
-			lift.rotate(deltaH, false);
+			lift.rotate(-deltaH, false);
 		}
 		else{
 			Sound.beep();
@@ -155,9 +153,9 @@ public class BlockPickUp {
 	 * @param deltaH
 	 *            - positive vertical displacement (degrees)
 	 */
-	public void raiseBy(int deltaH) {
+	public static void raiseBy(int deltaH) {
 
-		int height = -1*lift.getTachoCount() + deltaH;
+		int height = lift.getTachoCount() + deltaH;
 		raiseTo(height);
 	}
 
@@ -167,8 +165,8 @@ public class BlockPickUp {
 	 * @param deltaH
 	 *            - negative vertical displacement (degrees)
 	 */
-	public void lowerBy(int deltaH) {
-		int height = -1*lift.getTachoCount() - deltaH;
+	public static void lowerBy(int deltaH) {
+		int height = lift.getTachoCount() - deltaH;
 		raiseTo(height);
 	}
 	
@@ -178,21 +176,21 @@ public class BlockPickUp {
 	/**
 	 * open clamp. (blocking)
 	 */
-	public void openClamp() {
+	public static void openClamp() {
 		clamp.rotateTo(OPEN, false);
 	}
 
 	/**
 	 * close clamp. (blocking)
 	 */
-	public void closeClamp() {
+	public static void closeClamp() {
 		clamp.rotateTo(-CLOSED, false);
 	}
 	
 	/**
 	 * straighten block with clamp
 	 */
-	public void straightenBlock(){
+	public static void straightenBlock(){
 		// if clamp is closed, open before first
 		if(!isClampOpen()){
 			openClamp();
@@ -209,7 +207,7 @@ public class BlockPickUp {
 	 * get is clamp open boolean
 	 * @return true or false
 	 */
-	public boolean isClampOpen(){
+	public static boolean isClampOpen(){
 		boolean isOpen = false;
 		
 		if(Math.abs(clamp.getTachoCount()-OPEN) <= 10 ){

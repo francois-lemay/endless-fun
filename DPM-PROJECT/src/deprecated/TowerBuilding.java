@@ -1,9 +1,13 @@
-package official;
+package deprecated;
+
+import official.Navigation;
 
 /**
+ * CLASS NOT USED
  * tower building class.
  * go deposit stacked blocks to the construction zone
  * @author François Lemay
+ * @deprecated
  *
  */
 public class TowerBuilding {

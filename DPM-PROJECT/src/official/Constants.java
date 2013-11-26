@@ -45,52 +45,11 @@ public class Constants {
 	 */
 	public static double[] robotDest = new double[2];
 	
-	/*
-	 * NXT COMMAND CODES
-	 */
-	/**
-	 * order slave to open clamp
-	 */
-	public static final int CODE_OPEN_CLAMP = 49;
-	/**
-	 * order slave to close clamp
-	 */
-	public static final int CODE_CLOSE_CLAMP = 51;
-	/**
-	 * order slave to raise to IDLE
-	 */
-	public static final int CODE_RAISE_IDLE = 53;
-	/**
-	 * order Slave to lower to MIN
-	 */
-	public static final int CODE_LOWER_MIN = 55;
-	/**
-	 * order Slave to raise to MAX
-	 */
-	public static final int CODE_RAISE_MAX = 57;
-	/**
-	 * order Slave to raise by BLOCK HEIGHT
-	 */
-	public static final int CODE_RAISE_BLOCK_HEIGHT = 59;
-	/**
-	 * order Slave to lower by BLOCK HEIGHT
-	 */
-	public static final int CODE_LOWER_BLOCK_HEIGHT = 61;
-	/**
-	 * order Slave to exit program
-	 */
-	public static final int CODE_EXIT = 99;
-	
-	
 	// polling periods
 	/**
 	 * polling period for Master's SensorController
 	 */
 	public static final int M_PERIOD = 30;
-	/**
-	 * polling period for Master's SensorController
-	 */
-	public static final int S_PERIOD = 20;
 	/**
 	 * odometer's update period (in miliseconds)
 	 */
@@ -126,7 +85,7 @@ public class Constants {
 	/**
 	 * left motor port
 	 */
-	public static MotorPort leftMotorPort = MotorPort.A;
+	public static MotorPort leftMotorPort = MotorPort.C;
 	/**
 	 * right motor port
 	 */
@@ -134,7 +93,7 @@ public class Constants {
 	/**
 	 * right motor port
 	 */
-	public static MotorPort sensorMotorPort = MotorPort.C;
+	public static MotorPort sensorMotorPort = MotorPort.A;
 	/**
 	 * back light sensor's port
 	 */
@@ -142,19 +101,17 @@ public class Constants {
 	/**
 	 * bottom us sensor's port
 	 */
-	public static SensorPort bottomSensorPort = SensorPort.S2;
+	public static SensorPort bottomSensorPort = SensorPort.S4;
 	/**
-	 * top us sensor's port
+	 * left us sensor's port
 	 */
-	public static SensorPort topSensorPort = SensorPort.S3;
+	public static SensorPort leftSensorPort = SensorPort.S3;
 	/**
-	 * clamp motor port
+	 * right us sensor's port
 	 */
-	public static MotorPort clampMotorPort = MotorPort.A;
-	/**
-	 * lift motor port
-	 */
-	public static MotorPort liftMotorPort = MotorPort.B;
+	public static SensorPort rightSensorPort = SensorPort.S2;
+
+
 	
 	// data indexing
 	/**
@@ -176,25 +133,14 @@ public class Constants {
 	
 	// sensors' data sample sizes
 	/**
-	 * bottom us sensor sample size
+	 * us sensor number of samples in data linkedlist
 	 */
-	public static final int BOTT_SAMPLE = 9;
-	/**
-	 * top us sensor sample size
-	 */
-	public static final int TOP_SAMPLE = 9;
-	/**
-	 * left light sensor sample size
-	 */
-	public static final int LEFT_SAMPLE = 7;
-	/**
-	 * right light sensor sample size
-	 */
-	public static final int RIGHT_SAMPLE = 7;
+	public static final int US_SAMPLE = 9;
+
 	/**
 	 * back light sensor sample size
 	 */
-	public static final int BACK_SAMPLE = 7;
+	public static final int LIGHT_SAMPLE = 7;
 	
 	/*
 	 * sensors' derivative sample sizes
@@ -202,19 +148,19 @@ public class Constants {
 	/**
 	 * bottom us sensor derivative sample size
 	 */
-	public static final int BOTT_DIFF = 6;
+	public static final int BOTT_DIFF = 2;
 	/**
 	 * top us sensor derivative sample size
 	 */
-	public static final int TOP_DIFF = 6;
+	public static final int TOP_DIFF = 2;
 	/**
 	 * left light sensor derivative sample size
 	 */
-	public static final int LEFT_DIFF = 6;
+	public static final int LEFT_DIFF = 2;
 	/**
 	 * right light sensor derivative sample size
 	 */
-	public static final int RIGHT_DIFF = 6;
+	public static final int RIGHT_DIFF = 2;
 	/**
 	 * back light sensor derivative sample size
 	 */
@@ -290,53 +236,7 @@ public class Constants {
 	 */
 	public static final int SQUARE_LENGTH = 30;
 	
-	/*
-	 * BLOCK PICK-UP CONSTANTS
-	 */
-	/**
-	 * lift motor speed
-	 */
-	public static final int LIFT_SPEED = 200;
-	/**
-	 * clamp motor speed
-	 */
-	public static final int CLAMP_SPEED = 100;
-	/**
-	 * motor acceleration
-	 */
-	public static final int LIFT_ACC = 2000;
-	/**
-	 * maximum block capacity
-	 */
-	public static final int MAX_BLOCK = 3;
-	/**
-	 * max allowed height for lift
-	 */
-	public static final int MAX_HEIGHT = 1500;
-	/**
-	 * min allowed height for lift
-	 */
-	public static final int MIN_HEIGHT = 0;
-	/**
-	 * height at which to keep lift while this class is not in use. (the given
-	 * value is in degrees of motor rotation that translate in vertical
-	 * displacement of the lift)
-	 */
-	public static final int IDLE = 1400;
-	/**
-	 * incremental height that corresponds to the height of one styrofoam block.
-	 * (the given value is in degrees of motor rotation that translate in
-	 * vertical displacement of the lift)
-	 */
-	public static final int BLOCK_HEIGHT = 720;
-	/**
-	 * limit angle of clamp motor considered as the open position
-	 */
-	public static final int OPEN_POS = 0;
-	/**
-	 * limit angle of clamp motor considered as the closed position
-	 */
-	public static final int CLOSED_POS = 50;
+	
 	
 	/*
 	 * object detection threshold values

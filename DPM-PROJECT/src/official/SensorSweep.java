@@ -4,6 +4,13 @@ import lejos.nxt.NXTRegulatedMotor;
 import lejos.util.Timer;
 import lejos.util.TimerListener;
 
+/**
+ * concurrent thread used to make an ultrasonic pivot regularly on a motor.
+ * this is used to widen the scope of the ultrasonic sensor's field of view
+ * @author Francois
+ * @deprecated
+ *
+ */
 public class SensorSweep implements TimerListener {
 	
 	/**

@@ -1,5 +1,6 @@
 package testing;
 
+import deprecated.SensorController;
 import lejos.nxt.Button;
 import lejos.nxt.ColorSensor;
 import lejos.nxt.LCD;
@@ -12,7 +13,6 @@ import official.LightLocalizer;
 import official.LightPoller;
 import official.Navigation;
 import official.Odometer;
-import official.SensorController;
 import official.USLocalizer;
 import official.USPoller;
 
@@ -42,13 +42,13 @@ public class LocalizationTest {
 				Constants.bottomSensorPort);
 
 		// us poller
-		USPoller bottom = new USPoller(bottomS, Constants.BOTT_SAMPLE, Constants.M_PERIOD);
+		USPoller bottom = new USPoller(bottomS, Constants.US_SAMPLE, Constants.M_PERIOD);
 
 		// back light sensor
 		ColorSensor backS = new ColorSensor(Constants.backSensorPort);
 
 		// light poller
-		LightPoller back = new LightPoller(backS, Constants.BACK_SAMPLE,Constants.M_PERIOD);
+		LightPoller back = new LightPoller(backS, Constants.US_SAMPLE,Constants.M_PERIOD);
 
 		// display menu
 		LCD.clear();

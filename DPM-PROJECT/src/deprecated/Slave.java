@@ -1,7 +1,9 @@
-package official;
+package deprecated;
 
+import official.BlockPickUp;
 import lejos.nxt.Button;
 import lejos.nxt.LCD;
+import lejos.nxt.MotorPort;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.comm.RS485;
 
@@ -9,7 +11,7 @@ import lejos.nxt.comm.RS485;
 /**
  * slave brick's main class
  * @author Francois
- *
+ * @deprecated
  */
 public class Slave {
 
@@ -24,12 +26,12 @@ public class Slave {
 		NXTComm.connect("It doesnt matter what name goes here", false);
 		
 		// set up clamp and lift motors
-		NXTRegulatedMotor clamp = new NXTRegulatedMotor(Constants.clampMotorPort);
-		NXTRegulatedMotor lift = new NXTRegulatedMotor(Constants.liftMotorPort);
+		NXTRegulatedMotor clamp = new NXTRegulatedMotor(MotorPort.A);
+		NXTRegulatedMotor lift = new NXTRegulatedMotor(MotorPort.B);
 		NXTRegulatedMotor[] motors = {clamp,lift};
 		
 		// set up brick pick up
-		BlockPickUp bp = new BlockPickUp(motors);
+		BlockPickUp bp = new BlockPickUp();
 		
 		// read from DIS
 		while(true){
@@ -43,7 +45,7 @@ public class Slave {
 			
 			
 			switch (n){
-			
+	/*		
 			// Block pick up orders
 			case Constants.CODE_CLOSE_CLAMP:
 				bp.closeClamp();
@@ -71,7 +73,7 @@ public class Slave {
 			// end program orders
 			case Constants.CODE_EXIT:
 				System.exit(0);
-			}
+*/			}
 		}
 	}
 }

@@ -1,5 +1,6 @@
 package testing;
 
+import deprecated.SensorController;
 import lejos.nxt.ColorSensor;
 import lejos.nxt.MotorPort;
 import lejos.nxt.NXTRegulatedMotor;
@@ -10,7 +11,6 @@ import official.Constants;
 import official.LightPoller;
 import official.Navigation;
 import official.Odometer;
-import official.SensorController;
 import official.USPoller;
 
 /**
@@ -40,7 +40,7 @@ public class LineTest {
 				Constants.bottomSensorPort);
 
 		// us poller
-		USPoller bottom = new USPoller(bottomS, Constants.BOTT_SAMPLE,
+		USPoller bottom = new USPoller(bottomS, Constants.US_SAMPLE,
 				Constants.M_PERIOD);
 		USPoller[] up = { bottom };
 
@@ -48,7 +48,7 @@ public class LineTest {
 		ColorSensor backS = new ColorSensor(Constants.backSensorPort);
 
 		// light poller
-		LightPoller back = new LightPoller(backS, Constants.BACK_SAMPLE,
+		LightPoller back = new LightPoller(backS, Constants.US_SAMPLE,
 				Constants.M_PERIOD);
 		LightPoller[] lp = { back };
 

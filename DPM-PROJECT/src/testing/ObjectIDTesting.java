@@ -19,12 +19,12 @@ public class ObjectIDTesting {
 		// two front us sensors
 		UltrasonicSensor bottomS = new UltrasonicSensor(
 				Constants.bottomSensorPort);
-		UltrasonicSensor topS = new UltrasonicSensor(Constants.topSensorPort);
+		UltrasonicSensor topS = new UltrasonicSensor(Constants.leftSensorPort);
 
 		// us pollers
-		USPoller bottom = new USPoller(bottomS, Constants.BOTT_SAMPLE,
+		USPoller bottom = new USPoller(bottomS, Constants.US_SAMPLE,
 				Constants.M_PERIOD);
-		USPoller top = new USPoller(topS, Constants.TOP_SAMPLE,
+		USPoller top = new USPoller(topS, Constants.US_SAMPLE,
 				Constants.M_PERIOD);
 		
 		do{

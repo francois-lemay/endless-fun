@@ -39,7 +39,7 @@ public class OdometryTesting {
 		ColorSensor backS = new ColorSensor(Constants.backSensorPort);
 
 		// light poller
-		LightPoller back = new LightPoller(backS, Constants.BACK_SAMPLE,
+		LightPoller back = new LightPoller(backS, Constants.US_SAMPLE,
 				Constants.M_PERIOD);
 		
 		OdometryCorrection odoCorr = new OdometryCorrection(odo, back);

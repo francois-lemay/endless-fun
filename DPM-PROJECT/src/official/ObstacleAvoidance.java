@@ -9,6 +9,7 @@ import lejos.nxt.NXTRegulatedMotor;
  * is stopped once the robot is aligned with its destination point.
  * 
  * @author Francois Lemay
+ * @deprecated
  * 
  */
 public class ObstacleAvoidance {
@@ -128,7 +129,7 @@ public class ObstacleAvoidance {
 		}
 
 		// turn robot 90 degrees clockwise
-		nav.rotateBy(-90, false);
+		nav.rotateBy(-90, false, Navigation.SLOW);
 				
 		// turn us sensor towards obstacle
 		sensorMotor.rotateTo(-110, false);

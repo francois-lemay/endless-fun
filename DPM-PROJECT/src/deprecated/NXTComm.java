@@ -1,4 +1,4 @@
-package official;
+package deprecated;
 
 import java.io.*;
 import lejos.nxt.*;
@@ -6,7 +6,7 @@ import lejos.nxt.comm.*;
 /**
  * class used to facilitate communication between Master and Slave bricks
  * @author Francois
- *
+ * @deprecated
  */
 public class NXTComm {
 

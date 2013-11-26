@@ -1,5 +1,10 @@
-package official;
+package deprecated;
 
+import official.DataFilter;
+import official.LightPoller;
+import official.ObjectDetection;
+import official.OdometryCorrection;
+import official.USPoller;
 import lejos.nxt.Button;
 import lejos.nxt.LCD;
 import lejos.nxt.comm.RConsole;
@@ -12,6 +17,7 @@ import lejos.util.TimerListener;
  * these sensors.
  * 
  * @author Francois Lemay
+ * @deprecated
  * 
  */
 public class SensorController implements TimerListener {

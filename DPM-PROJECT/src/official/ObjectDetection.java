@@ -14,6 +14,7 @@ import lejos.util.TimerListener;
  * possibility of being interrupted.
  * 
  * @author Francois Lemay
+ * @deprecated
  * 
  */
 public class ObjectDetection implements TimerListener {
@@ -167,7 +168,7 @@ public class ObjectDetection implements TimerListener {
 			Sound.buzz();
 			
 			// rotate robot towards object
-			nav.rotateBy(-2*sensorMotor.getPosition(), true);
+			nav.rotateBy(-2*sensorMotor.getPosition(), true, Navigation.SLOW);
 			// rotate sensor motor back to forward
 			sensorMotor.rotateTo(0, false);
 			

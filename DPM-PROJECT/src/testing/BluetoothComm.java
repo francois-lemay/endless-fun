@@ -1,9 +1,9 @@
-package testing;
+/*package testing;
 
+import deprecated.NXTCommBT;
 import lejos.nxt.Button;
 import lejos.nxt.LCD;
 import official.Constants;
-import official.NXTCommBT;
 
 public class BluetoothComm {
 
@@ -33,7 +33,7 @@ public static void main(String[] args) throws Exception{
 	/**
 	 * initialization of inter-brick communication
 	 */
-	public static void commInit() {
+/*	public static void commInit() {
 		String receiver = "Slave";
 
 		LCD.drawString("Press to begin", 0, 0);
@@ -44,7 +44,8 @@ public static void main(String[] args) throws Exception{
 		NXTCommBT.connect(receiver, true);
 	}
 		
-		
+	
 
 	
 }
+*/

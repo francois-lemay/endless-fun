@@ -22,11 +22,12 @@ import lejos.nxt.NXTRegulatedMotor;
 
 /**
  * robot's navigation class.
+ * 
  * @author Francois
- *
+ * 
  */
 public class Navigation {
-	
+
 	/**
 	 * fast speed
 	 */
@@ -70,7 +71,8 @@ public class Navigation {
 
 	/**
 	 * 
-	 * @param odo - robot's odometry class
+	 * @param odo
+	 *            - robot's odometry class
 	 */
 	public Navigation(Odometer odo) {
 		this.odometer = odo;
@@ -86,8 +88,11 @@ public class Navigation {
 
 	/**
 	 * function to set the motor speed jointly
-	 * @param lSpd - left motor speed
-	 * @param rSpd - right motor speed
+	 * 
+	 * @param lSpd
+	 *            - left motor speed
+	 * @param rSpd
+	 *            - right motor speed
 	 */
 	public void setSpeeds(float lSpd, float rSpd) {
 		this.leftMotor.setSpeed(lSpd);
@@ -104,8 +109,11 @@ public class Navigation {
 
 	/**
 	 * set the motor speeds jointly
-	 * @param lSpd - left motor speed
-	 * @param rSpd - right motor speed
+	 * 
+	 * @param lSpd
+	 *            - left motor speed
+	 * @param rSpd
+	 *            - right motor speed
 	 */
 	public void setSpeeds(int lSpd, int rSpd) {
 		this.leftMotor.setSpeed(lSpd);
@@ -129,19 +137,23 @@ public class Navigation {
 		this.leftMotor.flt(true);
 		this.rightMotor.flt(true);
 	}
-	
+
 	/**
 	 * stop the two motors jointly
 	 */
-	public void stopMotors(){
+	public void stopMotors() {
 		this.leftMotor.stop(true);
 		this.rightMotor.stop(false);
 	}
 
 	/**
-	 * make robot travel to specified position. Can get interrupted by ObjectDetection.isNewObjectDetected
-	 * @param x1 - x coordinate
-	 * @param y1 - y coordinate
+	 * make robot travel to specified position. Can get interrupted by
+	 * ObjectDetection.isNewObjectDetected
+	 * 
+	 * @param x1
+	 *            - x coordinate
+	 * @param y1
+	 *            - y coordinate
 	 */
 	public void travelTo(double x1, double y1, int speed) {
 
@@ -162,11 +174,11 @@ public class Navigation {
 		// stop motors
 		setSpeeds(0, 0);
 
-		while (!destinationReached && !ObjectDetection.objectDetected ) {
-			
+		while (!destinationReached && !ObjectDetection.objectDetected) {
+
 			// set isNavigating to true
 			setIsNavigating(true);
-			
+
 			// get robot's current position
 			x0 = odometer.getX();
 			y0 = odometer.getY();
@@ -188,8 +200,8 @@ public class Navigation {
 				theta1 = theta1 + 360;
 			}
 
-			turnTo(theta1,speed);
-			
+			turnTo(theta1, speed);
+
 			// // Forward Error Calculation
 
 			// get update robot's current position and heading
@@ -222,7 +234,7 @@ public class Navigation {
 				rightMotor.setSpeed(speed);
 
 			}
-			
+
 			// set isNavigating to false
 			setIsNavigating(false);
 
@@ -230,10 +242,11 @@ public class Navigation {
 
 	}
 
-
 	/**
 	 * turn robot to specified heading
-	 * @param theta1 - heading
+	 * 
+	 * @param theta1
+	 *            - heading
 	 */
 	public void turnTo(double theta1, int speed) {
 
@@ -277,16 +290,19 @@ public class Navigation {
 
 		}
 	}
-	
+
 	/**
 	 * turn robot towards a specified position
-	 * @param x1 - x coordinate
-	 * @param y1 - y coordinate
+	 * 
+	 * @param x1
+	 *            - x coordinate
+	 * @param y1
+	 *            - y coordinate
 	 */
-	public void turnTowards(double x1,double y1){
-		
-		double x0,y0,theta1;
-		
+	public void turnTowards(double x1, double y1) {
+
+		double x0, y0, theta1;
+
 		// get robot's current position
 		x0 = odometer.getX();
 		y0 = odometer.getY();
@@ -309,21 +325,150 @@ public class Navigation {
 		}
 
 		turnTo(theta1, SLOW);
-	}	
-	
+	}
+
+	/**
+	 * go forward by a certain distance while checking front us sensors for
+	 * incoming obstacles. If an obstacle is incoming, stop moving and return
+	 * "obstacle". If destination is reached return "destination". If too close
+	 * to enemy's zone, return "enemy". Otherwise return "success".
+	 * 
+	 * @param distance
+	 *            - traveling distance
+	 * @param speed
+	 *            - speed of left and right motors
+	 * @param left
+	 *            - robot's left hand side us sensor
+	 * @param right
+	 *            - robot's right hand side us sensor
+	 */
+	public String goFwdCaution(double distance, int speed, USPoller bottom,
+			USPoller left, USPoller right) {
+
+		// initialize vars
+		double disp = 0;
+		double fwdError = 0;
+
+		// record starting position
+		double x = odometer.getX();
+		double y = odometer.getY();
+
+		// set motor speeds
+		setSpeeds(speed, speed);
+
+		do {
+			// stop traveling if obstacle is at front
+			if (bottom.getLatestFilteredDataPoint() < 30
+					|| left.getLatestFilteredDataPoint() < 30
+					|| right.getLatestFilteredDataPoint() < 30) {
+				stopMotors();
+				return "obstacle";
+			}
+
+			// calculated how close to destination
+			fwdError = Math.sqrt((Math.pow(
+					(odometer.getX() - Constants.robotDest[0]), 2) + Math.pow(
+					(odometer.getY() - Constants.robotDest[1]), 2)));
+
+			// if arrived at position
+			if (fwdError <= POSITION_ERR) {
+				stopMotors();
+				return "destination";
+			}
+
+			// check if too close to enemy zone
+			if (tooClose2Enemy()) {
+				stopMotors();
+				return "enemy";
+			}
+
+			// calculate distance traveled
+			disp = Math.sqrt((Math.pow((odometer.getX() - x), 2) + Math.pow(
+					(odometer.getY() - y), 2)));
+
+		} while (disp < distance);
+
+		// distance traveled without interruption
+		// stop motors
+		stopMotors();
+		return "success";
+	}
+
+	/**
+	 * check if robot is too close to enemy zone. return true if too close.
+	 * return false otherwise.
+	 * 
+	 * @return true or false
+	 */
+	private boolean tooClose2Enemy() {
+		double x0 = odometer.getX();
+		double y0 = odometer.getY();
+		double dist = 0;
+
+		// bottom left corner
+		double x1 = Constants.badZone[0];
+		double y1 = Constants.badZone[1];
+
+		// top right corner
+		double x2 = Constants.badZone[2];
+		double y2 = Constants.badZone[3];
+
+		// bottom right corner
+		double x3 = x2;
+		double y3 = y1;
+
+		// top left corner
+		double x4 = x1;
+		double y4 = y2;
+
+		// calculate min. distance from enemy zone
+		if (x1 < x0 && x0 < x2) {
+
+			dist = Math.min(Math.abs(y1 - y0), Math.abs(y2 - y0));
+			
+		} else if (y1 < y0 && y0 < y2) {
+
+			dist = Math.min(Math.abs(x1 - x0), Math.abs(x2 - x0));
+		} else {
+			// min distance is to one of the four corners
+
+			// calc. distance to bottom left
+			double dist1 = Math.sqrt((Math.pow((x0 - x1), 2) + Math.pow(
+					(y0 - y1), 2)));
+			// calc distance to top right
+			double dist2 = Math.sqrt((Math.pow((x0 - x2), 2) + Math.pow(
+					(y0 - y2), 2)));
+			// calc distance to bottom right
+			double dist3 = Math.sqrt((Math.pow((x0 - x3), 2) + Math.pow(
+					(y0 - y3), 2)));
+			// calc distance to top left
+			double dist4 = Math.sqrt((Math.pow((x0 - x4), 2) + Math.pow(
+					(y0 - y4), 2)));
+
+			dist = Math.min(Math.min(dist1, dist2), Math.min(dist3, dist4));
+		}
+
+		if (dist < 5) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	// ---- helper methods ---- //
 
 	/**
-	 * make robot rotate by specified angle.
-	 * A positive angle results in counter-clockwise rotation
+	 * make robot rotate by specified angle. A positive angle results in
+	 * counter-clockwise rotation
+	 * 
 	 * @param deltaTheta
 	 * @param nonBlocking
 	 */
-	public void rotateBy(double deltaTheta, boolean nonBlocking) {
+	public void rotateBy(double deltaTheta, boolean immediateReturn, int speed) {
 
 		// set motor speeds
-		leftMotor.setSpeed(SLOW);
-		rightMotor.setSpeed(SLOW);
+		leftMotor.setSpeed(speed);
+		rightMotor.setSpeed(speed);
 
 		// begin rotation and wait for completion
 		leftMotor.rotate(
@@ -331,36 +476,38 @@ public class Navigation {
 				true);
 		rightMotor.rotate(
 				convertAngle(odometer.rightRadius, odometer.width, deltaTheta),
-				nonBlocking);
+				immediateReturn);
 
 	}
-	
+
 	//
 	/**
-	 * move forward by specified distance (-ve distance corresponds to moving backwards)
+	 * move forward by specified distance (-ve distance corresponds to moving
+	 * backwards)
+	 * 
 	 * @param distance
 	 */
-	public void moveForwardBy(double distance, int speed){
-		
+	public void moveForwardBy(double distance, int speed) {
+
 		// set motor speeds
 		leftMotor.setSpeed(speed);
 		rightMotor.setSpeed(speed);
 
 		// begin rotation and wait for completion
-		leftMotor.rotate(
-				convertDistance(odometer.leftRadius, distance),
-				true);
-		rightMotor.rotate(
-				convertDistance(odometer.rightRadius, distance),
+		leftMotor.rotate(convertDistance(odometer.leftRadius, distance), true);
+		rightMotor.rotate(convertDistance(odometer.rightRadius, distance),
 				false);
 	}
-	
+
 	// helper methods
 
 	/**
 	 * convert desired traveling distance to angular wheel rotation
-	 * @param radius - wheel radius
-	 * @param distance - distance of travel
+	 * 
+	 * @param radius
+	 *            - wheel radius
+	 * @param distance
+	 *            - distance of travel
 	 * @return angle (in degrees)
 	 */
 	private int convertDistance(double radius, double distance) {
@@ -369,21 +516,24 @@ public class Navigation {
 
 	/**
 	 * convert desired change of orientation to angular wheel rotation
-	 * @param radius - wheel radius
-	 * @param width - wheelbase width
-	 * @param angle - change in orientation
+	 * 
+	 * @param radius
+	 *            - wheel radius
+	 * @param width
+	 *            - wheelbase width
+	 * @param angle
+	 *            - change in orientation
 	 * @return angle (in degrees)
 	 */
 	private int convertAngle(double radius, double width, double angle) {
 		return convertDistance(radius, Math.PI * width * angle / 360.0);
 	}
 
-	
-	
 	// ---- accessors ---- //
 
 	/**
 	 * returns true if robot is navigating. returns false otherwise
+	 * 
 	 * @return navigation status
 	 */
 	public static boolean getIsNavigating() {
@@ -394,7 +544,9 @@ public class Navigation {
 
 	/**
 	 * set value of boolean isNavigating
-	 * @param foo - status
+	 * 
+	 * @param foo
+	 *            - status
 	 */
 	private void setIsNavigating(boolean foo) {
 		isNavigating = foo;
@@ -402,7 +554,9 @@ public class Navigation {
 
 	/**
 	 * set value of destinationReached
-	 * @param foo - status
+	 * 
+	 * @param foo
+	 *            - status
 	 */
 	private void setDestinationReached(boolean foo) {
 		destinationReached = foo;
