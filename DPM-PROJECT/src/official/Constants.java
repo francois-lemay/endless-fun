@@ -79,7 +79,7 @@ public class Constants {
 	 * distance between back light sensor and center of wheel base (in
 	 * centimeters)
 	 */
-	public static final double BACK_SENSOR_DIST = 20.0;
+	public static final double BACK_SENSOR_DIST = 17.5;
 	
 	// port connections
 	/**

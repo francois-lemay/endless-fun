@@ -56,7 +56,7 @@ public class OdometryTesting {
 		 * Insert destinations here!!!
 		 * {x,y}
 		 */
-		double[][] destinations = {{0,30},{60,30},{60,60},{0,60},{30,0},{0,0}};
+		double[][] destinations = {{0,30},{120,60},{60,60},{0,0}};
 		double x,y;
 		
 		
