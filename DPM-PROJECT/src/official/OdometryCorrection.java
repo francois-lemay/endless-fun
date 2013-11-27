@@ -108,7 +108,7 @@ public class OdometryCorrection implements TimerListener {
 	public void timedOut() {
 
 		if (back.getLatestDerivative() < Constants.GRIDLINE_THRES) {
-			Sound.beep();
+			//Sound.beep();
 			correctPosition();
 			try {
 				Thread.sleep(1000);

@@ -36,10 +36,6 @@ public class USPoller implements TimerListener {
 	 */
 	private int NUM_SAMPLES;
 	/**
-	 * the number of derivatives stored in 'derivatives
-	 */
-//	private int NUM_OF_DERIVATIVES = NUM_SAMPLES - 1;
-	/**
 	 * ArrayList of integers that will hold raw data from sensors
 	 */
 	private LinkedList<Integer> rawData;
@@ -53,11 +49,16 @@ public class USPoller implements TimerListener {
 	 */
 	private int derivatives;
 
+	private static boolean isPolling;
+
 	// constructor
 	public USPoller(UltrasonicSensor us, int num_samples, int period) {
 
 		this.us = us;
-
+		
+		// initialize polling status
+		isPolling = false;
+		
 		// avoid null pointer exceptions
 		if (num_samples <= 0) {
 			NUM_SAMPLES = 1;
@@ -68,7 +69,7 @@ public class USPoller implements TimerListener {
 		// initialize all data
 		this.rawData = new LinkedList<Integer>();
 		this.filteredData = new LinkedList<Integer>();
-		//this.derivatives = new ArrayList<Integer>();
+		// this.derivatives = new ArrayList<Integer>();
 
 		// fill rawData list
 		for (int i = 0; i < NUM_SAMPLES; i++) {
@@ -87,51 +88,52 @@ public class USPoller implements TimerListener {
 
 		// fill derivatives
 		synchronized (lock) {
-			int lastIndex = filteredData.size()-1;
-			derivatives = filteredData.get(lastIndex) - filteredData.get(lastIndex-1);
+			int lastIndex = filteredData.size() - 1;
+			derivatives = filteredData.get(lastIndex)
+					- filteredData.get(lastIndex - 1);
 		}
-/*		int value = 0;
-		for (int i = 0; i < NUM_OF_DERIVATIVES; i++) {
-			synchronized (lock) {
-				value = filteredData.get(i + 1) - filteredData.get(i);
-				derivatives.add(value);
-			}
-
-		}
-*/
+		/*
+		 * int value = 0; for (int i = 0; i < NUM_OF_DERIVATIVES; i++) {
+		 * synchronized (lock) { value = filteredData.get(i + 1) -
+		 * filteredData.get(i); derivatives.add(value); }
+		 * 
+		 * }
+		 */
 		// set us sensor in ping mode
 		us.setMode(UltrasonicSensor.MODE_PING);
-		
+
 		// set up timer
-		timer = new Timer(period,this);
-		
+		timer = new Timer(period, this);
+
 		// start timer
 		timer.start();
 	}
-	
+
 	/**
 	 * main thread
 	 */
-	public void timedOut(){
-		
-		// stop timer to ensure following code gets completed
-		timer.stop();
-		
-		// collect raw data
-		collectRawData();
-		
-		// apply median filter
-		addToFilteredData(DataFilter.medianFilter(
-				getRawDataList()));
-		
-		// apply derivative filter
-		addToDerivatives(DataFilter.derivativeFilter(getFilteredDataList()));
-		
-		// re-start timer
-		timer.start();
-		
+	public void timedOut() {
+			
+			// set polling status
+			setPollingStatus(true);
+
+			// stop timer to ensure following code gets completed
+			timer.stop();
+
+			// collect raw data
+			collectRawData();
+
+			// apply median filter
+			addToFilteredData(DataFilter.medianFilter(getRawDataList()));
+
+			// apply derivative filter
+			addToDerivatives(DataFilter.derivativeFilter(getFilteredDataList()));
+
+			// re-start timer
+			timer.start();
+			
+
 	}
-	
 
 	/**
 	 * get distance from the us sensor and add to rawData
@@ -148,24 +150,23 @@ public class USPoller implements TimerListener {
 			rawData.remove(0);
 
 		}
-		
-		//******************************
-		//RConsole.println(""+data);
-		//******************************
+
+		// ******************************
+		// RConsole.println(""+data);
+		// ******************************
 
 	}
 
 	// accessors
-	
+
 	/**
-	 * get the value of the last raw data point to have been added to
-	 * rawData.
+	 * get the value of the last raw data point to have been added to rawData.
 	 * 
 	 * @return data point
 	 */
 	public int getLatestRawDataPoint() {
 		synchronized (lock) {
-			int lastIndex = rawData.size()-1;
+			int lastIndex = rawData.size() - 1;
 			return rawData.get(lastIndex);
 		}
 	}
@@ -189,7 +190,7 @@ public class USPoller implements TimerListener {
 	 */
 	public int getLatestFilteredDataPoint() {
 		synchronized (lock) {
-			int lastIndex = filteredData.size()-1;
+			int lastIndex = filteredData.size() - 1;
 			return filteredData.get(lastIndex);
 		}
 	}
@@ -212,7 +213,7 @@ public class USPoller implements TimerListener {
 	 */
 	public int getLatestDerivative() {
 		synchronized (lock) {
-			//return derivatives.get(derivatives.size() - 1);
+			// return derivatives.get(derivatives.size() - 1);
 			return derivatives;
 		}
 	}
@@ -228,7 +229,7 @@ public class USPoller implements TimerListener {
 	public void addToFilteredData(int value) {
 		synchronized (lock) {
 			filteredData.add(value);
-			//RConsole.println(""+value);
+			// RConsole.println(""+value);
 			filteredData.remove(0);
 
 		}
@@ -243,11 +244,34 @@ public class USPoller implements TimerListener {
 	 */
 	public void addToDerivatives(int value) {
 		synchronized (lock) {
-			//derivatives.add(value);
-			//derivatives.remove(0);
+			// derivatives.add(value);
+			// derivatives.remove(0);
 			derivatives = value;
 
 		}
 
+	}
+
+	/**
+	 * set polling status
+	 * 
+	 * @param foo
+	 *            - boolean value
+	 */
+	private void setPollingStatus(boolean foo) {
+		synchronized (Constants.lockObject) {
+			isPolling = foo;
+		}
+	}
+
+	/**
+	 * get polling status
+	 * 
+	 * @return
+	 */
+	private boolean getPollingStatus() {
+		synchronized (Constants.lockObject) {
+			return isPolling;
+		}
 	}
 }

@@ -174,7 +174,7 @@ public class BlockPickUp {
 	 * open clamp. (blocking)
 	 */
 	public static void openClamp() {
-		clamp.rotateTo(OPEN, false);
+		clamp.rotateTo(-OPEN, false);
 	}
 
 	/**

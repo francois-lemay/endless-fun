@@ -2,20 +2,13 @@ package official;
 
 import java.io.IOException;
 
-import deprecated.NXTComm;
 import bluetooth.*;
 import lejos.nxt.Button;
 import lejos.nxt.ColorSensor;
 import lejos.nxt.LCD;
-import lejos.nxt.NXT;
 import lejos.nxt.NXTRegulatedMotor;
-import lejos.nxt.SensorPort;
 import lejos.nxt.Sound;
 import lejos.nxt.UltrasonicSensor;
-import lejos.nxt.comm.NXTCommConnector;
-import lejos.nxt.comm.RConsole;
-import lejos.nxt.comm.RS485;
-import lejos.nxt.remote.RemoteNXT;
 
 /**
  * master brick's main class.
@@ -39,10 +32,9 @@ public class Master {
 	 *            - default argument
 	 */
 	public static void main(String[] args) throws IOException {
-		
-		LCD.drawString("Press to start", 0, 0);
+		LCD.drawString("press to start", 0, 0);
 		Button.waitForAnyPress();
-
+		
 		/*
 		 * bluetooth initialization
 		 */
@@ -51,13 +43,13 @@ public class Master {
 
 		// **************************************************************
 
-		Constants.goodZone = new int[] { -1 * Constants.SQUARE_LENGTH,
-				8 * Constants.SQUARE_LENGTH, 1 * Constants.SQUARE_LENGTH,
+		Constants.goodZone = new int[] { 5 * Constants.SQUARE_LENGTH,
+				6 * Constants.SQUARE_LENGTH, 7 * Constants.SQUARE_LENGTH,
 				9 * Constants.SQUARE_LENGTH };
 
-		Constants.badZone = new int[] { 2 * Constants.SQUARE_LENGTH,
-				4 * Constants.SQUARE_LENGTH, 3 * Constants.SQUARE_LENGTH,
-				5 * Constants.SQUARE_LENGTH };
+		Constants.badZone = new int[] { 0 * Constants.SQUARE_LENGTH,
+				4 * Constants.SQUARE_LENGTH, 1 * Constants.SQUARE_LENGTH,
+				6 * Constants.SQUARE_LENGTH };
 
 		// ***************************************************************
 
@@ -93,7 +85,7 @@ public class Master {
 		LightPoller back = new LightPoller(backS, Constants.LIGHT_SAMPLE,
 				Constants.M_PERIOD);
 
-		// three front us sensors
+		// two front us sensors
 		UltrasonicSensor leftS = new UltrasonicSensor(Constants.leftSensorPort);
 		UltrasonicSensor rightS = new UltrasonicSensor(
 				Constants.rightSensorPort);
@@ -105,7 +97,10 @@ public class Master {
 				Constants.M_PERIOD);
 
 		// odometry correction
-		// OdometryCorrection odoCorr = new OdometryCorrection(odo, back);
+		OdometryCorrection odoCorr = new OdometryCorrection(odo, back);
+		
+		LCD.drawString("Press to start", 0, 0);
+		Button.waitForAnyPress();
 
 		/*
 		 * US LOCALIZATION
@@ -118,8 +113,11 @@ public class Master {
 		  // do us localization
 //		usLoc.doLocalization();
 		
-//		Button.waitForAnyPress();
-		
+		// take small break
+//		try{
+//			Thread.sleep(100);
+//		}catch(Exception e){};
+				
 		/*
 		 * LIGHT LOCALIZATION
 		 */
@@ -130,17 +128,14 @@ public class Master {
 		  
 		  // do light localization
 //		lightLoc.doLocalization();
-		 
-
-//		Button.waitForAnyPress();
-		
+		 		
 		/*
 		 * main program loop
 		 */
 
 		// start odometry correction
 		try {
-			// odoCorr.start();
+			odoCorr.start();
 		} catch (Exception e) {
 			LCD.clear();
 			LCD.drawString("problem", 0, 0);
@@ -157,7 +152,7 @@ public class Master {
 		do {
 
 			// turn towards destination point
-			nav.turnTowards(Constants.robotDest[0]+15, Constants.robotDest[1]+15);
+			nav.turnTowards(Constants.robotDest[0], Constants.robotDest[1]);
 
 			// move forward with goFwdUS
 			status = nav.goFwdCaution(50, Navigation.FAST, left, right);
@@ -167,17 +162,14 @@ public class Master {
 			if (status.equals("obstacle")) {
 
 				Sound.beepSequence();
-
-				// locate object and turn towards it
-				sweep(odo, nav,left,right);
 				
 				// identify object
-				int code = identify(nav,frontS);
+				int code = identify(odo,nav,left,right,frontS,2000);
 				
 				// act upon result of identification
 				switch(code){
 				case 1:
-					avoidObstacle(nav,left,right);
+					avoidObstacle(odo,nav,frontS, left,right);
 					break;
 				case 2:
 					getFoam(nav);
@@ -230,57 +222,71 @@ public class Master {
 	 * @param censor - color sensor at front of robot
 	 * @return result of identification (1=obstacle, 2=foam, 3=no obstacle)
 	 */
-	public static int identify(Navigation nav, ColorSensor censor){
+	public static int identify(Odometer odo, Navigation nav, USPoller left, USPoller right, ColorSensor censor, int timeout) {
 		
+		sweep(odo,nav,left,right);
+
 		int redlightValue = 0;
-	    int bluelightValue = 0;
-	    long startTime = 0;
+		int bluelightValue = 0;
+		long startTime = 0;
+		boolean foo = true;
 
 		// approach object
-		nav.setSpeeds(Navigation.FAST, Navigation.FAST);
-		
+		nav.setSpeeds(Navigation.SLOW, Navigation.SLOW);
+
 		startTime = System.currentTimeMillis();
-		
-		do{
+
+		do {
 			ColorSensor.Color vals = censor.getColor();
-		    redlightValue = vals.getRed();
-		    if(System.currentTimeMillis()-startTime > 3000){
-		    	break;
-		    }
-		}while(redlightValue < 34);
-		
-		// stop motors
-		nav.stopMotors();
-		
-		// proceed to identification
-		ColorSensor.Color vals = censor.getColor();
-	    bluelightValue = vals.getBlue();
-	    redlightValue = vals.getRed();
-		
-		if(redlightValue >= 35){
-			int error = Math.abs(bluelightValue - redlightValue);
-			
-			if(error >25){
-				// is obstacle
-				return 1;
-			}else{
-				// is foam
-				return 2;
+			redlightValue = vals.getRed();
+			if (System.currentTimeMillis() - startTime > 3000) {
+				foo = false;
+				break;
 			}
+		} while (redlightValue < 34);
+
+		if (foo) {
+			// stop motors
+			nav.stopMotors();
+
+			// proceed to identification
+			bluelightValue = 0;
+			redlightValue = 0;
+			// get average color values
+			for (int i = 0; i < 3; i++) {
+				ColorSensor.Color vals = censor.getColor();
+				bluelightValue += vals.getBlue();
+				redlightValue += vals.getRed();
+			}
+			bluelightValue = bluelightValue / 3;
+			redlightValue = redlightValue / 3;
 			
-		}else{
-			// no object detected
-			return 3;
+			if (redlightValue >= 35) {
+				int error = Math.abs(bluelightValue - redlightValue);
+
+				if (error > 15) {
+					// is obstacle
+					return 1;
+				} else {
+					// is foam
+					return 2;
+				}
+
+			} else {
+				// no object detected
+				return 3;
+			}
 		}
+		return 3;
 	}
 	
 	/**
 	 * avoid obstacle
 	 */
-	public static void avoidObstacle(Navigation nav, USPoller left, USPoller right){
+	public static void avoidObstacle(Odometer odo, Navigation nav, ColorSensor censor, USPoller left, USPoller right){
 		
 		// back up a little bit
-		nav.moveForwardBy(-10, Navigation.FAST);
+		nav.moveForwardBy(-5, Navigation.FAST);
 		
 		// check if right is clear
 		nav.rotateBy(-90, false, Navigation.FAST);
@@ -292,15 +298,24 @@ public class Master {
 		if (left.getLatestFilteredDataPoint() > 40
 				&& right.getLatestFilteredDataPoint() > 40) {
 			nav.moveForwardBy(35, Navigation.FAST);
+			nav.rotateBy(90, false, Navigation.FAST);
 		} 
+		// if something on right, go identify
+		else if(identify(odo, nav, left, right, censor, 5000) == 2){
+			getFoam(nav);
+		}
 		// otherwise rotate to the left
 		else{
 			nav.rotateBy(180, false, Navigation.FAST);
 			nav.moveForwardBy(35, Navigation.FAST);
+			nav.rotateBy(-90, false, Navigation.FAST);
 		}
 		
-		// turn towards destination
-		nav.turnTowards(Constants.robotDest[0], Constants.robotDest[1]);
+		// check if anything at front
+		if (left.getLatestFilteredDataPoint() > 40
+				&& right.getLatestFilteredDataPoint() > 40){
+			nav.moveForwardBy(15, Navigation.FAST);
+		}
 
 	}
 	
@@ -312,41 +327,78 @@ public class Master {
 	 */
 	public static void sweep(Odometer odo, Navigation nav, USPoller left, USPoller right) {
 
+		double ang0 = odo.getAng();
 		double angL = 0;
 		double angR = 0;
-
-		if (left.getLatestFilteredDataPoint() < 30
-				&& right.getLatestFilteredDataPoint() < 30) {
-			
-			// object is centered, do nothing
+		long startTime = 0;
+		
+		nav.moveForwardBy(-7, Navigation.SLOW);
+		
+		if(left.getLatestRawDataPoint()<20 && right.getLatestRawDataPoint()<20){
 			// do nothing
+		}
+		// if only left sees something
+		else if(left.getLatestRawDataPoint()<20 && right.getLatestRawDataPoint() >20){
 			
-		} else{
+			// rotate to left
+			nav.setSpeeds(-Navigation.SLOW, Navigation.SLOW);
 			
+			// latch start time
+			startTime = System.currentTimeMillis();
+			
+			while(true){
+				if(right.getLatestRawDataPoint()<20){
+					break;
+				}
+				if (System.currentTimeMillis() - startTime > 1000) {
+					break;
+				}
+			}
+		}
+		// if only right sees something
+		else{
+			// rotate to the right
+			nav.setSpeeds(Navigation.SLOW,-Navigation.SLOW);
+			
+			// latch start time
+			startTime = System.currentTimeMillis();
+			
+			while(true){
+				if(left.getLatestRawDataPoint()<20){
+					break;
+				}
+				if (System.currentTimeMillis() - startTime > 2000) {
+					break;
+				}
+			}
+		}
+
+		/*
 			// rotate to left and latch angle
-			nav.setSpeeds(-Navigation.FAST, Navigation.FAST);
+			nav.setSpeeds(-Navigation.SLOW, Navigation.SLOW);
 			
 			do {
 				// do nothing
 			} while (left.getLatestFilteredDataPoint() < 30);
-			nav.stopMotors();
 			angL = odo.getAng();
 			
 			// rotate to right and latch angle
-			nav.setSpeeds(Navigation.FAST, -Navigation.FAST);
+			nav.setSpeeds(Navigation.SLOW, -Navigation.SLOW);
 			do {
-				// do nothing
-			} while (right.getLatestFilteredDataPoint() < 30);
-			nav.stopMotors();
-			angR = odo.getAng();
-		}
+				// wait to see object
+			} while (right.getLatestFilteredDataPoint() > 20);
+			
+			do {
+				// wait until see nothing
+			} while (left.getLatestFilteredDataPoint() < 30 || right.getLatestFilteredDataPoint() < 30);
+			angR = odo.getAng();		
 		
 		// find average of the two angles
 		double ang1 = Math.abs(angL-angR)/2;
 		double ang2 = Math.abs(angL-angR+360)/2;
 		
 		nav.rotateBy(Math.min(ang1,ang2), false, Navigation.FAST);
-		
+*/		
 	}
 	
 	/**
@@ -355,7 +407,7 @@ public class Master {
 	public static void getFoam(Navigation nav){
 		
 		// back up a little to pick up block
-		nav.moveForwardBy(-5, Navigation.FAST);
+		nav.moveForwardBy(-10, Navigation.FAST);
 		
 		// do stuff to pick up foam block
 		BlockPickUp.openClamp();

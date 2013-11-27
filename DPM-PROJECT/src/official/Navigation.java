@@ -18,7 +18,6 @@
  */
 package official;
 
-import lejos.nxt.Button;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.Sound;
 
@@ -364,8 +363,8 @@ public class Navigation {
 		
 		do {
 			// stop traveling if obstacle is at front
-			if (left.getLatestFilteredDataPoint() < 25
-					|| right.getLatestFilteredDataPoint() < 25) {
+			if (left.getLatestFilteredDataPoint() < 22
+					|| right.getLatestFilteredDataPoint() < 22) {
 				stopMotors();
 				Sound.beep();
 				return "obstacle";
@@ -377,7 +376,7 @@ public class Navigation {
 					(odometer.getY() - Constants.robotDest[1]), 2)));
 
 			// if arrived at position
-			if (fwdError <= POSITION_ERR) {
+			if (fwdError <= 1) {
 				stopMotors();
 				return "destination";
 			}

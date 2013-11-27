@@ -143,7 +143,7 @@ public class LightLocalizer {
 		navigator.turnTo(90,Constants.LIGHT_LOC_SPEED);
 
 		// change origin to starting corner
-		//correctCorner();
+		correctCorner();
 	}
 
 	/**
@@ -155,7 +155,7 @@ public class LightLocalizer {
 		int id = Constants.corner.getId();
 		double x = Constants.corner.getX();
 		double y = Constants.corner.getY();
-		double heading = 90;
+		double heading = 90;	
 		
 		// calculate new heading
 		

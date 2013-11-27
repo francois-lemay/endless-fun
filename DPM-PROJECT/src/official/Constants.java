@@ -135,36 +135,12 @@ public class Constants {
 	/**
 	 * us sensor number of samples in data linkedlist
 	 */
-	public static final int US_SAMPLE = 9;
+	public static final int US_SAMPLE = 11;
 
 	/**
 	 * back light sensor sample size
 	 */
 	public static final int LIGHT_SAMPLE = 7;
-	
-	/*
-	 * sensors' derivative sample sizes
-	 */
-	/**
-	 * bottom us sensor derivative sample size
-	 */
-	public static final int BOTT_DIFF = 2;
-	/**
-	 * top us sensor derivative sample size
-	 */
-	public static final int TOP_DIFF = 2;
-	/**
-	 * left light sensor derivative sample size
-	 */
-	public static final int LEFT_DIFF = 2;
-	/**
-	 * right light sensor derivative sample size
-	 */
-	public static final int RIGHT_DIFF = 2;
-	/**
-	 * back light sensor derivative sample size
-	 */
-	public static final int BACK_DIFF = 2;
 	
 	/*
 	 * LOCALIZATION PARAMETERS
@@ -178,11 +154,11 @@ public class Constants {
 	 * tweaking value (in degrees) for final
 	 * correction in heading
 	 */
-	public static final int ANG_TWEAK = 0;
+	public static final int ANG_TWEAK = 5;
 	/**
 	 * tweaking value to compensate for line detection lag
 	 */
-	public static final int ANG_DELAY = -5;
+	public static final int ANG_DELAY = -20;
 	/**
 	 * threshold derivative value used for gridline detection
 	 */

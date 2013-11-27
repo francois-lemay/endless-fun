@@ -36,10 +36,6 @@ public class LightPoller implements TimerListener {
 	 */
 	private int NUM_SAMPLES;
 	/**
-	 * the number of derivatives stored in 'derivatives
-	 */
-//	private int NUM_OF_DERIVATIVES = NUM_SAMPLES - 1;
-	/**
 	 * integer list of integers that will hold raw data from sensors
 	 */
 	private LinkedList<Integer> rawData;
