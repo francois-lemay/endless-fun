@@ -39,6 +39,9 @@ public class Master {
 	 *            - default argument
 	 */
 	public static void main(String[] args) throws IOException {
+		
+		LCD.drawString("Press to start", 0, 0);
+		Button.waitForAnyPress();
 
 		/*
 		 * bluetooth initialization
@@ -49,11 +52,11 @@ public class Master {
 		// **************************************************************
 
 		Constants.goodZone = new int[] { -1 * Constants.SQUARE_LENGTH,
-				6 * Constants.SQUARE_LENGTH, 0 * Constants.SQUARE_LENGTH,
-				7 * Constants.SQUARE_LENGTH };
+				8 * Constants.SQUARE_LENGTH, 1 * Constants.SQUARE_LENGTH,
+				9 * Constants.SQUARE_LENGTH };
 
-		Constants.badZone = new int[] { -1 * Constants.SQUARE_LENGTH,
-				4 * Constants.SQUARE_LENGTH, 0 * Constants.SQUARE_LENGTH,
+		Constants.badZone = new int[] { 2 * Constants.SQUARE_LENGTH,
+				4 * Constants.SQUARE_LENGTH, 3 * Constants.SQUARE_LENGTH,
 				5 * Constants.SQUARE_LENGTH };
 
 		// ***************************************************************
@@ -63,19 +66,18 @@ public class Master {
 		 */
 
 		// initialize block pick up first since it takes the longest
-		// BlockPickUp.init();
+		LCD.clear();
+		LCD.drawString("Connected to Slave", 0, 0);
+		BlockPickUp.init();
+		BlockPickUp.openClamp();
+		BlockPickUp.raiseTo(BlockPickUp.IDLE);
+		LCD.clear();
 
 		// set up robot motors
 		NXTRegulatedMotor leftMotor = new NXTRegulatedMotor(
 				Constants.leftMotorPort);
 		NXTRegulatedMotor rightMotor = new NXTRegulatedMotor(
 				Constants.rightMotorPort);
-
-		// initialize sensor motor
-		NXTRegulatedMotor sensorMotor = new NXTRegulatedMotor(
-				Constants.sensorMotorPort);
-		sensorMotor.setSpeed(Navigation.SLOW);
-		sensorMotor.resetTachoCount();
 
 		// odometry
 		Odometer odo = new Odometer(leftMotor, rightMotor);
@@ -85,21 +87,18 @@ public class Master {
 
 		// light sensors
 		ColorSensor backS = new ColorSensor(Constants.backSensorPort);
-
+		ColorSensor frontS = new ColorSensor(Constants.frontLightSensorPort);
+		
 		// light poller
 		LightPoller back = new LightPoller(backS, Constants.LIGHT_SAMPLE,
 				Constants.M_PERIOD);
 
 		// three front us sensors
-		UltrasonicSensor bottomS = new UltrasonicSensor(
-				Constants.bottomSensorPort);
 		UltrasonicSensor leftS = new UltrasonicSensor(Constants.leftSensorPort);
 		UltrasonicSensor rightS = new UltrasonicSensor(
 				Constants.rightSensorPort);
 
 		// us pollers
-		USPoller bottom = new USPoller(bottomS, Constants.US_SAMPLE,
-				Constants.M_PERIOD);
 		USPoller left = new USPoller(leftS, Constants.US_SAMPLE,
 				Constants.M_PERIOD);
 		USPoller right = new USPoller(rightS, Constants.US_SAMPLE,
@@ -111,31 +110,29 @@ public class Master {
 		/*
 		 * US LOCALIZATION
 		 */
-		
-		Button.waitForAnyPress();
-		
+				
 		  //set up us localization 
-		USLocalizer usLoc = new USLocalizer(odo,
-		  nav, left, USLocalizer.LocalizationType.RISING_EDGE);
+//		USLocalizer usLoc = new USLocalizer(odo,
+//		  nav, left, USLocalizer.LocalizationType.RISING_EDGE);
 		  
 		  // do us localization
-		usLoc.doLocalization();
+//		usLoc.doLocalization();
 		
-		Button.waitForAnyPress();
+//		Button.waitForAnyPress();
 		
 		/*
 		 * LIGHT LOCALIZATION
 		 */
 		
 		  // set up light localization
-		LightLocalizer lightLoc = new
-		  LightLocalizer(odo, nav, back);
+//		LightLocalizer lightLoc = new
+//		  LightLocalizer(odo, nav, back);
 		  
 		  // do light localization
-		lightLoc.doLocalization();
+//		lightLoc.doLocalization();
 		 
 
-		Button.waitForAnyPress();
+//		Button.waitForAnyPress();
 		
 		/*
 		 * main program loop
@@ -147,10 +144,7 @@ public class Master {
 		} catch (Exception e) {
 			LCD.clear();
 			LCD.drawString("problem", 0, 0);
-
 		}
-
-		Button.waitForAnyPress();
 
 		// set robot's destination
 		Constants.robotDest[0] = Constants.goodZone[0];
@@ -163,10 +157,10 @@ public class Master {
 		do {
 
 			// turn towards destination point
-			nav.turnTowards(Constants.robotDest[0], Constants.robotDest[1]);
+			nav.turnTowards(Constants.robotDest[0]+15, Constants.robotDest[1]+15);
 
 			// move forward with goFwdUS
-			status = nav.goFwdCaution(35, Navigation.FAST, bottom, left, right);
+			status = nav.goFwdCaution(50, Navigation.FAST, left, right);
 
 			// check various scenarios
 
@@ -174,127 +168,224 @@ public class Master {
 
 				Sound.beepSequence();
 
+				// locate object and turn towards it
+				sweep(odo, nav,left,right);
+				
 				// identify object
+				int code = identify(nav,frontS);
 				
-				
+				// act upon result of identification
+				switch(code){
+				case 1:
+					avoidObstacle(nav,left,right);
+					break;
+				case 2:
+					getFoam(nav);
+					break;
+				case 3:
+					//do nothing
+					break;
+				}	
 
-				// // avoid obstacle
-
-				// check if right is clear
-				nav.rotateBy(-90, false, Navigation.FAST);
-				try {
-					Thread.sleep(200);
-				} catch (Exception e) {
-				}
-				if (left.getLatestFilteredDataPoint() > 10
-						&& right.getLatestFilteredDataPoint() > 10
-						&& bottom.getLatestFilteredDataPoint() > 10) {
-					nav.goFwdCaution(30, Navigation.FAST, bottom, left, right);
-				} 
-				// check if left is clear
-				else {
-					nav.rotateBy(180, false, Navigation.FAST);
-					try {
-						Thread.sleep(200);
-					} catch (Exception e) {
-					}
-					nav.goFwdCaution(30, Navigation.FAST, bottom, left, right);
-				}
-
-				System.exit(0);
-	
-
+				// execute if robot has reached its destination
 			} else if (status.equals("destination")) {
 
 				Sound.beepSequenceUp();
-				System.exit(0);
-
-				// exit loop
-				break;
+				LCD.clear();
+				LCD.drawString("destination reached", 0, 0);
+				LCD.drawString("...", 0, 2);
+				LCD.drawString("press to exit", 0, 3);
+				
+				Button.waitForAnyPress();
+				exit();
+				
+				// execute if too close to enemy zone
 			} else if (status.equals("enemy")) {
 
 				// avoid enemy's zone
 				Sound.buzz();
-				// System.exit(0);
-
+				LCD.clear();
+				LCD.drawString("too close to", 0, 0);
+				LCD.drawString("enemy", 0, 1);
+				LCD.drawString("press to exit", 0, 3);
+				Button.waitForAnyPress();
+				exit();
+				
+				//avoidEnemyZone();
 			}
 
 			// no obstacle encountered. repeat until destination reached
 
-		} while (true);
-
-		System.exit(0);
-
-		// find one block if none found yet
-		if (blocks >= 1) {
-			while (blocks < 1) {
-
-				nav.rotateBy(-180, false, Navigation.SLOW);
-
-			}
-		}
+		} while (blocks<5);
 
 		/*
 		 * end program
 		 */
 		Sound.beepSequence();
-		System.exit(0);
+		exit();
 	}
-/*	
-	public static int identify(){
+	
+	/**
+	 * identify obstacle
+	 * @param censor - color sensor at front of robot
+	 * @return result of identification (1=obstacle, 2=foam, 3=no obstacle)
+	 */
+	public static int identify(Navigation nav, ColorSensor censor){
 		
+		int redlightValue = 0;
+	    int bluelightValue = 0;
+	    long startTime = 0;
+
+		// approach object
+		nav.setSpeeds(Navigation.FAST, Navigation.FAST);
 		
-		for(int i=0; i<4; i++){
-			
-			BlockPickUp.nxt.S1.readRawValue()
-						
-			ColorSensor censor = new ColorSensor(BlockPickUp.nxt.S1.se);
+		startTime = System.currentTimeMillis();
+		
+		do{
 			ColorSensor.Color vals = censor.getColor();
-		    ColorSensor.Color rawVals = censor.getRawColor();
-		    int lightValue = vals.getBlue();
-		    int rawBlue = rawVals.getBlue();
-		    
-			RConsole.println("Light Value"+ vals.getBlue());
-			RConsole.println("Raw value " + rawVals.getBlue());
+		    redlightValue = vals.getRed();
+		    if(System.currentTimeMillis()-startTime > 3000){
+		    	break;
+		    }
+		}while(redlightValue < 34);
+		
+		// stop motors
+		nav.stopMotors();
+		
+		// proceed to identification
+		ColorSensor.Color vals = censor.getColor();
+	    bluelightValue = vals.getBlue();
+	    redlightValue = vals.getRed();
+		
+		if(redlightValue >= 35){
+			int error = Math.abs(bluelightValue - redlightValue);
 			
-			if(lightValue > 50){
-				buffer++;
-				if(buffer == 3){
-					objectDetected = true;
-				}
-				
-				if(objectDetected == true){
-					
-					if(rawBlue >= 450 && rawBlue <= 550){
-						RConsole.println("foam");
-						
-						LCD.drawString("	foam	" + rawBlue, 0, 1);
-						
-						foam = true;
-						
-					}else{
-						obstacle = true;
-						LCD.drawString("	Obstacle	" + rawBlue, 0, 1);
-						RConsole.println(" obstacle");
-						
-					}
-					
-				}
-				
+			if(error >25){
+				// is obstacle
+				return 1;
 			}else{
-				buffer = 0;
-				objectDetected = false;
-				obstacle = false;
-				foam = false;
+				// is foam
+				return 2;
 			}
 			
-			
-			
+		}else{
+			// no object detected
+			return 3;
+		}
+	}
+	
+	/**
+	 * avoid obstacle
+	 */
+	public static void avoidObstacle(Navigation nav, USPoller left, USPoller right){
+		
+		// back up a little bit
+		nav.moveForwardBy(-10, Navigation.FAST);
+		
+		// check if right is clear
+		nav.rotateBy(-90, false, Navigation.FAST);
+		// give time to update readings
+		try {
+			Thread.sleep(1000);
+		} catch (Exception e) {
+		}
+		if (left.getLatestFilteredDataPoint() > 40
+				&& right.getLatestFilteredDataPoint() > 40) {
+			nav.moveForwardBy(35, Navigation.FAST);
+		} 
+		// otherwise rotate to the left
+		else{
+			nav.rotateBy(180, false, Navigation.FAST);
+			nav.moveForwardBy(35, Navigation.FAST);
 		}
 		
-		return 1;
+		// turn towards destination
+		nav.turnTowards(Constants.robotDest[0], Constants.robotDest[1]);
+
 	}
-*/
+	
+	/**
+	 * locate object and turn towards it
+	 * @param nav - navigation class
+	 * @param left - us sensor
+	 * @param right - us sensor
+	 */
+	public static void sweep(Odometer odo, Navigation nav, USPoller left, USPoller right) {
+
+		double angL = 0;
+		double angR = 0;
+
+		if (left.getLatestFilteredDataPoint() < 30
+				&& right.getLatestFilteredDataPoint() < 30) {
+			
+			// object is centered, do nothing
+			// do nothing
+			
+		} else{
+			
+			// rotate to left and latch angle
+			nav.setSpeeds(-Navigation.FAST, Navigation.FAST);
+			
+			do {
+				// do nothing
+			} while (left.getLatestFilteredDataPoint() < 30);
+			nav.stopMotors();
+			angL = odo.getAng();
+			
+			// rotate to right and latch angle
+			nav.setSpeeds(Navigation.FAST, -Navigation.FAST);
+			do {
+				// do nothing
+			} while (right.getLatestFilteredDataPoint() < 30);
+			nav.stopMotors();
+			angR = odo.getAng();
+		}
+		
+		// find average of the two angles
+		double ang1 = Math.abs(angL-angR)/2;
+		double ang2 = Math.abs(angL-angR+360)/2;
+		
+		nav.rotateBy(Math.min(ang1,ang2), false, Navigation.FAST);
+		
+	}
+	
+	/**
+	 * get foam block
+	 */
+	public static void getFoam(Navigation nav){
+		
+		// back up a little to pick up block
+		nav.moveForwardBy(-5, Navigation.FAST);
+		
+		// do stuff to pick up foam block
+		BlockPickUp.openClamp();
+		BlockPickUp.raiseTo(BlockPickUp.MIN_HEIGHT);
+		BlockPickUp.closeClamp();
+		BlockPickUp.raiseTo(BlockPickUp.IDLE);
+		
+		// increment number of foam blocks
+		blocks++;
+		
+	}
+	
+	/**
+	 * avoid enemy's zone
+	 */
+	public static void avoidEnemyZone(){
+		
+		// do stuff to avoid enemy's zone
+		
+	}
+	
+	/**
+	 * exit program. lower lift before exiting, however.
+	 */
+	public static void exit(){
+		BlockPickUp.raiseTo(BlockPickUp.MIN_HEIGHT);
+		BlockPickUp.openClamp();
+		System.exit(0);
+	}
+
 	/**
 	 * method for bluetooth client connection
 	 */
@@ -331,10 +422,10 @@ public class Master {
 				// red zone is defined by these (bottom-left and top-right)
 				// corners:
 				Constants.badZone = new int[4];
-				Constants.badZone[0] = t.redZone[0] * Constants.SQUARE_LENGTH;
-				Constants.badZone[1] = t.redZone[1] * Constants.SQUARE_LENGTH;
-				Constants.badZone[2] = t.redZone[2] * Constants.SQUARE_LENGTH;
-				Constants.badZone[3] = t.redZone[3] * Constants.SQUARE_LENGTH;
+				Constants.badZone[0] = t.redZone[0] * Constants.SQUARE_LENGTH; //x1
+				Constants.badZone[1] = t.redZone[1] * Constants.SQUARE_LENGTH; //y1
+				Constants.badZone[2] = t.redZone[2] * Constants.SQUARE_LENGTH; //x2
+				Constants.badZone[3] = t.redZone[3] * Constants.SQUARE_LENGTH; //y2
 
 			} else {
 

@@ -18,7 +18,9 @@
  */
 package official;
 
+import lejos.nxt.Button;
 import lejos.nxt.NXTRegulatedMotor;
+import lejos.nxt.Sound;
 
 /**
  * robot's navigation class.
@@ -342,7 +344,7 @@ public class Navigation {
 	 * @param right
 	 *            - robot's right hand side us sensor
 	 */
-	public String goFwdCaution(double distance, int speed, USPoller bottom,
+	public String goFwdCaution(double distance, int speed,
 			USPoller left, USPoller right) {
 
 		// initialize vars
@@ -355,13 +357,17 @@ public class Navigation {
 
 		// set motor speeds
 		setSpeeds(speed, speed);
-
+		
+		try{
+			Thread.sleep(500);
+		}catch(Exception e){}
+		
 		do {
 			// stop traveling if obstacle is at front
-			if (bottom.getLatestFilteredDataPoint() < 30
-					|| left.getLatestFilteredDataPoint() < 30
-					|| right.getLatestFilteredDataPoint() < 30) {
+			if (left.getLatestFilteredDataPoint() < 25
+					|| right.getLatestFilteredDataPoint() < 25) {
 				stopMotors();
+				Sound.beep();
 				return "obstacle";
 			}
 

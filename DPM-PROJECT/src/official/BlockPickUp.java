@@ -89,12 +89,12 @@ public class BlockPickUp {
 	/**
 	 * limit angle of clamp motor considered as the open position
 	 */
-	public static final int OPEN = 0;
+	public static final int OPEN = 20;
 
 	/**
 	 * limit angle of clamp motor considered as the closed position
 	 */
-	public static final int CLOSED = 70;
+	public static final int CLOSED = 75;
 
 	/**
 	 * constructor
@@ -131,9 +131,6 @@ public class BlockPickUp {
 	public static void raiseTo(int height) {
 		
 		if(height<=MAX_HEIGHT && height>=MIN_HEIGHT){
-			
-			LCD.clear();
-			LCD.drawString("changing height", 0, 5);
 			
 			int deltaH = height - (-lift.getTachoCount());
 			// raise or lower depending on relative positioning

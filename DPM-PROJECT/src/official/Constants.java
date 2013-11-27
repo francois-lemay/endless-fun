@@ -101,7 +101,7 @@ public class Constants {
 	/**
 	 * bottom us sensor's port
 	 */
-	public static SensorPort bottomSensorPort = SensorPort.S4;
+	public static SensorPort frontLightSensorPort = SensorPort.S4;
 	/**
 	 * left us sensor's port
 	 */
