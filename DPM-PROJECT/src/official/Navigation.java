@@ -394,8 +394,6 @@ public class Navigation {
 		} while (disp < distance);
 
 		// distance traveled without interruption
-		// stop motors
-		stopMotors();
 		return "success";
 	}
 

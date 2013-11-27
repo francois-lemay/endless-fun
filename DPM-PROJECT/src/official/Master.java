@@ -32,25 +32,23 @@ public class Master {
 	 *            - default argument
 	 */
 	public static void main(String[] args) throws IOException {
-		LCD.drawString("press to start", 0, 0);
-		Button.waitForAnyPress();
 		
 		/*
 		 * bluetooth initialization
 		 */
 
-		// bluetoothInit();
+		bluetoothInit();
 
 		// **************************************************************
-
+/*
 		Constants.goodZone = new int[] { 5 * Constants.SQUARE_LENGTH,
-				6 * Constants.SQUARE_LENGTH, 7 * Constants.SQUARE_LENGTH,
-				9 * Constants.SQUARE_LENGTH };
+				5 * Constants.SQUARE_LENGTH, 7 * Constants.SQUARE_LENGTH,
+				6 * Constants.SQUARE_LENGTH };
 
 		Constants.badZone = new int[] { 0 * Constants.SQUARE_LENGTH,
 				4 * Constants.SQUARE_LENGTH, 1 * Constants.SQUARE_LENGTH,
 				6 * Constants.SQUARE_LENGTH };
-
+*/
 		// ***************************************************************
 
 		/*
@@ -99,35 +97,33 @@ public class Master {
 		// odometry correction
 		OdometryCorrection odoCorr = new OdometryCorrection(odo, back);
 		
-		LCD.drawString("Press to start", 0, 0);
-		Button.waitForAnyPress();
 
 		/*
 		 * US LOCALIZATION
 		 */
 				
 		  //set up us localization 
-//		USLocalizer usLoc = new USLocalizer(odo,
-//		  nav, left, USLocalizer.LocalizationType.RISING_EDGE);
+		USLocalizer usLoc = new USLocalizer(odo,
+		  nav, left, USLocalizer.LocalizationType.RISING_EDGE);
 		  
 		  // do us localization
-//		usLoc.doLocalization();
+		usLoc.doLocalization();
 		
 		// take small break
-//		try{
-//			Thread.sleep(100);
-//		}catch(Exception e){};
+		try{
+			Thread.sleep(100);
+		}catch(Exception e){};
 				
 		/*
 		 * LIGHT LOCALIZATION
 		 */
 		
 		  // set up light localization
-//		LightLocalizer lightLoc = new
-//		  LightLocalizer(odo, nav, back);
+		LightLocalizer lightLoc = new
+		  LightLocalizer(odo, nav, back);
 		  
 		  // do light localization
-//		lightLoc.doLocalization();
+		lightLoc.doLocalization();
 		 		
 		/*
 		 * main program loop
@@ -142,8 +138,8 @@ public class Master {
 		}
 
 		// set robot's destination
-		Constants.robotDest[0] = Constants.goodZone[0];
-		Constants.robotDest[1] = Constants.goodZone[1];
+		Constants.robotDest[0] = Constants.goodZone[0]+15;
+		Constants.robotDest[1] = Constants.goodZone[1]+15;
 
 		// initialize boolean
 		String status = "";
@@ -155,13 +151,11 @@ public class Master {
 			nav.turnTowards(Constants.robotDest[0], Constants.robotDest[1]);
 
 			// move forward with goFwdUS
-			status = nav.goFwdCaution(50, Navigation.FAST, left, right);
+			status = nav.goFwdCaution(10, Navigation.FAST, left, right);
 
 			// check various scenarios
 
 			if (status.equals("obstacle")) {
-
-				Sound.beepSequence();
 				
 				// identify object
 				int code = identify(odo,nav,left,right,frontS,2000);
@@ -182,33 +176,27 @@ public class Master {
 				// execute if robot has reached its destination
 			} else if (status.equals("destination")) {
 
-				Sound.beepSequenceUp();
-				LCD.clear();
-				LCD.drawString("destination reached", 0, 0);
-				LCD.drawString("...", 0, 2);
-				LCD.drawString("press to exit", 0, 3);
-				
-				Button.waitForAnyPress();
-				exit();
+				Constants.robotDest[0] += 30;
+				Constants.robotDest[1] += 30;
 				
 				// execute if too close to enemy zone
 			} else if (status.equals("enemy")) {
 
 				// avoid enemy's zone
-				Sound.buzz();
+	/*			Sound.buzz();
 				LCD.clear();
 				LCD.drawString("too close to", 0, 0);
 				LCD.drawString("enemy", 0, 1);
 				LCD.drawString("press to exit", 0, 3);
 				Button.waitForAnyPress();
 				exit();
-				
+		*/		
 				//avoidEnemyZone();
 			}
 
 			// no obstacle encountered. repeat until destination reached
 
-		} while (blocks<5);
+		} while (blocks<10);
 
 		/*
 		 * end program
@@ -295,8 +283,8 @@ public class Master {
 			Thread.sleep(1000);
 		} catch (Exception e) {
 		}
-		if (left.getLatestFilteredDataPoint() > 40
-				&& right.getLatestFilteredDataPoint() > 40) {
+		if (left.getLatestFilteredDataPoint() > 20
+				&& right.getLatestFilteredDataPoint() > 20) {
 			nav.moveForwardBy(35, Navigation.FAST);
 			nav.rotateBy(90, false, Navigation.FAST);
 		} 
@@ -332,7 +320,7 @@ public class Master {
 		double angR = 0;
 		long startTime = 0;
 		
-		nav.moveForwardBy(-7, Navigation.SLOW);
+		nav.moveForwardBy(-5, Navigation.SLOW);
 		
 		if(left.getLatestRawDataPoint()<20 && right.getLatestRawDataPoint()<20){
 			// do nothing
@@ -347,7 +335,7 @@ public class Master {
 			startTime = System.currentTimeMillis();
 			
 			while(true){
-				if(right.getLatestRawDataPoint()<20){
+				if(right.getLatestRawDataPoint()<20 || left.getLatestFilteredDataPoint()>20){
 					break;
 				}
 				if (System.currentTimeMillis() - startTime > 1000) {
@@ -364,7 +352,7 @@ public class Master {
 			startTime = System.currentTimeMillis();
 			
 			while(true){
-				if(left.getLatestRawDataPoint()<20){
+				if(left.getLatestRawDataPoint()<20 || right.getLatestFilteredDataPoint()>20){
 					break;
 				}
 				if (System.currentTimeMillis() - startTime > 2000) {
@@ -417,6 +405,10 @@ public class Master {
 		
 		// increment number of foam blocks
 		blocks++;
+		
+		// change destination to good zone
+		Constants.robotDest[0] = Constants.goodZone[0]+15;
+		Constants.robotDest[0] = Constants.goodZone[1]+15;
 		
 	}
 	
