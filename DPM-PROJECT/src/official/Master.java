@@ -12,7 +12,7 @@ import lejos.nxt.UltrasonicSensor;
 /**
  * master brick's main class.
  * <p>
- * initiates communication with Slave brick. Controls lifting and clamping
+ * initiates communication with Slave brick to gain access to its remote motors. Controls lifting and clamping
  * mechanism via commands given to Slave brick.
  * 
  * @author Francois Lemay
@@ -39,7 +39,8 @@ public class Master {
 		bluetoothInit();
 
 		// **************************************************************
-/*
+/*		// set zone coordinates manually for testing
+ * 
 		Constants.goodZone = new int[] { 5 * Constants.SQUARE_LENGTH,
 				5 * Constants.SQUARE_LENGTH, 7 * Constants.SQUARE_LENGTH,
 				6 * Constants.SQUARE_LENGTH };
@@ -182,16 +183,8 @@ public class Master {
 				// execute if too close to enemy zone
 			} else if (status.equals("enemy")) {
 
-				// avoid enemy's zone
-	/*			Sound.buzz();
-				LCD.clear();
-				LCD.drawString("too close to", 0, 0);
-				LCD.drawString("enemy", 0, 1);
-				LCD.drawString("press to exit", 0, 3);
-				Button.waitForAnyPress();
-				exit();
-		*/		
-				//avoidEnemyZone();
+				// avoid enemy's zone	
+				avoidEnemyZone();
 			}
 
 			// no obstacle encountered. repeat until destination reached
@@ -206,7 +199,7 @@ public class Master {
 	}
 	
 	/**
-	 * identify obstacle
+	 * identify obstacle using the color sensor.
 	 * @param censor - color sensor at front of robot
 	 * @return result of identification (1=obstacle, 2=foam, 3=no obstacle)
 	 */
@@ -315,9 +308,6 @@ public class Master {
 	 */
 	public static void sweep(Odometer odo, Navigation nav, USPoller left, USPoller right) {
 
-		double ang0 = odo.getAng();
-		double angL = 0;
-		double angR = 0;
 		long startTime = 0;
 		
 		nav.moveForwardBy(-5, Navigation.SLOW);
@@ -359,38 +349,11 @@ public class Master {
 					break;
 				}
 			}
-		}
-
-		/*
-			// rotate to left and latch angle
-			nav.setSpeeds(-Navigation.SLOW, Navigation.SLOW);
-			
-			do {
-				// do nothing
-			} while (left.getLatestFilteredDataPoint() < 30);
-			angL = odo.getAng();
-			
-			// rotate to right and latch angle
-			nav.setSpeeds(Navigation.SLOW, -Navigation.SLOW);
-			do {
-				// wait to see object
-			} while (right.getLatestFilteredDataPoint() > 20);
-			
-			do {
-				// wait until see nothing
-			} while (left.getLatestFilteredDataPoint() < 30 || right.getLatestFilteredDataPoint() < 30);
-			angR = odo.getAng();		
-		
-		// find average of the two angles
-		double ang1 = Math.abs(angL-angR)/2;
-		double ang2 = Math.abs(angL-angR+360)/2;
-		
-		nav.rotateBy(Math.min(ang1,ang2), false, Navigation.FAST);
-*/		
+		}		
 	}
 	
 	/**
-	 * get foam block
+	 * pick up foam block and set destination to contruction zone.
 	 */
 	public static void getFoam(Navigation nav){
 		
@@ -406,7 +369,7 @@ public class Master {
 		// increment number of foam blocks
 		blocks++;
 		
-		// change destination to good zone
+		// change destination to center of the "good" zone
 		Constants.robotDest[0] = Constants.goodZone[0]+15;
 		Constants.robotDest[0] = Constants.goodZone[1]+15;
 		

@@ -4,7 +4,7 @@ import lejos.nxt.Sound;
 import lejos.nxt.comm.RConsole;
 
 /**
- * initial Localization using the Ultrasonic Sensor. Data is taken from the US
+ * first localization routine performed using the Ultrasonic Sensor. Data is taken from the US
  * Poller class
  */
 public class USLocalizer {

@@ -6,7 +6,7 @@ import bluetooth.PlayerRole;
 import bluetooth.StartCorner;
 
 /**
- * class of constants used throughout program
+ * class of constants used throughout the program
  * @author François Lemay
  *
  */

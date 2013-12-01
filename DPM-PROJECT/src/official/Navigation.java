@@ -1,28 +1,10 @@
-/* François Lemay  260 465 492
- * 
- * NOTE: most of this code is from Sean Lawlor's file, however
- * 		I inserted my own copy of travelTo() and turnTo(), as well
- * 		as additional helper methods
- *  
- *  TravelTo() gets interrupted when ObjectDetection declares that
- *  a new object has been detected
- * 
- * -----------------------------------------
- * 
- * File: Navigation.java
- * Written by: Sean Lawlor
- * ECSE 211 - Design Principles and Methods, Head TA
- * Fall 2011
- * 
- * Movement control class (turnTo, travelTo, flt, localize)
- */
 package official;
 
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.Sound;
 
 /**
- * robot's navigation class.
+ * robot's navigation class. Movement control class (turnTo, travelTo, flt, goFwdCaution, setSpeeds...)
  * 
  * @author Francois
  * 

@@ -5,7 +5,7 @@ import lejos.util.Timer;
 import lejos.util.TimerListener;
 
 /**
- * 
+ * odometry correction class.  Detects gridlines to correct robot's position.
  * the odometry correction algorithm used in this code assumes the light sensor
  * to be positioned at a fixed distance behind the center of the wheel base
  * 

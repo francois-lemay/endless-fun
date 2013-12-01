@@ -1,6 +1,5 @@
 package testing;
 
-import deprecated.SensorController;
 import lejos.nxt.Button;
 import lejos.nxt.ColorSensor;
 import lejos.nxt.LCD;
@@ -37,12 +36,12 @@ public class LocalizationTest {
 		// navigation
 		Navigation nav = new Navigation(odo);
 
-		// bottom us sensor
-		UltrasonicSensor bottomS = new UltrasonicSensor(
-				Constants.bottomSensorPort);
+		// left us sensor
+		UltrasonicSensor leftS = new UltrasonicSensor(
+				Constants.leftSensorPort);
 
 		// us poller
-		USPoller bottom = new USPoller(bottomS, Constants.US_SAMPLE, Constants.M_PERIOD);
+		USPoller bottom = new USPoller(leftS, Constants.US_SAMPLE, Constants.M_PERIOD);
 
 		// back light sensor
 		ColorSensor backS = new ColorSensor(Constants.backSensorPort);

@@ -1,3 +1,6 @@
+/**
+ * package containing all classes used in the autonomous robot's software
+ */
 package official;
 
 import java.io.IOException;
