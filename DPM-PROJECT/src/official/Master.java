@@ -3,7 +3,6 @@ package official;
 import java.io.IOException;
 
 import bluetooth.*;
-import lejos.nxt.Button;
 import lejos.nxt.ColorSensor;
 import lejos.nxt.LCD;
 import lejos.nxt.NXTRegulatedMotor;
@@ -176,8 +175,9 @@ public class Master {
 				// execute if robot has reached its destination
 			} else if (status.equals("destination")) {
 
-				Constants.robotDest[0] += 30;
-				Constants.robotDest[1] += 30;
+				// go to center
+				Constants.robotDest[0] = 5*Constants.SQUARE_LENGTH;
+				Constants.robotDest[1] = 5*Constants.SQUARE_LENGTH;
 				
 				// execute if too close to enemy zone
 			} else if (status.equals("enemy")) {

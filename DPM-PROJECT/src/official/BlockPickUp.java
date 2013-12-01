@@ -94,7 +94,7 @@ public class BlockPickUp {
 	/**
 	 * limit angle of clamp motor considered as the closed position
 	 */
-	public static final int CLOSED = 75;
+	public static final int CLOSED = 85;
 
 	/**
 	 * constructor
